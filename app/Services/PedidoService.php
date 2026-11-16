@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Enums\FormaPagamento;
 use App\Enums\StatusPagamento;
 use App\Enums\StatusPedido;
-use App\Events\PedidoAlterado;
-use App\Events\StatusPedidoPublico;
 use App\Models\Pedido;
 use App\Models\Produto;
 use App\Models\Totem;
@@ -78,7 +76,6 @@ class PedidoService
             return $pedido;
         });
 
-        $this->notificar($pedido, 'criado');
 
         return $pedido->load(['itens', 'totem']);
     }
@@ -108,7 +105,6 @@ class PedidoService
             return $pedido;
         });
 
-        $this->notificar($pedido, 'atualizado');
 
         return $pedido->load(['itens', 'totem']);
     }
@@ -139,7 +135,6 @@ class PedidoService
             return $pedido;
         });
 
-        $this->notificar($pedido, 'atualizado');
 
         return $pedido->load(['itens', 'totem']);
     }
@@ -153,7 +148,6 @@ class PedidoService
 
         if ($pedido->status_pagamento !== StatusPagamento::Pago) {
             $pedido->update(['status_pagamento' => StatusPagamento::Pago, 'pago_em' => now()]);
-            $this->notificar($pedido, 'atualizado');
         }
 
         return $pedido->load(['itens', 'totem']);
@@ -240,15 +234,5 @@ class PedidoService
         }
 
         return Totem::query()->orderBy('id')->first();
-    }
-
-    /**
-     * Dispara o tempo real. Se o servidor de WebSockets estiver desligado,
-     * o pedido continua funcionando normalmente: o erro só vai para o log.
-     */
-    private function notificar(Pedido $pedido, string $acao): void
-    {
-        rescue(fn () => event(new PedidoAlterado($pedido, $acao)));
-        rescue(fn () => event(new StatusPedidoPublico($pedido)));
     }
 }

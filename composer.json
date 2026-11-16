@@ -7,7 +7,6 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^12.0",
-        "laravel/reverb": "^1.4",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1"
     },
@@ -39,7 +38,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#ff5a1f,#f5f5f0\" \"php artisan serve --port=8000\" \"php artisan reverb:start --port=8080\" --names=api,tempo-real --kill-others"
+            "@php artisan serve --port=8000"
         ],
         "test": [
             "@php artisan config:clear --ansi",

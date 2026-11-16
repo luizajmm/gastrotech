@@ -1,6 +1,6 @@
 # GastroTech · API
 
-Back-end do GastroTech em **Laravel 12**: totem de pedidos, cozinha em tempo real e painel administrativo.
+Back-end do GastroTech em **Laravel 12**: totem de pedidos, cozinha e painel administrativo.
 Esta é a nova versão do sistema que antes era feito em PHP puro.
 
 O front-end (Angular) é um projeto separado que consome esta API.
@@ -17,7 +17,7 @@ O front-end (Angular) é um projeto separado que consome esta API.
 | Pedido em dinheiro já nascia "pago" | Fica pendente até o caixa confirmar |
 | Estoque podia ser vendido duas vezes ao mesmo tempo | Estoque travado durante a criação do pedido |
 | Personalizações em texto (`A: x, y \| B: z`) | JSON estruturado, validado no pedido |
-| Cozinha só atualizava recarregando a página | Tempo real com WebSockets (Laravel Reverb) |
+| Cozinha só atualizava recarregando a página | A cozinha busca os pedidos sozinha a cada 5 segundos |
 
 ## Requisitos
 
@@ -40,12 +40,7 @@ demonstração (cardápio original, usuários e uma semana de vendas para os gr�
 
 ## Rodar o sistema
 
-Dê dois cliques em **`iniciar.bat`**. Duas janelas vão abrir:
-
-- **API** em http://127.0.0.1:8000
-- **Tempo real** (WebSockets) na porta 8080
-
-Para parar, feche as duas janelas.
+Dê dois cliques em **`iniciar.bat`**. A API sobe em http://127.0.0.1:8000. Para parar, feche a janela.
 
 > Sem Windows? Rode `composer dev`.
 
@@ -77,7 +72,6 @@ cada papel, uploads e regras de usuários.
 ```
 app/
   Enums/          Status do pedido, formas de pagamento, papéis... (com os textos em português)
-  Events/         Eventos de tempo real (cozinha e acompanhamento do cliente)
   Http/
     Controllers/Api/   Um controller por área
     Requests/          Validação de tudo que chega
@@ -89,7 +83,6 @@ database/
   seeders/        Dados de demonstração e imagens originais
 routes/
   api.php         Todas as rotas da API
-  channels.php    Canais de tempo real
 tests/Feature/    Testes automatizados
 ```
 
@@ -142,16 +135,6 @@ Exemplo de pedido:
 | PUT | `/configuracoes` · POST `/configuracoes/logo` (campo `imagem`) | configuracoes |
 | POST/PUT/DELETE | `/totens` · `/totens/{id}` | configuracoes |
 
-### Tempo real
-
-| Canal | Tipo | Eventos | Quem ouve |
-|---|---|---|---|
-| `cozinha` | privado | `pedido.criado`, `pedido.atualizado` | Cozinha e painel |
-| `pedido.{codigo}` | público | `status.alterado` | Tela de acompanhamento do cliente |
-
-Se o servidor de tempo real estiver desligado, os pedidos continuam funcionando normalmente:
-as telas só deixam de atualizar sozinhas.
-
 ## Problemas comuns
 
 - **"could not find driver"**: no `C:\xampp\php\php.ini`, tire o `;` da linha `extension=pdo_mysql`.
@@ -159,4 +142,4 @@ as telas só deixam de atualizar sozinhas.
 - **Erro de upload / imagem**: confira se `extension=fileinfo` e `extension=gd` estão ativos no `php.ini`.
 - **Imagens não aparecem**: confira se existe a pasta `public/storage` com as subpastas `produtos` e `marca`. Se não existir, rode o `instalar.bat` de novo.
 - **"Unknown database 'gastrotech'"**: crie o banco no phpMyAdmin (passo 2 da instalação).
-- **Porta 8000 ou 8080 em uso**: feche o outro programa que está usando a porta, ou ajuste `APP_URL`/`REVERB_PORT` no `.env`.
+- **Porta 8000 em uso**: feche o outro programa que está usando a porta, ou ajuste `APP_URL` no `.env`.
