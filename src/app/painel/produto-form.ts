@@ -39,7 +39,7 @@ export class ProdutoFormJanela implements OnInit {
   private api = inject(PainelApi);
   private avisos = inject(Avisos);
 
-  /** null = produto novo */
+  // null = produto novo
   readonly produto = input<ProdutoPainel | null>(null);
   readonly categorias = input.required<CategoriaPainel[]>();
   readonly fechar = output<void>();
@@ -196,7 +196,7 @@ export class ProdutoFormJanela implements OnInit {
     try {
       let produto = await firstValueFrom(this.api.salvarProduto(dados, this.produto()?.id));
 
-      // A foto vai numa segunda chamada (upload de arquivo)
+      // a foto vai numa segunda chamada (upload de arquivo)
       const foto = this.fotoNova();
       if (foto) {
         produto = await firstValueFrom(this.api.enviarImagem(produto.id, foto));

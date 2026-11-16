@@ -31,7 +31,6 @@ import {
 
 type Dados<T> = { data: T };
 
-/** Conversa com as rotas do painel na API Laravel (routes/api.php). */
 @Injectable()
 export class PainelApiHttp extends PainelApi {
   private http = inject(HttpClient);
@@ -196,7 +195,7 @@ export class PainelApiHttp extends PainelApi {
   }
 }
 
-/** Converte o erro HTTP numa mensagem para a tela, com os erros de cada campo. */
+// converte o erro HTTP numa mensagem para a tela, com os erros de cada campo
 function traduzir(erro: HttpErrorResponse): Observable<never> {
   if (erro.status === 0) {
     return throwError(() => new FalhaFormulario('Sem conexão com o sistema. Confira se a API está ligada.'));

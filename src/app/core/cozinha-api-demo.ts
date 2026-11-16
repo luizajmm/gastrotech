@@ -5,10 +5,7 @@ import { Pedido } from './modelos';
 import { PainelApiDemo } from './painel-api-demo';
 import { FalhaPedido } from './totem-api';
 
-/**
- * Cozinha da demonstração: mostra os pedidos do mesmo "banco" do totem e do painel.
- * Um pedido feito no totem aparece aqui na hora.
- */
+// na demonstração a cozinha lê os pedidos do mesmo "banco" do totem e do painel
 @Injectable()
 export class CozinhaApiDemo extends CozinhaApi {
   private banco = inject(PainelApiDemo);

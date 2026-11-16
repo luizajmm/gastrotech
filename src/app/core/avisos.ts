@@ -6,7 +6,6 @@ export interface Aviso {
   tipo: 'sucesso' | 'erro';
 }
 
-/** Mensagens rápidas no canto da tela ("Produto salvo", "Não foi possível excluir"). */
 @Injectable({ providedIn: 'root' })
 export class Avisos {
   private proximo = 1;

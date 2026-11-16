@@ -50,11 +50,6 @@ export interface MovimentoForm {
   valor: number;
 }
 
-/**
- * Tudo que o painel administrativo pede à API.
- * Implementações: HTTP (API Laravel) e demonstração (dados locais).
- * Erros de validação chegam como FalhaFormulario, com a mensagem de cada campo.
- */
 export abstract class PainelApi {
   abstract dashboard(): Observable<Dashboard>;
 
@@ -91,7 +86,6 @@ export abstract class PainelApi {
   abstract excluirTotem(id: number): Observable<void>;
 }
 
-/** Erro com a mensagem geral e as mensagens de cada campo (vindas do 422 do Laravel). */
 export class FalhaFormulario extends Error {
   constructor(
     message: string,

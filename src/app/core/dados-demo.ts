@@ -1,9 +1,6 @@
 import { Cardapio, Categoria, GrupoPersonalizacao, Produto } from './modelos';
 
-/**
- * Mesmo cardápio do seeder da API (database/seeders/CardapioSeeder.php),
- * para a tela funcionar sem o back-end ligado.
- */
+// mesmo cardápio do CardapioSeeder da api
 
 const sabores = ['Coca-Cola', 'Guaraná', 'Fanta Laranja', 'Suco de laranja', 'Suco de uva'];
 const gelo: GrupoPersonalizacao = { nome: 'Gelo', opcoes: ['Com gelo', 'Sem gelo'], obrigatorio: true };

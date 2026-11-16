@@ -111,7 +111,6 @@ export class Entrar implements OnInit {
   private sessao = inject(Sessao);
   private router = inject(Router);
 
-  /** Para onde voltar depois de entrar (vem da guarda de rota). */
   readonly volta = input<string>('/cozinha');
 
   protected readonly email = signal('');
@@ -128,7 +127,7 @@ export class Entrar implements OnInit {
   ];
 
   ngOnInit(): void {
-    // Quem já entrou não precisa ver o login de novo
+    // quem já entrou não precisa ver o login de novo
     if (this.sessao.logado()) this.router.navigateByUrl(this.volta() || '/cozinha');
   }
 

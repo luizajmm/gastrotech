@@ -38,7 +38,6 @@ export class VisaoGeral {
     }));
   });
 
-  /** Fatia de cada forma de pagamento no faturamento de hoje. */
   protected readonly formasHoje = computed(() => {
     const d = this.dados();
     if (!d) return [];

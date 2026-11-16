@@ -5,7 +5,6 @@ import { catchError, throwError } from 'rxjs';
 import { CONFIG } from '../config';
 import { Sessao } from './sessao';
 
-/** Coloca o token em toda chamada à API e manda para o login se ele expirar. */
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   const sessao = inject(Sessao);
   const router = inject(Router);
@@ -27,13 +26,13 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
-/** Telas da equipe exigem login (menos no modo demonstração). */
+// telas da equipe exigem login (menos no modo demonstração)
 export const exigeLogin: CanActivateFn = (_rota, estado) => {
   if (inject(Sessao).logado()) return true;
   return inject(Router).createUrlTree(['/entrar'], { queryParams: { volta: estado.url } });
 };
 
-/** Só entra quem tem a permissão (ex.: equipe = "usuarios"); os outros voltam para a visão geral. */
+// só entra quem tem a permissão (ex.: equipe = "usuarios"); os outros voltam para a visão geral
 export const exigePermissao =
   (permissao: string): CanActivateFn =>
   () =>

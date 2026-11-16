@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-/** Topo das telas de etapa: voltar + título. */
 @Component({
   selector: 'gt-cabecalho-etapa',
   imports: [RouterLink],

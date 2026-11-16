@@ -4,10 +4,6 @@ import { Acompanhamento, Cardapio, NovoPedido } from './modelos';
 import { PainelApiDemo } from './painel-api-demo';
 import { FalhaPedido, TotemApi } from './totem-api';
 
-/**
- * Totem da demonstração: usa o mesmo "banco" do painel e da cozinha.
- * O pedido feito aqui aparece na cozinha, e o andamento muda quando a cozinha avança.
- */
 @Injectable()
 export class TotemApiDemo extends TotemApi {
   private banco = inject(PainelApiDemo);

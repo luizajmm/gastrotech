@@ -5,11 +5,7 @@ import { CONFIG } from '../config';
 import { Carrinho } from '../core/carrinho';
 import { Loja } from '../core/loja';
 
-/**
- * Moldura das telas do totem.
- * Se ninguém tocar na tela por um tempo, pergunta se a pessoa ainda está ali
- * e, sem resposta, limpa o pedido e volta ao início para o próximo cliente.
- */
+// se ninguém mexer por um tempo, pergunta se ainda tem alguém e depois volta pro início
 @Component({
   selector: 'gt-totem-shell',
   imports: [RouterOutlet],
@@ -72,7 +68,6 @@ export class TotemShell implements OnInit {
   ngOnInit(): void {
     this.loja.carregar();
 
-    // A cada troca de tela conta como atividade
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe(() => this.registrarAtividade());
@@ -83,7 +78,7 @@ export class TotemShell implements OnInit {
 
   protected registrarAtividade(): void {
     this.ultimoToque = Date.now();
-    // Qualquer toque enquanto o aviso está aberto significa "ainda estou aqui"
+    // qualquer toque enquanto o aviso está aberto significa "ainda estou aqui"
     if (this.perguntando()) this.perguntando.set(false);
   }
 
@@ -100,7 +95,7 @@ export class TotemShell implements OnInit {
 
   private verificar(): void {
     const naInicial = this.router.url === '/totem';
-    // A tela de confirmação tem a própria contagem para voltar ao início
+    // a tela de confirmação tem a própria contagem para voltar ao início
     const naConfirmacao = /^\/totem\/pedido\/[^/]+$/.test(this.router.url);
 
     if (naInicial || naConfirmacao) {

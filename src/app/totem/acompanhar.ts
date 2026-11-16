@@ -4,10 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { TotemApi } from '../core/totem-api';
 import { CabecalhoEtapa } from '../shared/cabecalho-etapa';
 
-/**
- * Cliente digita o código (A + números) num teclado na tela,
- * já que o totem não tem teclado físico.
- */
+// teclado na tela porque o totem não tem teclado
 @Component({
   selector: 'gt-acompanhar',
   imports: [CabecalhoEtapa],

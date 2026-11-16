@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-/** Ícones de traço simples, desenhados para o cardápio. */
 const ICONES: Record<string, string> = {
   destaques:
     'M12 3c1 3.6 5 5.6 5 10.2a5 5 0 0 1-10 0c0-2.6 1.4-4.1 2.5-5.1.3 1.6 1 2.6 2 3 .1-3 .5-5.5.5-8.1z',

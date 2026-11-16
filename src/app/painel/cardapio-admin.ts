@@ -26,7 +26,7 @@ export class CardapioAdmin {
   protected readonly filtro = signal<FiltroProdutos>({ busca: '', categoria_id: null, situacao: '' });
   protected readonly limiteEstoque = signal(10);
 
-  /** undefined = fechado, null = novo, objeto = editando */
+  // undefined = fechado, null = novo, objeto = editando
   protected readonly editandoProduto = signal<ProdutoPainel | null | undefined>(undefined);
   protected readonly editandoCategoria = signal<CategoriaPainel | null | undefined>(undefined);
   protected readonly excluindo = signal<string | null>(null);

@@ -19,7 +19,7 @@ export type AcaoPedido = 'avancar' | 'cancelar' | 'pagamento';
 })
 export class PedidoCartao {
   readonly pedido = input.required<Pedido>();
-  /** Relógio da tela (ms), para o cronômetro andar sem recarregar a fila. */
+  // relógio da tela (ms), para o cronômetro andar sem recarregar a fila
   readonly agora = input.required<number>();
   readonly novo = input(false);
   readonly ocupado = input(false);
@@ -46,7 +46,6 @@ export class PedidoCartao {
 
   protected readonly pendente = computed(() => this.pedido().status_pagamento.valor === 'pendente');
 
-  /** O botão principal diz exatamente o próximo passo deste pedido. */
   protected readonly principal = computed<{ texto: string; acao: AcaoPedido }>(() => {
     switch (this.pedido().status.valor) {
       case 'recebido':

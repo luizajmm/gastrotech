@@ -53,7 +53,7 @@ const PAPEIS: Record<string, { rotulo: string; permissoes: string[] }> = {
 const TOTEM_STATUS = { online: 'Online', offline: 'Offline', manutencao: 'Manutenção' } as const;
 const CLIENTES = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Felipe', 'Gabi', 'Heitor', 'Iara', 'João', 'Larissa', 'Marcos'];
 
-/** Números "aleatórios" sempre iguais, para a demonstração abrir com os mesmos dados. */
+// números "aleatórios" sempre iguais, para a demonstração abrir com os mesmos dados
 function sorteador(semente: number): () => number {
   return () => {
     semente |= 0;
@@ -73,12 +73,7 @@ const centavos = (v: number) => Math.round(v * 100) / 100;
 const ETAPAS: StatusPedido[] = ['recebido', 'em_preparo', 'pronto', 'retirado'];
 const PROXIMO: Partial<Record<StatusPedido, StatusPedido>> = { recebido: 'em_preparo', em_preparo: 'pronto', pronto: 'retirado' };
 
-/**
- * "Banco de dados" da demonstração: cardápio, pedidos, equipe, caixa e configurações
- * em memória (somem ao recarregar a página). É uma instância só para o app inteiro:
- * o pedido feito no totem aparece na cozinha e no painel, como no sistema de verdade.
- * Aplica as mesmas regras da API.
- */
+// "banco" da demonstração, fica em memória e some quando recarrega a página
 @Injectable({ providedIn: 'root' })
 export class PainelApiDemo extends PainelApi {
   private categoriasDb: CategoriaPainel[] = CARDAPIO_DEMO.categorias.map(({ produtos: _, ...c }) => ({ ...c }));
@@ -91,7 +86,6 @@ export class PainelApiDemo extends PainelApi {
     this.usuario(3, 'Equipe Atendimento', 'atendimento@gastrotech.com', 'atendimento'),
     this.usuario(4, 'Consulta', 'leitura@gastrotech.com', 'leitura'),
   ];
-  /** Senhas da equipe de demonstração (as mesmas da API: "gastrotech"). */
   private senhas = new Map<number, string>([1, 2, 3, 4].map((id) => [id, 'gastrotech']));
   private config: Configuracoes = {
     nome_loja: CARDAPIO_DEMO.loja.nome_loja,
@@ -105,7 +99,7 @@ export class PainelApiDemo extends PainelApi {
     { id: 2, codigo: 'TOTEM-02', localizacao: 'Balcão lateral', status: { valor: 'online', rotulo: 'Online' } },
     { id: 3, codigo: 'TOTEM-03', localizacao: 'Área externa', status: { valor: 'manutencao', rotulo: 'Manutenção' } },
   ];
-  /** Todos os pedidos; a cozinha e o totem acompanham as mudanças por aqui. */
+  // todos os pedidos; a cozinha e o totem acompanham as mudanças por aqui
   readonly pedidos$ = new BehaviorSubject<Pedido[]>(this.gerarPedidos());
 
   private get pedidosDb(): Pedido[] {
@@ -117,7 +111,6 @@ export class PainelApiDemo extends PainelApi {
 
   constructor() {
     super();
-    // Caixa de hoje aberto às 10h com dois movimentos
     const abertura = new Date();
     abertura.setHours(10, 0, 0, 0);
     this.caixas.push({
@@ -217,7 +210,7 @@ export class PainelApiDemo extends PainelApi {
   excluirCategoria(id: number): Observable<void> {
     return this.responder(() => {
       this.categoriasDb = this.categoriasDb.filter((c) => c.id !== id);
-      // Igual à API: os produtos ficam sem categoria
+      // igual à API: os produtos ficam sem categoria
       this.produtosDb = this.produtosDb.map((p) => (p.categoria_id === id ? { ...p, categoria_id: null, categoria: null } : p));
     });
   }
@@ -406,7 +399,6 @@ export class PainelApiDemo extends PainelApi {
     });
   }
 
-  /** Login da demonstração: confere e-mail e senha na equipe em memória. */
   autenticar(email: string, senha: string): Usuario {
     const usuario = this.usuariosDb.find((u) => u.email === email.trim().toLowerCase());
     if (!usuario || this.senhas.get(usuario.id) !== senha) throw new Error('E-mail ou senha incorretos.');
@@ -477,7 +469,6 @@ export class PainelApiDemo extends PainelApi {
 
   /* ---------- Totem e cozinha (demonstração integrada) ---------- */
 
-  /** Cardápio do totem: categorias visíveis com produtos à venda e com estoque. */
   cardapioTotem(): Cardapio {
     return {
       loja: {
@@ -500,7 +491,7 @@ export class PainelApiDemo extends PainelApi {
     };
   }
 
-  /** Mesmas regras do PedidoService: preço e estoque do "banco", escolhas obrigatórias. */
+  // mesmas regras do PedidoService: preço e estoque do "banco", escolhas obrigatórias
   criarPedidoTotem(novo: NovoPedido): Pedido {
     if (!novo.itens.length) throw new FalhaFormulario('Adicione pelo menos um item ao pedido.');
 
@@ -535,7 +526,6 @@ export class PainelApiDemo extends PainelApi {
       };
     });
 
-    // Baixa no estoque
     this.produtosDb = this.produtosDb.map((p) => (reservado.has(p.id) ? { ...p, estoque: p.estoque - reservado.get(p.id)! } : p));
 
     const pedido: Pedido = {
@@ -586,7 +576,6 @@ export class PainelApiDemo extends PainelApi {
   cancelarPedido(id: number): Pedido {
     return this.mudarPedido(id, (p) => {
       if (['retirado', 'cancelado'].includes(p.status.valor)) throw new FalhaFormulario('Este pedido já foi encerrado.');
-      // Devolve ao estoque
       for (const item of p.itens) {
         this.produtosDb = this.produtosDb.map((prod) =>
           prod.id === item.produto_id ? { ...prod, estoque: prod.estoque + item.quantidade } : prod,
@@ -611,7 +600,6 @@ export class PainelApiDemo extends PainelApi {
     });
   }
 
-  /** Pedido no formato da tela de acompanhamento do cliente. */
   acompanhamento(pedido: Pedido): Acompanhamento {
     const atual = ETAPAS.indexOf(pedido.status.valor);
     return {
@@ -639,7 +627,6 @@ export class PainelApiDemo extends PainelApi {
 
   /* ---------- Auxiliares ---------- */
 
-  /** Executa a regra e devolve como se fosse a resposta da API (com um pequeno atraso). */
   private responder<T>(regra: () => T): Observable<T> {
     return defer(() => {
       try {
@@ -713,7 +700,7 @@ export class PainelApiDemo extends PainelApi {
     };
   }
 
-  /** Mesmo cálculo do FinanceiroService da API: só pedidos pagos, pela data do pagamento. */
+  // mesmo cálculo do FinanceiroService da API: só pedidos pagos, pela data do pagamento
   private calcularVendas(inicio: string, fim: string): Vendas {
     const pagos = this.pedidosDb.filter((p) => {
       if (p.status_pagamento.valor !== 'pago' || !p.pago_em) return false;
@@ -758,7 +745,6 @@ export class PainelApiDemo extends PainelApi {
     };
   }
 
-  /** Uma semana de vendas + a fila de hoje (mesma ideia do PedidosDemonstracaoSeeder). */
   private gerarPedidos(): Pedido[] {
     const aleatorio = sorteador(2026);
     const produtos = this.produtosDb;
@@ -807,7 +793,6 @@ export class PainelApiDemo extends PainelApi {
     };
 
     for (let diasAtras = 7; diasAtras >= 1; diasAtras--) {
-      // Mais movimento no fim de semana
       const data = new Date();
       data.setDate(data.getDate() - diasAtras);
       const fimDeSemana = [0, 5, 6].includes(data.getDay());
@@ -820,7 +805,6 @@ export class PainelApiDemo extends PainelApi {
     }
 
     const minutos = (m: number) => new Date(Date.now() - m * 60_000);
-    // Fila atual da cozinha
     for (let i = 0; i < 6; i++) criar(minutos(90 + i * 25), 'retirado');
     criar(minutos(32), 'em_preparo');
     criar(minutos(12), 'em_preparo');
@@ -828,12 +812,11 @@ export class PainelApiDemo extends PainelApi {
     criar(minutos(3), 'recebido');
     criar(minutos(1), 'recebido', 'dinheiro');
 
-    // Algumas observações na fila, como o cliente escreveria no totem
     const observacoes = ['Sem cebola', 'Molho à parte'];
     const fila = pedidos.filter((p) => ['recebido', 'em_preparo'].includes(p.status.valor));
     fila.slice(-2).forEach((p, i) => (p.itens[0] = { ...p.itens[0], observacao: observacoes[i] }));
 
-    // Cancelados devolvem o dinheiro: não contam como pagos
+    // cancelados devolvem o dinheiro: não contam como pagos
     return pedidos.map((p) => {
       const proximo = PROXIMO[p.status.valor];
       const comProximo = { ...p, proximo_status: proximo ? { valor: proximo, rotulo: STATUS[proximo] } : null };

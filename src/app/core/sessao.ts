@@ -21,17 +21,16 @@ function gravar(chave: string, valor: string | null): void {
     if (valor === null) localStorage.removeItem(chave);
     else localStorage.setItem(chave, valor);
   } catch {
-    // Navegador sem armazenamento: a sessão dura só até recarregar a página.
+    // navegador sem armazenamento: a sessão dura só até recarregar a página
   }
 }
 
-/** Login da equipe (cozinha e painel) com token da API Laravel. */
 @Injectable({ providedIn: 'root' })
 export class Sessao {
   private http = inject(HttpClient);
   private injector = inject(Injector);
 
-  // Na demonstração a sessão não fica salva: ao recarregar, pede login de novo.
+  // na demonstração a sessão não fica salva: ao recarregar, pede login de novo
   readonly token = signal<string | null>(CONFIG.modoDemonstracao ? null : ler(CHAVE_TOKEN));
   readonly usuario = signal<Usuario | null>(CONFIG.modoDemonstracao ? null : JSON.parse(ler(CHAVE_USUARIO) ?? 'null'));
   readonly logado = computed(() => !!this.token());

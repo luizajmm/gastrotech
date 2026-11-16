@@ -10,10 +10,7 @@ const TELAS = [
   { rota: '/painel', nome: 'Painel', prefixo: '/painel' },
 ];
 
-/**
- * Atalho da apresentação (só no modo demonstração): botão "Telas" no topo
- * para ir e voltar entre totem, cozinha e painel sem perder o que foi feito.
- */
+// botão "telas" pra trocar entre totem, cozinha e painel na apresentação (só na demonstração)
 @Component({
   selector: 'gt-trocar-tela',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -94,7 +91,7 @@ export class TrocarTela {
       filter((e) => e instanceof NavigationEnd),
       map((e) => {
         const url = (e as NavigationEnd).urlAfterRedirects;
-        // Guarda onde a pessoa estava em cada tela, para voltar no mesmo ponto
+        // guarda onde a pessoa estava em cada tela, para voltar no mesmo ponto
         const tela = TELAS.find((t) => t.prefixo && url.startsWith(t.prefixo));
         if (tela?.prefixo) this.ultimas.set(tela.prefixo, url);
         return url;

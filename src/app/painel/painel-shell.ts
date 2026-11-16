@@ -47,7 +47,6 @@ export class PainelShell {
     this.sessao.usuario()?.papel.rotulo ?? '',
   );
 
-  /** Fecha o menu do celular ao trocar de página. */
   protected readonly rotaAtual = toSignal(
     this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),

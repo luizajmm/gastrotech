@@ -3,9 +3,6 @@ import { firstValueFrom } from 'rxjs';
 import { Cardapio } from './modelos';
 import { TotemApi } from './totem-api';
 
-/**
- * Cardápio carregado uma vez e compartilhado entre as telas do totem.
- */
 @Injectable({ providedIn: 'root' })
 export class Loja {
   private api = inject(TotemApi);

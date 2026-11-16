@@ -1,6 +1,4 @@
-/**
- * Tipos com o mesmo formato do JSON devolvido pela API (app/Http/Resources).
- */
+// tipos iguais ao json que a api devolve
 
 export interface Opcao<T extends string = string> {
   valor: T;
@@ -88,7 +86,6 @@ export interface EtapaPedido extends Opcao<StatusPedido> {
   concluida: boolean;
 }
 
-/** Pedido como o cliente vê (tela de acompanhamento). */
 export interface Acompanhamento {
   codigo: string;
   nome_cliente: string | null;
@@ -103,13 +100,12 @@ export interface Acompanhamento {
   criado_em: string;
 }
 
-/** Erro de validação da API (HTTP 422). */
+// erro de validação da API (HTTP 422)
 export interface ErroApi {
   message: string;
   errors?: Record<string, string[]>;
 }
 
-/** Pedido como a cozinha e o painel veem (PedidoResource). */
 export interface Pedido {
   id: number;
   codigo: string;
@@ -155,7 +151,7 @@ export interface ProdutoPainel extends Produto {
   categoria?: { id: number; nome: string } | null;
 }
 
-/** Dados enviados ao salvar um produto (sem foto: ela vai em outra chamada). */
+// dados enviados ao salvar um produto (sem foto: ela vai em outra chamada)
 export interface ProdutoForm {
   categoria_id: number | null;
   nome: string;

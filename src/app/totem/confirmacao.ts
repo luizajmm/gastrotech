@@ -21,7 +21,6 @@ export class Confirmacao implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
-  /** Vem da rota /totem/pedido/:codigo */
   readonly codigo = input.required<string>();
 
   protected readonly erro = signal<string | null>(null);
@@ -41,7 +40,7 @@ export class Confirmacao implements OnInit {
     { initialValue: null },
   );
 
-  /** Posição no fluxo: 0 recebido … 3 retirado */
+  // posição no fluxo: 0 recebido … 3 retirado
   protected readonly etapaAtual = computed(() => {
     const p = this.pedido();
     if (!p) return 0;

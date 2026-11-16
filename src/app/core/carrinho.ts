@@ -2,7 +2,7 @@ import { computed, Injectable, signal } from '@angular/core';
 import { FormaPagamento, ItemNovoPedido, Produto } from './modelos';
 
 export interface LinhaCarrinho {
-  /** Mesmo produto com escolhas diferentes vira linhas diferentes. */
+  // mesmo produto com escolhas diferentes vira linhas diferentes
   chave: string;
   produto: Produto;
   quantidade: number;
@@ -10,7 +10,6 @@ export interface LinhaCarrinho {
   observacao: string;
 }
 
-/** Estado do pedido em montagem no totem. */
 @Injectable({ providedIn: 'root' })
 export class Carrinho {
   private readonly _linhas = signal<LinhaCarrinho[]>([]);
@@ -25,7 +24,6 @@ export class Carrinho {
   );
   readonly vazio = computed(() => this._linhas().length === 0);
 
-  /** Quantas unidades deste produto já estão no carrinho (somando todas as linhas). */
   quantidadeDo(produtoId: number): number {
     return this._linhas()
       .filter((l) => l.produto.id === produtoId)
@@ -57,7 +55,6 @@ export class Carrinho {
     this._linhas.update((linhas) => linhas.filter((l) => l.chave !== chave));
   }
 
-  /** Itens no formato que a API espera (só ids, quantidades e escolhas). */
   itensParaApi(): ItemNovoPedido[] {
     return this._linhas().map((l) => ({
       produto_id: l.produto.id,

@@ -3,11 +3,6 @@ import { Router, RouterLink } from '@angular/router';
 import { CONFIG } from '../config';
 import { Sessao } from '../core/sessao';
 
-/**
- * Tela de entrada do sistema (http://localhost:4200):
- * escolhe entre o totem do cliente e as telas da equipe.
- * O aparelho do totem deve abrir direto em /#/totem.
- */
 @Component({
   selector: 'gt-inicio',
   imports: [RouterLink],
