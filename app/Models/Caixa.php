@@ -42,7 +42,6 @@ class Caixa extends Model
         return $this->belongsTo(User::class, 'fechado_por');
     }
 
-    /** Caixa aberto no momento, se houver. */
     public static function aberto(): ?self
     {
         return static::query()

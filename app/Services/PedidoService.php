@@ -12,25 +12,12 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-/**
- * Regras de negócio dos pedidos: criação no totem e o fluxo na cozinha.
- */
 class PedidoService
 {
-    /**
-     * Cria o pedido vindo do totem.
-     *
-     * O preço sempre vem do banco (o carrinho só manda id e quantidade),
-     * e o estoque é travado durante a transação para dois totens não
-     * venderem a última unidade ao mesmo tempo.
-     *
-     * @param  array{
-     *     nome_cliente?: string|null,
-     *     forma_pagamento: string,
-     *     totem?: string|null,
-     *     itens: list<array{produto_id: int, quantidade: int, personalizacoes?: array<string, string>, observacao?: string|null}>
-     * }  $dados
-     */
+    // cria o pedido vindo do totem
+    // o preço sempre vem do banco (o carrinho só manda id e quantidade),
+    // e o estoque é travado durante a transação para dois totens não
+    // venderem a última unidade ao mesmo tempo
     public function criar(array $dados): Pedido
     {
         $forma = FormaPagamento::from($dados['forma_pagamento']);
@@ -38,7 +25,6 @@ class PedidoService
         $pedido = DB::transaction(function () use ($dados, $forma) {
             $itens = collect($dados['itens']);
 
-            /** @var Collection<int, Produto> $produtos */
             $produtos = Produto::query()
                 ->whereIn('id', $itens->pluck('produto_id')->unique())
                 ->lockForUpdate()
@@ -80,7 +66,7 @@ class PedidoService
         return $pedido->load(['itens', 'totem']);
     }
 
-    /** Leva o pedido para a próxima etapa (Recebido → Em preparo → Pronto → Retirado). */
+    // leva o pedido para a próxima etapa (Recebido → Em preparo → Pronto → Retirado)
     public function avancar(Pedido $pedido): Pedido
     {
         $pedido = DB::transaction(function () use ($pedido) {
@@ -109,7 +95,7 @@ class PedidoService
         return $pedido->load(['itens', 'totem']);
     }
 
-    /** Cancela, devolve os itens ao estoque e estorna se já estava pago. */
+    // cancela, devolve os itens ao estoque e estorna se já estava pago
     public function cancelar(Pedido $pedido): Pedido
     {
         $pedido = DB::transaction(function () use ($pedido) {
@@ -139,7 +125,7 @@ class PedidoService
         return $pedido->load(['itens', 'totem']);
     }
 
-    /** Confirma pagamento feito no balcão (pedidos em dinheiro). */
+    // confirma pagamento feito no balcão (pedidos em dinheiro)
     public function confirmarPagamento(Pedido $pedido): Pedido
     {
         if ($pedido->status === StatusPedido::Cancelado) {
@@ -153,12 +139,8 @@ class PedidoService
         return $pedido->load(['itens', 'totem']);
     }
 
-    /**
-     * Confere disponibilidade, estoque e personalizações de cada item.
-     * Junta todos os problemas numa única resposta para o totem mostrar.
-     *
-     * @return Collection<int, array{produto: Produto, quantidade: int, personalizacoes: array<string, string>, observacao: ?string}>
-     */
+    // confere disponibilidade, estoque e personalizações de cada item
+    // junta todos os problemas numa única resposta para o totem mostrar
     private function validarItens(Collection $itens, Collection $produtos): Collection
     {
         $erros = [];

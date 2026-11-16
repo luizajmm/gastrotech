@@ -21,12 +21,8 @@ enum Papel: string
         };
     }
 
-    /**
-     * O que cada papel pode fazer no painel.
-     * Ver também os Gates em AppServiceProvider.
-     *
-     * @return list<string>
-     */
+    // o que cada papel pode fazer no painel
+    // ver também os Gates em AppServiceProvider
     public function permissoes(): array
     {
         return match ($this) {

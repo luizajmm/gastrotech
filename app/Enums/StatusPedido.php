@@ -23,7 +23,7 @@ enum StatusPedido: string
         };
     }
 
-    /** Próxima etapa do fluxo da cozinha, ou null se o pedido já terminou. */
+    // próxima etapa do fluxo da cozinha, ou null se o pedido já terminou
     public function proximo(): ?self
     {
         return match ($this) {
@@ -34,7 +34,7 @@ enum StatusPedido: string
         };
     }
 
-    /** Pedido ainda está na fila da cozinha (conta para atraso). */
+    // pedido ainda está na fila da cozinha (conta para atraso)
     public function emProducao(): bool
     {
         return in_array($this, [self::Recebido, self::EmPreparo], true);
@@ -45,13 +45,11 @@ enum StatusPedido: string
         return in_array($this, [self::Retirado, self::Cancelado], true);
     }
 
-    /** @return list<self> */
     public static function fluxo(): array
     {
         return [self::Recebido, self::EmPreparo, self::Pronto, self::Retirado];
     }
 
-    /** @return list<self> */
     public static function ativos(): array
     {
         return [self::Recebido, self::EmPreparo, self::Pronto];

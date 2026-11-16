@@ -6,12 +6,8 @@ use App\Enums\StatusPedido;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * Versão pública do pedido, para a tela de acompanhamento do cliente.
- * Não expõe dados internos (totem, horários de pagamento etc.).
- *
- * @mixin \App\Models\Pedido
- */
+// versão pública do pedido, para a tela de acompanhamento do cliente
+// não expõe dados internos (totem, horários de pagamento etc.)
 class AcompanhamentoPedidoResource extends JsonResource
 {
     public function toArray(Request $request): array

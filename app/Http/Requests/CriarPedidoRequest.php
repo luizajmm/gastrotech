@@ -6,10 +6,8 @@ use App\Enums\FormaPagamento;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-/**
- * Pedido enviado pelo totem. O carrinho manda só ids e quantidades:
- * preço, estoque e personalizações são conferidos no PedidoService.
- */
+// pedido enviado pelo totem. O carrinho manda só ids e quantidades:
+// preço, estoque e personalizações são conferidos no PedidoService
 class CriarPedidoRequest extends FormRequest
 {
     public function authorize(): bool

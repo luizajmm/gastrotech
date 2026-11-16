@@ -25,7 +25,7 @@ class SalvarUsuarioRequest extends FormRequest
                 $criando ? 'required' : 'sometimes', 'email', 'max:160',
                 Rule::unique('users', 'email')->ignore($usuario?->id),
             ],
-            // Nunca há senha padrão: no cadastro ela é obrigatória.
+            // nunca há senha padrão: no cadastro ela é obrigatória
             'senha' => [$criando ? 'required' : 'nullable', 'string', Password::min(6)],
             'papel' => [$criando ? 'required' : 'sometimes', Rule::enum(Papel::class)],
             'ativo' => ['sometimes', 'boolean'],

@@ -15,12 +15,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-/**
- * Relatórios de vendas e controle do caixa (gaveta de dinheiro).
- */
 class FinanceiroService
 {
-    /** Vendas pagas no período: total, por forma de pagamento, por dia e mais vendidos. */
+    // vendas pagas no período: total, por forma de pagamento, por dia e mais vendidos
     public function vendas(Carbon $inicio, Carbon $fim, ?FormaPagamento $forma = null): array
     {
         $base = fn () => $this->pedidosPagos($inicio, $fim, $forma);
@@ -66,7 +63,7 @@ class FinanceiroService
         ];
     }
 
-    /** Situação da gaveta: saldo inicial + vendas em dinheiro + entradas − saídas. */
+    // situação da gaveta: saldo inicial + vendas em dinheiro + entradas − saídas
     public function resumoCaixa(Caixa $caixa): array
     {
         $ate = $caixa->fechado_em ?? now();
@@ -123,7 +120,6 @@ class FinanceiroService
         return $caixa;
     }
 
-    /** @return Builder<Pedido> */
     private function pedidosPagos(Carbon $inicio, Carbon $fim, ?FormaPagamento $forma): Builder
     {
         return Pedido::query()

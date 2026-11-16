@@ -19,7 +19,7 @@ class FinanceiroController extends Controller
 {
     public function __construct(private FinanceiroService $financeiro) {}
 
-    /** Relatório de vendas do período (padrão: últimos 7 dias). */
+    // relatório de vendas do período (padrão: últimos 7 dias)
     public function vendas(FiltroPeriodoRequest $request): JsonResponse
     {
         return response()->json([
@@ -27,7 +27,7 @@ class FinanceiroController extends Controller
         ]);
     }
 
-    /** Caixa aberto agora, com o saldo esperado na gaveta. */
+    // caixa aberto agora, com o saldo esperado na gaveta
     public function caixa(): JsonResponse
     {
         $caixa = Caixa::aberto()?->load('abertoPor');
@@ -65,7 +65,6 @@ class FinanceiroController extends Controller
         ]);
     }
 
-    /** Histórico de caixas fechados. */
     public function historicoCaixas(): AnonymousResourceCollection
     {
         return CaixaResource::collection(
@@ -73,7 +72,7 @@ class FinanceiroController extends Controller
         );
     }
 
-    /** Movimentos (entradas/saídas manuais) do caixa aberto. */
+    // movimentos (entradas/saídas manuais) do caixa aberto
     public function movimentos(): AnonymousResourceCollection
     {
         $caixa = Caixa::aberto();

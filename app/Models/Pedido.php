@@ -10,11 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * @property StatusPedido $status
- * @property StatusPagamento $status_pagamento
- * @property FormaPagamento $forma_pagamento
- */
 class Pedido extends Model
 {
     protected $table = 'pedidos';
@@ -75,7 +70,7 @@ class Pedido extends Model
         return max(0, $this->minutosDecorridos() - $this->tempo_estimado_min);
     }
 
-    /** Código curto mostrado ao cliente: A101, A102... */
+    // código curto mostrado ao cliente: A101, A102...
     public static function gerarCodigo(int $id): string
     {
         return 'A'.(100 + $id);

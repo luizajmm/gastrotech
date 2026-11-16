@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('categoria_id')->nullable()->constrained('categorias')->nullOnDelete();
             $table->string('nome', 140);
             $table->string('descricao', 255)->nullable();
-            // Antes eram textos separados por vírgula/pipe; agora JSON estruturado.
+            // antes eram textos separados por vírgula/pipe; agora JSON estruturado
             $table->json('destaques')->nullable();        // ["Pão brioche", "Bacon"]
             $table->json('personalizacoes')->nullable();  // [{"nome": "Gelo", "opcoes": ["Com", "Sem"], "obrigatorio": true}]
             $table->text('ingredientes')->nullable();

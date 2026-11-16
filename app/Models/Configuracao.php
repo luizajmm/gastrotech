@@ -6,10 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
-/**
- * Configurações da loja no formato chave/valor
- * (nome, frase do totem, logo, tempo de espera...).
- */
+// configurações da loja no formato chave/valor
+// (nome, frase do totem, logo, tempo de espera...)
 class Configuracao extends Model
 {
     protected $table = 'configuracoes';
@@ -24,7 +22,7 @@ class Configuracao extends Model
 
     private const CACHE = 'configuracoes.todas';
 
-    /** Valores usados quando a chave ainda não existe no banco. */
+    // valores usados quando a chave ainda não existe no banco
     public const PADROES = [
         'nome_loja' => 'GastroTech',
         'frase_totem' => 'Monte seu pedido do seu jeito.',
@@ -39,7 +37,6 @@ class Configuracao extends Model
         static::deleted(fn () => Cache::forget(self::CACHE));
     }
 
-    /** @return array<string, string|null> */
     public static function todas(): array
     {
         $salvas = Cache::rememberForever(
@@ -71,7 +68,7 @@ class Configuracao extends Model
         static::query()->updateOrCreate(['chave' => $chave], $dados);
     }
 
-    /** Dados da loja que podem ser vistos por qualquer pessoa (totem). */
+    // dados da loja que podem ser vistos por qualquer pessoa (totem)
     public static function publicas(): array
     {
         $todas = static::todas();

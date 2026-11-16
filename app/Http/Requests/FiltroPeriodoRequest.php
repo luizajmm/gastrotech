@@ -23,7 +23,7 @@ class FiltroPeriodoRequest extends FormRequest
         ];
     }
 
-    /** Padrão: últimos 7 dias, incluindo hoje. */
+    // padrão: últimos 7 dias, incluindo hoje
     public function inicio(): Carbon
     {
         return $this->filled('data_inicio')

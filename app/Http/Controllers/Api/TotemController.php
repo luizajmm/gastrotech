@@ -13,12 +13,9 @@ use App\Models\Produto;
 use App\Services\PedidoService;
 use Illuminate\Http\JsonResponse;
 
-/**
- * Rotas públicas usadas pela tela do cliente (totem).
- */
 class TotemController extends Controller
 {
-    /** Loja + categorias ativas com os produtos disponíveis. */
+    // loja + categorias ativas com os produtos disponíveis
     public function cardapio(): JsonResponse
     {
         $categorias = Categoria::query()
@@ -29,7 +26,7 @@ class TotemController extends Controller
             ->filter(fn (Categoria $c) => $c->produtos->isNotEmpty())
             ->values();
 
-        // Produtos sem categoria também aparecem, num grupo "Outros".
+        // produtos sem categoria também aparecem, num grupo "Outros"
         $semCategoria = Produto::query()->disponiveis()->whereNull('categoria_id')->orderBy('nome')->get();
 
         if ($semCategoria->isNotEmpty()) {

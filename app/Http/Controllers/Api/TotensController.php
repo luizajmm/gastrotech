@@ -9,7 +9,6 @@ use App\Models\Totem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-/** Cadastro dos totens (aparelhos) da loja. */
 class TotensController extends Controller
 {
     public function index(): AnonymousResourceCollection
@@ -35,7 +34,7 @@ class TotensController extends Controller
         return new TotemResource($totem);
     }
 
-    /** O histórico de pedidos do totem é mantido (o pedido fica sem totem). */
+    // o histórico de pedidos do totem é mantido (o pedido fica sem totem)
     public function destroy(Totem $totem): JsonResponse
     {
         $totem->delete();

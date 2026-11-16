@@ -8,9 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
-/**
- * @property array<int, array{nome: string, opcoes: list<string>, obrigatorio?: bool}>|null $personalizacoes
- */
 class Produto extends Model
 {
     use HasFactory;
@@ -46,7 +43,7 @@ class Produto extends Model
         return $this->belongsTo(Categoria::class);
     }
 
-    /** Ativo e com estoque: aparece no totem. */
+    // ativo e com estoque: aparece no totem
     public function scopeDisponiveis(Builder $query): Builder
     {
         return $query->where('ativo', true)->where('estoque', '>', 0);
@@ -62,7 +59,6 @@ class Produto extends Model
         return $this->imagem ? Storage::disk('public')->url($this->imagem) : null;
     }
 
-    /** @return list<array{nome: string, opcoes: list<string>, obrigatorio: bool}> */
     public function gruposPersonalizacao(): array
     {
         return array_map(fn (array $grupo) => [

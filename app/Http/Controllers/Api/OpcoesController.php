@@ -11,9 +11,6 @@ use App\Enums\TipoMovimento;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
-/**
- * Listas usadas nos selects do front-end (evita repetir os textos no Angular).
- */
 class OpcoesController extends Controller
 {
     public function __invoke(): JsonResponse

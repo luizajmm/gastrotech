@@ -13,11 +13,7 @@ use App\Http\Controllers\Api\TotensController;
 use App\Http\Controllers\Api\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Rotas públicas (totem do cliente)
-|--------------------------------------------------------------------------
-*/
+// rotas públicas (totem do cliente)
 
 Route::prefix('totem')->group(function () {
     Route::get('cardapio', [TotemController::class, 'cardapio']);
@@ -29,13 +25,9 @@ Route::get('opcoes', OpcoesController::class);
 
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
 
-/*
-|--------------------------------------------------------------------------
-| Painel (precisa de login)
-|--------------------------------------------------------------------------
-| Leitura: qualquer usuário ativo.
-| Alterações: só quem tem a permissão (ver App\Enums\Papel).
-*/
+// painel (precisa de login)
+// leitura: qualquer usuário ativo
+// alterações: só quem tem a permissão (ver App\Enums\Papel)
 
 Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
     Route::get('eu', [AuthController::class, 'eu']);
@@ -43,7 +35,7 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
 
     Route::get('dashboard', DashboardController::class);
 
-    // Cardápio
+    // cardápio
     Route::apiResource('categorias', CategoriaController::class)
         ->parameters(['categorias' => 'categoria'])
         ->only(['index', 'show']);
@@ -62,7 +54,7 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
         Route::delete('produtos/{produto}/imagem', [ProdutoController::class, 'removerImagem']);
     });
 
-    // Pedidos / cozinha
+    // pedidos / cozinha
     Route::get('pedidos', [PedidoController::class, 'index']);
     Route::get('pedidos/{pedido}', [PedidoController::class, 'show']);
 
@@ -72,7 +64,7 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
         Route::post('pedidos/{pedido}/pagamento', [PedidoController::class, 'confirmarPagamento']);
     });
 
-    // Financeiro
+    // financeiro
     Route::prefix('financeiro')->group(function () {
         Route::get('vendas', [FinanceiroController::class, 'vendas']);
         Route::get('caixa', [FinanceiroController::class, 'caixa']);
@@ -86,12 +78,12 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
         });
     });
 
-    // Usuários
+    // usuários
     Route::apiResource('usuarios', UsuarioController::class)
         ->parameters(['usuarios' => 'usuario'])
         ->middleware('can:usuarios');
 
-    // Configurações da loja e totens
+    // configurações da loja e totens
     Route::get('configuracoes', [ConfiguracaoController::class, 'show']);
     Route::get('totens', [TotensController::class, 'index']);
 

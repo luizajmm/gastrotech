@@ -70,7 +70,6 @@ class ProdutoController extends Controller
         return response()->json(['message' => 'Produto excluído.']);
     }
 
-    /** Envia ou troca a foto do produto. */
     public function enviarImagem(ImagemRequest $request, Produto $produto): ProdutoResource
     {
         $antiga = $produto->imagem;
