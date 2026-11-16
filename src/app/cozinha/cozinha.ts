@@ -3,7 +3,6 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, injec
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { CONFIG } from '../config';
 import { CozinhaApi } from '../core/cozinha-api';
 import { Pedido, StatusPedido } from '../core/modelos';
 import { Sessao } from '../core/sessao';
@@ -30,7 +29,6 @@ export class Cozinha {
   protected sessao = inject(Sessao);
   private router = inject(Router);
 
-  protected readonly demonstracao = CONFIG.modoDemonstracao;
   protected readonly fila = toSignal(this.api.fila());
   protected readonly agora = signal(Date.now());
   protected readonly aba = signal<StatusPedido>('recebido');

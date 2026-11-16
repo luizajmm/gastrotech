@@ -1,19 +1,60 @@
-import { Observable } from 'rxjs';
-import { Pedido } from './modelos';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { catchError, map, merge, Observable, shareReplay, Subject, switchMap, tap, throwError, timer } from 'rxjs';
+import { CONFIG } from '../config';
+import { ErroApi, Pedido } from './modelos';
+import { FalhaPedido } from './totem-api';
 
 export interface FilaCozinha {
   pedidos: Pedido[];
   atualizadoEm: Date;
 }
 
-// a tela da cozinha usa isso, com a versão da api (http) ou a da demonstração
-export abstract class CozinhaApi {
-  // pedidos recebidos, em preparo e prontos
-  abstract fila(): Observable<FilaCozinha>;
+@Injectable({ providedIn: 'root' })
+export class CozinhaApi {
+  private http = inject(HttpClient);
+  private recarregar = new Subject<void>();
 
-  abstract avancar(id: number): Observable<Pedido>;
+  fila(): Observable<FilaCozinha> {
+    // busca a fila a cada 5 segundos e também logo depois de cada ação
+    return merge(timer(0, 5000), this.recarregar).pipe(
+      switchMap(() =>
+        this.http.get<{ data: Pedido[] }>(`${CONFIG.apiUrl}/pedidos`, { params: { status: 'ativos' } }).pipe(
+          catchError(() => []), // se a rede falhar, continua mostrando a última fila
+        ),
+      ),
+      map((r) => ({ pedidos: r.data, atualizadoEm: new Date() })),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
 
-  abstract cancelar(id: number): Observable<Pedido>;
+  avancar(id: number): Observable<Pedido> {
+    return this.acao(id, 'avancar');
+  }
 
-  abstract confirmarPagamento(id: number): Observable<Pedido>;
+  cancelar(id: number): Observable<Pedido> {
+    return this.acao(id, 'cancelar');
+  }
+
+  confirmarPagamento(id: number): Observable<Pedido> {
+    return this.acao(id, 'pagamento');
+  }
+
+  private acao(id: number, rota: string): Observable<Pedido> {
+    return this.http.post<{ data: Pedido }>(`${CONFIG.apiUrl}/pedidos/${id}/${rota}`, {}).pipe(
+      map((r) => r.data),
+      tap(() => this.recarregar.next()),
+      catchError((erro: HttpErrorResponse) => {
+        const corpo = erro.error as ErroApi | null;
+        const detalhe = Object.values(corpo?.errors ?? {}).flat()[0];
+        const mensagem =
+          erro.status === 0
+            ? 'Sem conexão com o sistema.'
+            : erro.status === 403
+              ? 'Seu usuário não pode alterar pedidos.'
+              : (detalhe ?? corpo?.message ?? 'Não foi possível atualizar o pedido.');
+        return throwError(() => new FalhaPedido(mensagem));
+      }),
+    );
+  }
 }

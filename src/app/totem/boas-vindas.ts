@@ -131,7 +131,7 @@ export class BoasVindas {
 
   protected readonly nome = computed(() => this.loja.cardapio()?.loja.nome_loja ?? 'GastroTech');
   protected readonly frase = computed(() => this.loja.cardapio()?.loja.frase_totem);
-  protected readonly logo = computed(() => this.loja.cardapio()?.loja.logo_url ?? 'demo/gastrotech-logo.jpg');
+  protected readonly logo = computed(() => this.loja.cardapio()?.loja.logo_url ?? 'gastrotech-logo.jpg');
 
   protected comecar(): void {
     this.carrinho.limpar();

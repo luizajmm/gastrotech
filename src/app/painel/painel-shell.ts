@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
-import { CONFIG } from '../config';
 import { Avisos } from '../core/avisos';
 import { Sessao } from '../core/sessao';
 
@@ -36,7 +35,6 @@ export class PainelShell {
   protected readonly avisos = inject(Avisos);
   private router = inject(Router);
 
-  protected readonly demonstracao = CONFIG.modoDemonstracao;
   protected readonly menuAberto = signal(false);
   protected readonly menu = MENU.filter((item) => !item.permissao || this.sessao.pode(item.permissao));
 

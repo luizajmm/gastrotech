@@ -1,17 +1,8 @@
-import { Observable } from 'rxjs';
-import { Acompanhamento, Cardapio, NovoPedido } from './modelos';
-
-// tem a versão http (api) e a da demonstração, a escolha fica no app.config.ts
-export abstract class TotemApi {
-  abstract cardapio(): Observable<Cardapio>;
-
-  abstract criarPedido(pedido: NovoPedido): Observable<Acompanhamento>;
-
-  abstract acompanhar(codigo: string): Observable<Acompanhamento>;
-
-  // emite o pedido sempre que o status mudar (cozinha avançou, pagamento confirmado...)
-  abstract observar(codigo: string): Observable<Acompanhamento>;
-}
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { catchError, distinctUntilChanged, map, Observable, switchMap, throwError, timer } from 'rxjs';
+import { CONFIG } from '../config';
+import { Acompanhamento, Cardapio, ErroApi, NovoPedido } from './modelos';
 
 export class FalhaPedido extends Error {
   constructor(
@@ -20,4 +11,55 @@ export class FalhaPedido extends Error {
   ) {
     super(message);
   }
+}
+
+@Injectable({ providedIn: 'root' })
+export class TotemApi {
+  private http = inject(HttpClient);
+  private url = `${CONFIG.apiUrl}/totem`;
+
+  cardapio(): Observable<Cardapio> {
+    return this.http.get<Cardapio>(`${this.url}/cardapio`).pipe(catchError(traduzirErro));
+  }
+
+  criarPedido(pedido: NovoPedido): Observable<Acompanhamento> {
+    return this.http
+      .post<{ data: Acompanhamento }>(`${this.url}/pedidos`, { ...pedido, totem: CONFIG.totem })
+      .pipe(
+        map((r) => r.data),
+        catchError(traduzirErro),
+      );
+  }
+
+  acompanhar(codigo: string): Observable<Acompanhamento> {
+    return this.http
+      .get<{ data: Acompanhamento }>(`${this.url}/pedidos/${encodeURIComponent(codigo)}`)
+      .pipe(
+        map((r) => r.data),
+        catchError(traduzirErro),
+      );
+  }
+
+  // consulta o pedido a cada 5 segundos pra mostrar o andamento
+  observar(codigo: string): Observable<Acompanhamento> {
+    return timer(0, 5000).pipe(
+      switchMap(() => this.acompanhar(codigo)),
+      distinctUntilChanged((a, b) => a.status.valor === b.status.valor && a.status_pagamento.valor === b.status_pagamento.valor),
+    );
+  }
+}
+
+function traduzirErro(erro: HttpErrorResponse): Observable<never> {
+  if (erro.status === 0) {
+    return throwError(() => new FalhaPedido('Sem conexão com o sistema. Chame um atendente.'));
+  }
+
+  const corpo = erro.error as ErroApi | null;
+  const detalhes = Object.values(corpo?.errors ?? {}).flat();
+
+  if (erro.status === 404) {
+    return throwError(() => new FalhaPedido('Não encontramos esse pedido. Confira o código.'));
+  }
+
+  return throwError(() => new FalhaPedido(detalhes[0] ?? corpo?.message ?? 'Não foi possível concluir. Tente de novo.', detalhes));
 }

@@ -1,7 +1,7 @@
 <div class="tela">
   <header class="barra">
     <div class="marca">
-      <img src="demo/gastrotech-logo.jpg" alt="" width="40" height="40" />
+      <img src="gastrotech-logo.jpg" alt="" width="40" height="40" />
       <h1>Cozinha</h1>
     </div>
 
@@ -14,13 +14,9 @@
 
     <div class="lado">
       @if (fila(); as f) {
-        <span class="conexao" [class.ao-vivo]="demonstracao">
+        <span class="conexao">
           <span class="ponto" aria-hidden="true"></span>
-          @if (demonstracao) {
-            Demonstração
-          } @else {
-            Atualizado às {{ f.atualizadoEm | date: 'HH:mm' }}
-          }
+          Atualizado às {{ f.atualizadoEm | date: 'HH:mm' }}
         </span>
       }
       <span class="relogio">{{ agora() | date: 'HH:mm' }}</span>

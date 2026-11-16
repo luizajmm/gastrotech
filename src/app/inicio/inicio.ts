@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CONFIG } from '../config';
 import { Sessao } from '../core/sessao';
 
 @Component({
@@ -94,7 +93,6 @@ import { Sessao } from '../core/sessao';
 export class Inicio {
   protected readonly sessao = inject(Sessao);
   private router = inject(Router);
-  protected readonly demonstracao = CONFIG.modoDemonstracao;
 
   protected async sair(): Promise<void> {
     await this.sessao.sair();

@@ -1,7 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CONFIG } from '../config';
 import { ErroApi } from '../core/modelos';
 import { Sessao } from '../core/sessao';
 
@@ -45,22 +44,6 @@ import { Sessao } from '../core/sessao';
         </button>
 
       </form>
-        @if (demonstracao) {
-          <aside class="acessos" aria-labelledby="acessos-titulo">
-            <h2 id="acessos-titulo">Acessos de teste</h2>
-            <p class="texto-suave">Senha de todos: <strong>gastrotech</strong>. Toque em um para preencher.</p>
-            <ul>
-              @for (acesso of acessosDemo; track acesso.email) {
-                <li>
-                  <button type="button" (click)="preencher(acesso.email)">
-                    <strong>{{ acesso.papel }}</strong>
-                    <span>{{ acesso.ve }}</span>
-                  </button>
-                </li>
-              }
-            </ul>
-          </aside>
-        }
       </div>
     </main>
   `,
@@ -95,16 +78,6 @@ import { Sessao } from '../core/sessao';
     }
     .erro { margin-top: var(--espaco-2); color: var(--alerta); font-weight: 650; }
     .btn { margin-top: var(--espaco-4); }
-    .acessos { display: grid; gap: var(--espaco-2); width: min(100%, 19rem); }
-    .acessos h2 { font-size: 1rem; }
-    .acessos p { font-size: 0.9rem; }
-    .acessos ul { display: grid; gap: var(--espaco-2); margin: var(--espaco-2) 0 0; padding: 0; list-style: none; }
-    .acessos button {
-      display: grid; gap: 0.1rem; width: 100%; padding: var(--espaco-2) var(--espaco-3);
-      border: 0; border-radius: var(--raio-medio); background: var(--papel); text-align: left; color: var(--tinta);
-    }
-    .acessos button:hover, .acessos button:focus-visible { box-shadow: inset 0 0 0 2px var(--tinta); outline: none; }
-    .acessos button span { font-size: 0.82rem; color: var(--grafite); }
   `,
 })
 export class Entrar implements OnInit {
@@ -118,23 +91,9 @@ export class Entrar implements OnInit {
   protected readonly erro = signal<string | null>(null);
   protected readonly enviando = signal(false);
 
-  protected readonly demonstracao = CONFIG.modoDemonstracao;
-  protected readonly acessosDemo = [
-    { papel: 'Administrador', email: 'admin@gastrotech.com', ve: 'tudo' },
-    { papel: 'Atendimento', email: 'atendimento@gastrotech.com', ve: 'cozinha, pedidos e caixa' },
-    { papel: 'Cardápio', email: 'cardapio@gastrotech.com', ve: 'só o cardápio' },
-    { papel: 'Consulta', email: 'leitura@gastrotech.com', ve: 'só olha, não altera' },
-  ];
-
   ngOnInit(): void {
     // quem já entrou não precisa ver o login de novo
     if (this.sessao.logado()) this.router.navigateByUrl(this.volta() || '/cozinha');
-  }
-
-  protected preencher(email: string): void {
-    this.email.set(email);
-    this.senha.set('gastrotech');
-    this.erro.set(null);
   }
 
   protected async entrar(): Promise<void> {

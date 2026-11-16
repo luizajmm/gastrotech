@@ -18,12 +18,9 @@ npm start
 | Painel | http://localhost:4200/#/painel |
 | Login da equipe | http://localhost:4200/#/entrar |
 
-## Modo demonstração x API de verdade
+## Antes de abrir
 
-Em `src/app/config.ts`:
-
-- `modoDemonstracao: true`: tudo funciona sem a API e sem login, com o cardápio, a equipe e uma semana de vendas de exemplo. As alterações ficam só na memória (somem ao recarregar).
-- `modoDemonstracao: false`: conversa com a API Laravel (`gastrotech-api`). Rode o `iniciar.bat` da API antes. A cozinha e o painel pedem login (usuários de exemplo no README da API).
+O front precisa da API (`gastrotech-api`) rodando. Rode o `iniciar.bat` da API antes. O endereço dela fica em `src/app/config.ts`. A cozinha e o painel pedem login, os usuários de teste estão no README da API.
 
 ## Telas
 
@@ -55,8 +52,8 @@ Quem não tem a permissão vê a página, mas sem os botões de alterar. A pági
 
 ```
 src/app/
-  config.ts            Modo demonstração, endereço da API, totem
-  core/                Modelos, sessão, carrinho, APIs (HTTP e demonstração), avisos
+  config.ts            Endereço da API e código do totem
+  core/                Modelos, sessão, carrinho, chamadas pra API, avisos
   shared/              Peças reaproveitadas (ícones, formato de dinheiro, cabeçalho)
   totem/               Telas do totem
   cozinha/             Tela da cozinha
@@ -64,5 +61,5 @@ src/app/
   entrar/              Login da equipe
 src/styles.css         Cores, tipografia e botões
 src/painel.css         Formulários, tabelas e janelas do painel
-public/demo/           Fotos do cardápio e logo usadas no modo demonstração
+public/                Logo e ícone
 ```

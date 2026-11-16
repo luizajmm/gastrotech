@@ -26,7 +26,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
-// telas da equipe exigem login (menos no modo demonstração)
+// telas da equipe exigem login
 export const exigeLogin: CanActivateFn = (_rota, estado) => {
   if (inject(Sessao).logado()) return true;
   return inject(Router).createUrlTree(['/entrar'], { queryParams: { volta: estado.url } });
