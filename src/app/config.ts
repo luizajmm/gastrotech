@@ -14,12 +14,4 @@ export const CONFIG = {
 
   /** Volta para a tela inicial se ninguém tocar na tela por este tempo. */
   inatividadeSegundos: 90,
-
-  /** Tempo real (Laravel Reverb). Os valores batem com o .env da API. */
-  reverb: {
-    chave: 'gastrotech-chave-local',
-    host: '127.0.0.1',
-    porta: 8080,
-    tls: false,
-  },
 };

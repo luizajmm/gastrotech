@@ -28,10 +28,10 @@ Em `src/app/config.ts`:
 ## Telas
 
 ### Totem
-Início, cardápio por categoria, ficha do produto com personalizações, revisão do pedido, pagamento, código de retirada com andamento em tempo real e tela para acompanhar pelo código. Volta ao início sozinho após 90 segundos sem toque.
+Início, cardápio por categoria, ficha do produto com personalizações, revisão do pedido, pagamento, código de retirada com o andamento atualizado a cada 5 segundos e tela para acompanhar pelo código. Volta ao início sozinho após 90 segundos sem toque.
 
 ### Cozinha
-Três colunas (Recebidos, Em preparo, Prontos), cronômetro com aviso de atraso, observações destacadas, confirmação de pagamento em dinheiro e cancelamento com confirmação. Pedidos novos chegam em tempo real.
+Três colunas (Recebidos, Em preparo, Prontos), cronômetro com aviso de atraso, observações destacadas, confirmação de pagamento em dinheiro e cancelamento com confirmação. A fila atualiza sozinha a cada 5 segundos.
 
 ### Painel
 | Página | O que faz | Quem altera |
@@ -55,8 +55,8 @@ Quem não tem a permissão vê a página, mas sem os botões de alterar. A pági
 
 ```
 src/app/
-  config.ts            Modo demonstração, endereço da API, totem, tempo real
-  core/                Modelos, sessão, carrinho, APIs (HTTP e demonstração), tempo real, avisos
+  config.ts            Modo demonstração, endereço da API, totem
+  core/                Modelos, sessão, carrinho, APIs (HTTP e demonstração), avisos
   shared/              Peças reaproveitadas (ícones, formato de dinheiro, cabeçalho)
   totem/               Telas do totem
   cozinha/             Tela da cozinha

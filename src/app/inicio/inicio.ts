@@ -29,7 +29,7 @@ import { Sessao } from '../core/sessao';
         <a class="opcao" routerLink="/cozinha">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5h16v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM2.5 10.5h19M9 6.5c0-1.5 1-1.5 1-3M14 6.5c0-1.5 1-1.5 1-3" /></svg>
           <strong>Cozinha</strong>
-          <span>Fila de pedidos em tempo real.</span>
+          <span>Fila de pedidos que atualiza sozinha.</span>
         </a>
         <a class="opcao" routerLink="/painel">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4v4h6V4zM4 20h6v-4H4z" /></svg>

@@ -1,16 +1,13 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, map, merge, Observable, switchMap, throwError, timer, distinctUntilChanged } from 'rxjs';
+import { catchError, distinctUntilChanged, map, Observable, switchMap, throwError, timer } from 'rxjs';
 import { CONFIG } from '../config';
 import { Acompanhamento, Cardapio, ErroApi, NovoPedido } from './modelos';
-import { TempoReal } from './tempo-real';
 import { FalhaPedido, TotemApi } from './totem-api';
 
-/** Conversa com a API Laravel (rotas /api/totem/...). */
 @Injectable()
 export class TotemApiHttp extends TotemApi {
   private http = inject(HttpClient);
-  private tempoReal = inject(TempoReal);
   private url = `${CONFIG.apiUrl}/totem`;
 
   cardapio(): Observable<Cardapio> {
@@ -35,15 +32,10 @@ export class TotemApiHttp extends TotemApi {
       );
   }
 
-  /**
-   * Tempo real pelo WebSocket. Também consulta a cada 15 s,
-   * caso o servidor de tempo real esteja desligado.
-   */
+  // consulta o pedido a cada 5 segundos pra mostrar o andamento
   observar(codigo: string): Observable<Acompanhamento> {
-    const aoVivo = this.tempoReal.canalPublico<{ pedido: Acompanhamento }>(`pedido.${codigo}`, 'status.alterado');
-    const consulta = timer(0, 15_000).pipe(switchMap(() => this.acompanhar(codigo)));
-
-    return merge(consulta, aoVivo.pipe(map((e) => e.pedido))).pipe(
+    return timer(0, 5000).pipe(
+      switchMap(() => this.acompanhar(codigo)),
       distinctUntilChanged((a, b) => a.status.valor === b.status.valor && a.status_pagamento.valor === b.status_pagamento.valor),
     );
   }

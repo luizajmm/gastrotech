@@ -14,12 +14,10 @@
 
     <div class="lado">
       @if (fila(); as f) {
-        <span class="conexao" [class.ao-vivo]="f.aoVivo">
+        <span class="conexao" [class.ao-vivo]="demonstracao">
           <span class="ponto" aria-hidden="true"></span>
           @if (demonstracao) {
             Demonstração
-          } @else if (f.aoVivo) {
-            Ao vivo
           } @else {
             Atualizado às {{ f.atualizadoEm | date: 'HH:mm' }}
           }

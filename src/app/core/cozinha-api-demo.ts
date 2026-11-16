@@ -18,7 +18,6 @@ export class CozinhaApiDemo extends CozinhaApi {
       map((pedidos) => ({
         pedidos: pedidos.filter((p) => ['recebido', 'em_preparo', 'pronto'].includes(p.status.valor)),
         atualizadoEm: new Date(),
-        aoVivo: true,
       })),
     );
   }

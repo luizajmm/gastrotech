@@ -1,45 +1,25 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import {
-  catchError,
-  debounceTime,
-  map,
-  merge,
-  Observable,
-  shareReplay,
-  Subject,
-  switchMap,
-  tap,
-  throwError,
-  timer,
-} from 'rxjs';
+import { catchError, map, merge, Observable, shareReplay, Subject, switchMap, tap, throwError, timer } from 'rxjs';
 import { CONFIG } from '../config';
 import { CozinhaApi, FilaCozinha } from './cozinha-api';
 import { ErroApi, Pedido } from './modelos';
-import { TempoReal } from './tempo-real';
 import { FalhaPedido } from './totem-api';
 
-/** Rotas /api/pedidos da API Laravel + canal privado "cozinha". */
 @Injectable()
 export class CozinhaApiHttp extends CozinhaApi {
   private http = inject(HttpClient);
-  private tempoReal = inject(TempoReal);
   private recarregar = new Subject<void>();
-  private aoVivo = false;
 
   fila(): Observable<FilaCozinha> {
-    const eventos = this.tempoReal
-      .canalPrivado<{ pedido: Pedido }>('cozinha', ['pedido.criado', 'pedido.atualizado'])
-      .pipe(tap(() => (this.aoVivo = true)));
-
-    // Recarrega quando chega evento, depois de cada ação e, por segurança, a cada 20 s.
-    return merge(timer(0, 20_000), eventos.pipe(debounceTime(250)), this.recarregar).pipe(
+    // busca a fila a cada 5 segundos e também logo depois de cada ação
+    return merge(timer(0, 5000), this.recarregar).pipe(
       switchMap(() =>
         this.http.get<{ data: Pedido[] }>(`${CONFIG.apiUrl}/pedidos`, { params: { status: 'ativos' } }).pipe(
-          catchError(() => []), // falha de rede: mantém a última fila na tela
+          catchError(() => []), // se a rede falhar, continua mostrando a última fila
         ),
       ),
-      map((r) => ({ pedidos: r.data, atualizadoEm: new Date(), aoVivo: this.aoVivo })),
+      map((r) => ({ pedidos: r.data, atualizadoEm: new Date() })),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
   }

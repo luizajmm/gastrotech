@@ -4,16 +4,11 @@ import { Pedido } from './modelos';
 export interface FilaCozinha {
   pedidos: Pedido[];
   atualizadoEm: Date;
-  /** true quando as atualizações chegam na hora (WebSocket ou simulação). */
-  aoVivo: boolean;
 }
 
-/**
- * O que a tela da cozinha precisa da API.
- * Implementações: HTTP (API Laravel) e demonstração (pedidos simulados).
- */
+// a tela da cozinha usa isso, com a versão da api (http) ou a da demonstração
 export abstract class CozinhaApi {
-  /** Pedidos ativos (recebidos, em preparo e prontos). Emite a cada mudança. */
+  // pedidos recebidos, em preparo e prontos
   abstract fila(): Observable<FilaCozinha>;
 
   abstract avancar(id: number): Observable<Pedido>;
