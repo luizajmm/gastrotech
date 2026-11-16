@@ -1,0 +1,84 @@
+<main class="tela">
+  @if (erro(); as mensagem) {
+    <section class="problema">
+      <h1>Pedido não encontrado</h1>
+      <p>{{ mensagem }}</p>
+      <a class="btn btn-tinta" routerLink="/totem/acompanhar">Digitar outro código</a>
+    </section>
+  } @else if (pedido(); as p) {
+    <section class="topo">
+      <p class="saudacao">
+        @if (p.nome_cliente && p.nome_cliente !== 'Cliente') {
+          Obrigado, {{ p.nome_cliente }}! Seu código é
+        } @else {
+          Obrigado! Seu código é
+        }
+      </p>
+
+      <h1 class="codigo" [attr.aria-label]="'Código ' + p.codigo.split('').join(' ')">{{ p.codigo }}</h1>
+
+      <p class="instrucao">
+        @if (cancelado()) {
+          Este pedido foi cancelado. Procure o balcão se precisar de ajuda.
+        } @else if (pronto()) {
+          Está pronto! Retire no balcão mostrando o código.
+        } @else {
+          Chamamos este código no painel quando o pedido ficar pronto.
+          Previsão: cerca de {{ p.tempo_estimado_min }} minutos.
+        }
+      </p>
+    </section>
+
+    @if (pagarNoCaixa() && !cancelado()) {
+      <div class="pagar-caixa" role="note">
+        <strong>Pague {{ p.subtotal | dinheiro }} no caixa</strong>
+        <span>O pedido só é entregue depois do pagamento.</span>
+      </div>
+    }
+
+    @if (!cancelado()) {
+      <section class="andamento" aria-label="Andamento do pedido">
+        <div class="trilho" aria-hidden="true">
+          <div class="preenchido" [style.width.%]="progresso() * 100"></div>
+        </div>
+        <ol class="etapas">
+          @for (etapa of p.etapas; track etapa.valor; let i = $index) {
+            <li [class.feita]="etapa.concluida" [class.atual]="i === etapaAtual()" [attr.aria-current]="i === etapaAtual() ? 'step' : null">
+              {{ etapa.rotulo }}
+            </li>
+          }
+        </ol>
+      </section>
+    }
+
+    <details class="itens">
+      <summary>
+        <span>{{ p.itens.length }} {{ p.itens.length === 1 ? 'item' : 'itens' }} no pedido</span>
+        <span class="preco">{{ p.subtotal | dinheiro }}</span>
+      </summary>
+      <ul>
+        @for (item of p.itens; track item.id) {
+          <li>
+            <span>{{ item.quantidade }}× {{ item.nome }}</span>
+            @for (e of item.personalizacoes; track e.grupo) {
+              <small>{{ e.grupo }}: {{ e.opcao }}</small>
+            }
+            @if (item.observacao) {
+              <small>“{{ item.observacao }}”</small>
+            }
+          </li>
+        }
+      </ul>
+      <p class="pagamento texto-suave">Pagamento: {{ p.forma_pagamento.rotulo }} ({{ p.status_pagamento.rotulo.toLowerCase() }})</p>
+    </details>
+
+    <footer class="saida">
+      <a class="btn btn-tinta btn-largo" routerLink="/totem">Fazer novo pedido</a>
+      <p class="texto-suave">Esta tela volta ao início em {{ segundos() }} s</p>
+    </footer>
+  } @else {
+    <section class="problema" aria-busy="true">
+      <div class="traco-triplo carregando"></div>
+    </section>
+  }
+</main>

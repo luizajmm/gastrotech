@@ -1,0 +1,85 @@
+<div class="tela">
+  <header class="barra">
+    <div class="marca">
+      <img src="demo/gastrotech-logo.jpg" alt="" width="40" height="40" />
+      <h1>Cozinha</h1>
+    </div>
+
+    <div class="resumo" aria-live="polite">
+      <span>{{ (fila()?.pedidos ?? []).length }} na fila</span>
+      @if (atrasados()) {
+        <span class="resumo-atraso">{{ atrasados() }} {{ atrasados() === 1 ? 'atrasado' : 'atrasados' }}</span>
+      }
+    </div>
+
+    <div class="lado">
+      @if (fila(); as f) {
+        <span class="conexao" [class.ao-vivo]="f.aoVivo">
+          <span class="ponto" aria-hidden="true"></span>
+          @if (demonstracao) {
+            Demonstração
+          } @else if (f.aoVivo) {
+            Ao vivo
+          } @else {
+            Atualizado às {{ f.atualizadoEm | date: 'HH:mm' }}
+          }
+        </span>
+      }
+      <span class="relogio">{{ agora() | date: 'HH:mm' }}</span>
+      <button class="sair" type="button" (click)="sair()" [title]="sessao.usuario()?.nome ?? ''">Sair</button>
+    </div>
+  </header>
+
+  <nav class="abas" aria-label="Etapas">
+    @for (coluna of colunas(); track coluna.status) {
+      <button
+        type="button"
+        class="aba"
+        [class.ativa]="aba() === coluna.status"
+        [attr.aria-pressed]="aba() === coluna.status"
+        (click)="aba.set(coluna.status)"
+      >
+        {{ coluna.titulo }}
+        <span class="contagem">{{ coluna.pedidos.length }}</span>
+      </button>
+    }
+  </nav>
+
+  @if (!fila()) {
+    <section class="carregando" aria-busy="true">
+      <div class="traco-triplo"></div>
+      <p>Carregando a fila</p>
+    </section>
+  } @else {
+    <main class="quadro">
+      @for (coluna of colunas(); track coluna.status) {
+        <section class="coluna" [class.visivel]="aba() === coluna.status" [attr.aria-labelledby]="'col-' + coluna.status">
+          <header class="coluna-topo">
+            <h2 [id]="'col-' + coluna.status">{{ coluna.titulo }}</h2>
+            <span class="contagem">{{ coluna.pedidos.length }}</span>
+          </header>
+          <div class="traco-triplo"></div>
+
+          <div class="cartoes">
+            @for (pedido of coluna.pedidos; track pedido.id) {
+              <gt-pedido-cartao
+                [pedido]="pedido"
+                [agora]="agora()"
+                [novo]="novos().has(pedido.id)"
+                [ocupado]="ocupados().has(pedido.id)"
+                [podeAlterar]="podeAlterar"
+                (acao)="executar(pedido, $event)"
+              />
+            } @empty {
+              <p class="vazio">{{ coluna.vazio }}</p>
+            }
+          </div>
+        </section>
+      }
+    </main>
+  }
+
+  @if (aviso(); as mensagem) {
+    <div class="aviso" role="alert">{{ mensagem }}</div>
+  }
+</div>

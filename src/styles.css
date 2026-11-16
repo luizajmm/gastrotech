@@ -1,0 +1,222 @@
+/*
+ * GastroTech — identidade visual
+ *
+ * Base preta e branca (como a logo) + laranja brasa como única cor de destaque.
+ * Assinatura: o traço triplo da logo (três linhas paralelas) marca o que está selecionado.
+ */
+
+:root {
+  --tinta: #000000;
+  --papel: #ffffff;
+  --fumaca: #eeedea;
+  --fumaca-forte: #dcdad5;
+  --grafite: #5e5e5e;
+  --brasa: #f2581c;
+  --brasa-escura: #c63f0c;
+  --alerta: #c4161c;
+  --alerta-fundo: #fdecec;
+
+  --fonte: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --fonte-codigo: 'Monoton', 'Archivo', sans-serif;
+
+  /* Larguras do Archivo (eixo wdth): normal em tudo, sem letra esticada */
+  --largura-titulo: 100;
+  --largura-texto: 100;
+
+  --raio-grande: 22px;
+  --raio-medio: 14px;
+
+  --espaco-1: 0.25rem;
+  --espaco-2: 0.5rem;
+  --espaco-3: 0.75rem;
+  --espaco-4: 1rem;
+  --espaco-5: 1.5rem;
+  --espaco-6: 2rem;
+  --espaco-7: 3rem;
+
+  /* Contorno triplo da logo (por dentro do elemento, não ocupa espaço) */
+  --traco-triplo: inset 0 0 0 2px var(--tinta), inset 0 0 0 5px var(--papel), inset 0 0 0 7px var(--tinta);
+
+  --toque: 4rem; /* altura mínima de alvos de toque */
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Escala pelo lado menor da tela: ~15px no celular, ~18px no notebook, ~21px no totem em pé */
+  font-size: clamp(15px, 0.6rem + 1.1vmin, 22px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fonte);
+  font-variation-settings: 'wdth' var(--largura-texto);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-variation-settings: 'wdth' var(--largura-titulo);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Campos sempre claros, mesmo com o navegador em modo escuro */
+input,
+textarea,
+select {
+  background-color: var(--papel);
+  color: var(--tinta);
+  color-scheme: light;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--grafite);
+  opacity: 0.8;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--brasa);
+  outline-offset: 3px;
+}
+
+/* ---------- Botões ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-3);
+  min-height: var(--toque);
+  padding: 0 var(--espaco-6);
+  border: 0;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 750;
+  font-variation-settings: 'wdth' 100;
+  text-decoration: none;
+  transition: transform 120ms ease, background-color 160ms ease;
+  user-select: none;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+/* Laranja com texto preto: contraste alto (6:1) e cara de chapa quente */
+.btn-brasa {
+  background: var(--brasa);
+  color: var(--tinta);
+}
+
+.btn-tinta {
+  background: var(--tinta);
+  color: var(--papel);
+}
+
+.btn-alerta {
+  background: var(--alerta);
+  color: var(--papel);
+}
+
+.btn-contorno {
+  background: transparent;
+  color: var(--tinta);
+  box-shadow: inset 0 0 0 2px var(--tinta);
+}
+
+.btn-discreto {
+  background: transparent;
+  color: var(--tinta);
+  padding: 0 var(--espaco-4);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  font-weight: 600;
+}
+
+.btn-largo {
+  width: 100%;
+}
+
+/* ---------- Utilidades ---------- */
+
+.preco {
+  font-variation-settings: 'wdth' 100;
+  font-weight: 800;
+  font-feature-settings: 'tnum' 1;
+  white-space: nowrap;
+}
+
+.texto-suave {
+  color: var(--grafite);
+}
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Três linhas paralelas, usadas como divisória */
+.traco-triplo {
+  height: 12px;
+  background:
+    linear-gradient(var(--tinta), var(--tinta)) 0 0 / 100% 2px no-repeat,
+    linear-gradient(var(--tinta), var(--tinta)) 0 5px / 100% 2px no-repeat,
+    linear-gradient(var(--tinta), var(--tinta)) 0 10px / 100% 2px no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

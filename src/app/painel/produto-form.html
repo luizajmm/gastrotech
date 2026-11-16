@@ -1,0 +1,182 @@
+<dialog
+  #janela
+  class="janela larga"
+  aria-labelledby="titulo-produto"
+  (cancel)="$event.preventDefault(); fechar.emit()"
+  (click)="cliqueNoFundo($event)"
+>
+  <header class="janela-topo">
+    <h2 id="titulo-produto">{{ titulo() }}</h2>
+    <button class="btn btn-icone btn-contorno" type="button" aria-label="Fechar" (click)="fechar.emit()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button>
+  </header>
+
+  <form class="janela-corpo" id="form-produto" (submit)="$event.preventDefault(); salvar()" novalidate>
+    <section class="topo-form">
+      <div class="foto">
+        @if (fotoExibida(); as url) {
+          <img [src]="url" alt="Foto do produto" />
+        } @else {
+          <span class="sem-foto">Sem foto</span>
+        }
+        <div class="foto-acoes">
+          <label class="btn btn-pequeno btn-contorno" for="foto-produto">{{ fotoExibida() ? 'Trocar foto' : 'Escolher foto' }}</label>
+          <input id="foto-produto" class="visualmente-oculto" type="file" accept="image/jpeg,image/png,image/webp" (change)="escolherFoto($event)" />
+          @if (fotoExibida()) {
+            <button class="btn btn-pequeno btn-discreto" type="button" (click)="tirarFoto()">Remover</button>
+          }
+        </div>
+        @if (erros()['imagem']) {
+          <span class="erro-campo">{{ erros()['imagem'] }}</span>
+        }
+      </div>
+
+      <div class="grade-campos principal">
+        <div class="campo largo">
+          <label for="p-nome">Nome</label>
+          <input id="p-nome" [class.invalido]="erros()['nome']" [value]="nome()" (input)="nome.set(valor($event))" maxlength="140" />
+          @if (erros()['nome']) {
+            <span class="erro-campo">{{ erros()['nome'] }}</span>
+          }
+        </div>
+        <div class="campo">
+          <label for="p-categoria">Categoria</label>
+          <select id="p-categoria" (change)="categoriaId.set(valor($event) ? +valor($event) : null)">
+            <option value="" [selected]="!categoriaId()">Sem categoria</option>
+            @for (c of categorias(); track c.id) {
+              <option [value]="c.id" [selected]="c.id === categoriaId()">{{ c.nome }}</option>
+            }
+          </select>
+        </div>
+        <div class="campo">
+          <label for="p-preco">Preço (R$)</label>
+          <input id="p-preco" inputmode="decimal" placeholder="24,90" [class.invalido]="erros()['preco']" [value]="preco()" (input)="preco.set(valor($event))" />
+          @if (erros()['preco']) {
+            <span class="erro-campo">{{ erros()['preco'] }}</span>
+          }
+        </div>
+        <div class="campo largo">
+          <label for="p-descricao">Descrição no totem</label>
+          <textarea id="p-descricao" rows="2" maxlength="255" [value]="descricao()" (input)="descricao.set(valor($event))"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao-form">
+      <h3>Estoque e preparo</h3>
+      <div class="grade-campos">
+        <div class="campo">
+          <label for="p-estoque">Estoque (unidades)</label>
+          <input id="p-estoque" type="number" min="0" [value]="estoque()" (input)="estoque.set(valor($event))" />
+          <span class="ajuda">Com zero, o item some do totem.</span>
+        </div>
+        <div class="campo">
+          <label for="p-tempo">Tempo de preparo (min)</label>
+          <input id="p-tempo" type="number" min="1" [value]="tempo()" (input)="tempo.set(valor($event))" />
+          <span class="ajuda">Usado para avisar atraso na cozinha.</span>
+        </div>
+        <div class="campo">
+          <span class="rotulo">No totem</span>
+          <label class="interruptor"><input type="checkbox" [checked]="ativo()" (change)="ativo.set(!ativo())" /> Disponível para venda</label>
+          <label class="interruptor"><input type="checkbox" [checked]="destaque()" (change)="destaque.set(!destaque())" /> Mostrar em Mais pedidos</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao-form">
+      <div class="secao-topo">
+        <h3>Personalizações</h3>
+        <button class="btn btn-pequeno btn-contorno" type="button" (click)="adicionarGrupo()">Adicionar escolha</button>
+      </div>
+      <p class="ajuda-secao">O que o cliente escolhe no totem, como sabor da bebida ou ponto da carne.</p>
+
+      @for (grupo of grupos(); track grupo.chave; let i = $index) {
+        <div class="grupo">
+          <div class="campo">
+            <label [for]="'g-nome-' + grupo.chave">Nome da escolha</label>
+            <input
+              [id]="'g-nome-' + grupo.chave"
+              placeholder="Ex.: Ponto da carne"
+              [class.invalido]="erros()['personalizacoes.' + i + '.nome']"
+              [value]="grupo.nome"
+              (input)="alterarGrupo(grupo.chave, { nome: valor($event) })"
+            />
+            @if (erros()['personalizacoes.' + i + '.nome']) {
+              <span class="erro-campo">{{ erros()['personalizacoes.' + i + '.nome'] }}</span>
+            }
+          </div>
+          <div class="campo opcoes">
+            <label [for]="'g-opcoes-' + grupo.chave">Opções, separadas por vírgula</label>
+            <input
+              [id]="'g-opcoes-' + grupo.chave"
+              placeholder="Ao ponto, Bem passado"
+              [class.invalido]="erros()['personalizacoes.' + i + '.opcoes']"
+              [value]="grupo.opcoes"
+              (input)="alterarGrupo(grupo.chave, { opcoes: valor($event) })"
+            />
+            @if (erros()['personalizacoes.' + i + '.opcoes']) {
+              <span class="erro-campo">{{ erros()['personalizacoes.' + i + '.opcoes'] }}</span>
+            } @else if (opcoesDe(grupo).length) {
+              <span class="fichas">
+                @for (o of opcoesDe(grupo); track $index) {
+                  <span>{{ o }}</span>
+                }
+              </span>
+            }
+          </div>
+          <div class="grupo-lado">
+            <label class="interruptor">
+              <input type="checkbox" [checked]="grupo.obrigatorio" (change)="alterarGrupo(grupo.chave, { obrigatorio: !grupo.obrigatorio })" />
+              Obrigatória
+            </label>
+            <button class="btn btn-pequeno btn-discreto" type="button" (click)="removerGrupo(grupo.chave)">Remover</button>
+          </div>
+        </div>
+      } @empty {
+        <p class="sem-grupos">Este produto não tem escolhas: vai direto para o pedido.</p>
+      }
+    </section>
+
+    <section class="secao-form">
+      <h3>Ficha do produto</h3>
+      <div class="grade-campos">
+        <div class="campo">
+          <label for="p-porcao">Porção</label>
+          <input id="p-porcao" placeholder="Ex.: Copo 400ml" [value]="porcao()" (input)="porcao.set(valor($event))" />
+        </div>
+        <div class="campo">
+          <label for="p-calorias">Calorias (kcal)</label>
+          <input id="p-calorias" type="number" min="0" [value]="calorias()" (input)="calorias.set(valor($event))" />
+        </div>
+        <div class="campo">
+          <label for="p-alergenos">Alergênicos</label>
+          <input id="p-alergenos" placeholder="Glúten, Leite" [value]="alergenos()" (input)="alergenos.set(valor($event))" />
+        </div>
+        <div class="campo largo">
+          <label for="p-ingredientes">Ingredientes</label>
+          <textarea id="p-ingredientes" rows="2" [value]="ingredientes()" (input)="ingredientes.set(valor($event))"></textarea>
+        </div>
+        <div class="campo">
+          <label for="p-tags">Selos no totem</label>
+          <input id="p-tags" placeholder="Mais vendido, Artesanal" [value]="tags()" (input)="tags.set(valor($event))" />
+          <span class="ajuda">O primeiro aparece sobre a foto.</span>
+        </div>
+        <div class="campo">
+          <label for="p-destaques">Destaques</label>
+          <input id="p-destaques" placeholder="Pão brioche, Bacon" [value]="destaques()" (input)="destaques.set(valor($event))" />
+        </div>
+      </div>
+    </section>
+  </form>
+
+  <footer class="janela-rodape">
+    @if (erroGeral(); as mensagem) {
+      <span class="erro-geral" role="alert">{{ mensagem }}</span>
+    }
+    <button class="btn btn-contorno" type="button" (click)="fechar.emit()">Cancelar</button>
+    <button class="btn btn-tinta" type="submit" form="form-produto" [disabled]="salvando()">
+      {{ salvando() ? 'Salvando' : produto() ? 'Salvar alterações' : 'Cadastrar produto' }}
+    </button>
+  </footer>
+</dialog>

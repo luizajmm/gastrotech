@@ -1,0 +1,104 @@
+<div class="tela">
+  <header class="topo">
+    <a class="marca" routerLink="/totem" aria-label="Início">
+      @if (loja.cardapio()?.loja?.logo_url; as logo) {
+        <img [src]="logo" alt="" width="56" height="56" />
+      }
+      <span>{{ loja.cardapio()?.loja?.nome_loja ?? 'GastroTech' }}</span>
+    </a>
+    <button class="btn btn-discreto" type="button" (click)="recomecar()">Recomeçar</button>
+  </header>
+
+  @if (loja.erro(); as erro) {
+    <section class="estado">
+      <h2>O cardápio não carregou</h2>
+      <p>{{ erro }}</p>
+      <button class="btn btn-tinta" type="button" (click)="loja.carregar(true)">Tentar de novo</button>
+    </section>
+  } @else if (!loja.cardapio()) {
+    <section class="estado" aria-busy="true">
+      <div class="traco-triplo carregando"></div>
+      <p>Carregando o cardápio</p>
+    </section>
+  } @else {
+    <nav class="categorias" aria-label="Categorias">
+      @for (categoria of categorias(); track categoria.id) {
+        <button
+          type="button"
+          class="categoria"
+          [class.ativa]="categoria.id === atual()?.id"
+          [attr.aria-current]="categoria.id === atual()?.id ? 'true' : null"
+          (click)="escolherCategoria(categoria.id)"
+        >
+          <gt-icone-categoria [nome]="categoria.icone" />
+          <span>{{ categoria.nome }}</span>
+        </button>
+      }
+    </nav>
+
+    <main class="produtos">
+      @if (atual(); as categoria) {
+        <header class="cabecalho-categoria">
+          <h1>{{ categoria.nome }}</h1>
+          @if (categoria.descricao) {
+            <p class="texto-suave">{{ categoria.descricao }}</p>
+          }
+        </header>
+
+        <ul class="grade">
+          @for (produto of categoria.produtos; track produto.id; let primeiro = $first) {
+            <li [class.grande]="primeiro && categoria.produtos.length > 1">
+              <button type="button" class="produto" (click)="aberto.set(produto)">
+                <div class="foto">
+                  @if (produto.imagem_url) {
+                    <img [src]="produto.imagem_url" [alt]="produto.nome" loading="lazy" />
+                  }
+                  @if (produto.tags[0]; as tag) {
+                    <span class="selo">{{ tag }}</span>
+                  }
+                  @if (carrinho.quantidadeDo(produto.id); as qtd) {
+                    <span class="no-pedido">{{ qtd }} no pedido</span>
+                  }
+                </div>
+                <div class="info">
+                  <h2>{{ produto.nome }}</h2>
+                  @if (produto.descricao) {
+                    <p class="descricao">{{ produto.descricao }}</p>
+                  }
+                  <div class="rodape-produto">
+                    <span class="preco">{{ produto.preco | dinheiro }}</span>
+                    <span class="mais" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+                    </span>
+                  </div>
+                </div>
+              </button>
+            </li>
+          } @empty {
+            <li class="vazio">Nenhum item disponível nesta categoria agora.</li>
+          }
+        </ul>
+      }
+    </main>
+  }
+
+  <footer class="barra" [class.com-itens]="!carrinho.vazio()">
+    @if (carrinho.vazio()) {
+      <p class="dica">Toque em um item para adicionar ao pedido</p>
+    } @else {
+      <div class="resumo" aria-live="polite">
+        <span>{{ carrinho.quantidadeItens() }} {{ carrinho.quantidadeItens() === 1 ? 'item' : 'itens' }}</span>
+        <strong class="preco">{{ carrinho.total() | dinheiro }}</strong>
+      </div>
+      <a class="btn btn-brasa" routerLink="/totem/pedido">Revisar pedido</a>
+    }
+  </footer>
+
+  @if (confirmacao(); as nome) {
+    <div class="toast" role="status">{{ nome }} adicionado ao pedido</div>
+  }
+
+  @if (aberto(); as produto) {
+    <gt-produto-detalhe [produto]="produto" (fechar)="aberto.set(null)" (adicionado)="adicionado($event)" />
+  }
+</div>

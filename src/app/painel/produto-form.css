@@ -1,0 +1,121 @@
+.janela.larga {
+  width: min(100% - 2rem, 52rem);
+}
+
+.topo-form {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: var(--espaco-5);
+  align-items: start;
+}
+
+.foto {
+  display: grid;
+  gap: var(--espaco-2);
+}
+
+.foto img,
+.sem-foto {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--raio-medio);
+  object-fit: cover;
+}
+
+.sem-foto {
+  display: grid;
+  place-items: center;
+  border: 1px dashed #bdbab3;
+  background: var(--fumaca);
+  color: var(--grafite);
+}
+
+.foto-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-1);
+}
+
+.foto-acoes label {
+  cursor: pointer;
+}
+
+.foto-acoes:has(input:focus-visible) label {
+  outline: 3px solid var(--brasa);
+  outline-offset: 2px;
+}
+
+.secao-form {
+  padding-top: var(--espaco-5);
+  border-top: 1px solid var(--linha);
+}
+
+.secao-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+}
+
+.secao-topo h3 {
+  font-size: 0.95rem;
+  font-weight: 750;
+}
+
+.ajuda-secao {
+  margin-top: calc(var(--espaco-3) * -1);
+  color: var(--grafite);
+  font-size: 0.85rem;
+}
+
+.grupo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) auto;
+  gap: var(--espaco-3);
+  align-items: start;
+  padding: var(--espaco-3);
+  border-radius: var(--raio-medio);
+  background: #faf9f7;
+  border: 1px solid var(--linha);
+}
+
+.grupo-lado {
+  display: grid;
+  justify-items: start;
+  padding-top: 1.35rem;
+}
+
+.fichas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.fichas span {
+  padding: 0.05rem 0.55rem;
+  border-radius: 999px;
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  font-size: 0.78rem;
+}
+
+.sem-grupos {
+  color: var(--grafite);
+}
+
+@media (max-width: 640px) {
+  .topo-form,
+  .grupo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .foto {
+    max-width: 14rem;
+  }
+
+  .grupo-lado {
+    grid-auto-flow: column;
+    justify-content: space-between;
+    padding-top: 0;
+  }
+}

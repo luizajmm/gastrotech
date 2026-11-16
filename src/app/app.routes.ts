@@ -1,0 +1,44 @@
+import { Routes } from '@angular/router';
+import { exigeLogin, exigePermissao } from './core/autenticacao';
+
+export const routes: Routes = [
+  { path: '', pathMatch: 'full', title: 'GastroTech', loadComponent: () => import('./inicio/inicio').then((m) => m.Inicio) },
+  {
+    path: 'totem',
+    loadComponent: () => import('./totem/totem-shell').then((m) => m.TotemShell),
+    children: [
+      { path: '', title: 'Bem-vindo', loadComponent: () => import('./totem/boas-vindas').then((m) => m.BoasVindas) },
+      { path: 'cardapio', title: 'Cardápio', loadComponent: () => import('./totem/cardapio').then((m) => m.CardapioPagina) },
+      { path: 'pedido', title: 'Seu pedido', loadComponent: () => import('./totem/revisao').then((m) => m.Revisao) },
+      { path: 'pagamento', title: 'Pagamento', loadComponent: () => import('./totem/pagamento').then((m) => m.Pagamento) },
+      { path: 'acompanhar', title: 'Acompanhar pedido', loadComponent: () => import('./totem/acompanhar').then((m) => m.Acompanhar) },
+      { path: 'pedido/:codigo', title: 'Pedido confirmado', loadComponent: () => import('./totem/confirmacao').then((m) => m.Confirmacao) },
+    ],
+  },
+  { path: 'entrar', title: 'Entrar', loadComponent: () => import('./entrar/entrar').then((m) => m.Entrar) },
+  {
+    path: 'cozinha',
+    title: 'Cozinha',
+    canActivate: [exigeLogin],
+    loadComponent: () => import('./cozinha/cozinha').then((m) => m.Cozinha),
+  },
+  {
+    path: 'painel',
+    canActivate: [exigeLogin],
+    loadComponent: () => import('./painel/painel-shell').then((m) => m.PainelShell),
+    children: [
+      { path: '', title: 'Visão geral', loadComponent: () => import('./painel/visao-geral').then((m) => m.VisaoGeral) },
+      { path: 'pedidos', title: 'Pedidos', loadComponent: () => import('./painel/pedidos').then((m) => m.PedidosPagina) },
+      { path: 'cardapio', title: 'Cardápio', loadComponent: () => import('./painel/cardapio-admin').then((m) => m.CardapioAdmin) },
+      { path: 'financeiro', title: 'Financeiro', loadComponent: () => import('./painel/financeiro').then((m) => m.Financeiro) },
+      {
+        path: 'equipe',
+        title: 'Equipe',
+        canActivate: [exigePermissao('usuarios')],
+        loadComponent: () => import('./painel/equipe').then((m) => m.Equipe),
+      },
+      { path: 'configuracoes', title: 'Configurações', loadComponent: () => import('./painel/configuracoes').then((m) => m.Configuracoes) },
+    ],
+  },
+  { path: '**', redirectTo: '' },
+];
