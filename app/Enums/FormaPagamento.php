@@ -19,8 +19,7 @@ enum FormaPagamento: string
         };
     }
 
-    // pix e cartão são confirmados no próprio totem
-    // dinheiro fica pendente até o pagamento no balcão
+    // dinheiro só fica pago depois que o caixa confirma
     public function pagoNoTotem(): bool
     {
         return $this !== self::Dinheiro;

@@ -16,8 +16,7 @@ class PedidoController extends Controller
 {
     public function __construct(private PedidoService $pedidos) {}
 
-    // ?status=ativos (padrão: tudo que ainda não saiu), um status específico ou "todos"
-    // ?busca= procura pelo código ou nome do cliente
+    // ?status=ativos (padrão), um status ou "todos" / ?busca= código ou nome
     public function index(Request $request): AnonymousResourceCollection
     {
         $request->validate([
@@ -39,7 +38,7 @@ class PedidoController extends Controller
                     ->orWhere('nome_cliente', 'like', '%'.$termo.'%'));
             });
 
-        // a fila ativa é pequena e vem inteira; o histórico é paginado
+        // a fila vem inteira, o histórico é paginado
         $resultado = $status === 'ativos'
             ? $consulta->get()
             : $consulta->paginate($request->integer('por_pagina', 20));
@@ -69,7 +68,7 @@ class PedidoController extends Controller
         return new PedidoResource($this->pedidos->confirmarPagamento($pedido));
     }
 
-    // quantos pedidos em cada etapa (abas da cozinha). Retirados/cancelados contam só hoje
+    // retirados e cancelados contam só os de hoje
     private function contagens(): array
     {
         $porStatus = Pedido::query()

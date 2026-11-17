@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
-// configurações da loja no formato chave/valor
-// (nome, frase do totem, logo, tempo de espera...)
+// chave/valor: nome da loja, frase do totem, logo...
 class Configuracao extends Model
 {
     protected $table = 'configuracoes';
@@ -22,7 +21,6 @@ class Configuracao extends Model
 
     private const CACHE = 'configuracoes.todas';
 
-    // valores usados quando a chave ainda não existe no banco
     public const PADROES = [
         'nome_loja' => 'GastroTech',
         'frase_totem' => 'Monte seu pedido do seu jeito.',
@@ -68,7 +66,6 @@ class Configuracao extends Model
         static::query()->updateOrCreate(['chave' => $chave], $dados);
     }
 
-    // dados da loja que podem ser vistos por qualquer pessoa (totem)
     public static function publicas(): array
     {
         $todas = static::todas();

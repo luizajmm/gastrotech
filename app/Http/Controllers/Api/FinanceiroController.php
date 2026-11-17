@@ -19,7 +19,6 @@ class FinanceiroController extends Controller
 {
     public function __construct(private FinanceiroService $financeiro) {}
 
-    // relatório de vendas do período (padrão: últimos 7 dias)
     public function vendas(FiltroPeriodoRequest $request): JsonResponse
     {
         return response()->json([
@@ -27,7 +26,6 @@ class FinanceiroController extends Controller
         ]);
     }
 
-    // caixa aberto agora, com o saldo esperado na gaveta
     public function caixa(): JsonResponse
     {
         $caixa = Caixa::aberto()?->load('abertoPor');
@@ -72,7 +70,6 @@ class FinanceiroController extends Controller
         );
     }
 
-    // movimentos (entradas/saídas manuais) do caixa aberto
     public function movimentos(): AnonymousResourceCollection
     {
         $caixa = Caixa::aberto();

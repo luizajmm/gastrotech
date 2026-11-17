@@ -51,7 +51,7 @@ class UsuarioController extends Controller
 
         $usuario->update($dados);
 
-        // desativado ou com senha trocada: derruba as sessões abertas dele
+        // desativou ou trocou a senha: desloga ele de tudo
         if (! $usuario->ativo || isset($dados['password'])) {
             $usuario->tokens()
                 ->when($eu, fn ($q) => $q->whereKeyNot($request->user()->currentAccessToken()->id))

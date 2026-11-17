@@ -43,7 +43,6 @@ class Produto extends Model
         return $this->belongsTo(Categoria::class);
     }
 
-    // ativo e com estoque: aparece no totem
     public function scopeDisponiveis(Builder $query): Builder
     {
         return $query->where('ativo', true)->where('estoque', '>', 0);

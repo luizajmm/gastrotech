@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
 
-// usuário desativado perde o acesso na hora, mesmo com um token antigo
 class GarantirUsuarioAtivo
 {
     public function handle(Request $request, Closure $next): Response

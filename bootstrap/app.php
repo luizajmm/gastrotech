@@ -18,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // API usa token (Bearer), então não há redirecionamento para tela de login.
+        // é api com token, não tem tela de login pra redirecionar
         $middleware->redirectGuestsTo(fn () => null);
 
         $middleware->alias([
@@ -26,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Toda rota /api responde em JSON, inclusive erros.
+        // erro também volta em json
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson()
         );

@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\TotensController;
 use App\Http\Controllers\Api\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
-// rotas públicas (totem do cliente)
+// totem (sem login)
 
 Route::prefix('totem')->group(function () {
     Route::get('cardapio', [TotemController::class, 'cardapio']);
@@ -25,9 +25,7 @@ Route::get('opcoes', OpcoesController::class);
 
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
 
-// painel (precisa de login)
-// leitura: qualquer usuário ativo
-// alterações: só quem tem a permissão (ver App\Enums\Papel)
+// equipe (com login)
 
 Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
     Route::get('eu', [AuthController::class, 'eu']);
@@ -87,7 +85,7 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
         ->parameters(['usuarios' => 'usuario'])
         ->middleware('can:usuarios');
 
-    // configurações da loja e totens
+    // configurações e totens
     Route::get('configuracoes', [ConfiguracaoController::class, 'show']);
     Route::get('totens', [TotensController::class, 'index'])->middleware('can:ver-configuracoes');
 

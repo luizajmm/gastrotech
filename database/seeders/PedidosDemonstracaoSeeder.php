@@ -30,7 +30,7 @@ class PedidosDemonstracaoSeeder extends Seeder
         $totens = Totem::all();
         $admin = User::query()->where('email', 'admin@gastrotech.com')->first();
 
-        // Vendas já concluídas nos últimos 7 dias
+        // vendas dos últimos 7 dias
         for ($dia = 7; $dia >= 1; $dia--) {
             $quantidade = mt_rand(9, 18);
 
@@ -40,7 +40,7 @@ class PedidosDemonstracaoSeeder extends Seeder
             }
         }
 
-        // Caixa de hoje
+        // caixa de hoje
         $caixa = Caixa::query()->create([
             'saldo_inicial' => 150,
             'status' => 'aberto',
@@ -53,12 +53,12 @@ class PedidosDemonstracaoSeeder extends Seeder
             ['tipo' => TipoMovimento::Saida, 'descricao' => 'Compra de embalagens', 'forma_pagamento' => FormaPagamento::Dinheiro, 'valor' => 22.50, 'user_id' => $admin?->id],
         ]);
 
-        // Pedidos de hoje já retirados
+        // pedidos de hoje já retirados
         for ($i = 0; $i < 6; $i++) {
             $this->criarPedido($produtos, $totens->random(), now()->subMinutes(mt_rand(90, 240)), StatusPedido::Retirado);
         }
 
-        // Fila atual da cozinha (um deles atrasado de propósito)
+        // fila da cozinha (um atrasado de propósito)
         $this->criarPedido($produtos, $totens->first(), now()->subMinutes(32), StatusPedido::EmPreparo);
         $this->criarPedido($produtos, $totens->first(), now()->subMinutes(12), StatusPedido::EmPreparo);
         $this->criarPedido($produtos, $totens->last(), now()->subMinutes(6), StatusPedido::Pronto);

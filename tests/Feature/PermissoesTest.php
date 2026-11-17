@@ -78,7 +78,7 @@ class PermissoesTest extends TestCase
         $produto = Produto::factory()->create();
         $this->entrarComo(Papel::Administrador);
 
-        // Abrir um link (GET) nunca apaga nada
+        // GET nunca apaga
         $this->getJson("/api/produtos/{$produto->id}?excluir=1")->assertOk();
         $this->assertModelExists($produto);
 

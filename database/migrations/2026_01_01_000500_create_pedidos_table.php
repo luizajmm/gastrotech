@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('totem_id')->nullable()->constrained('totens')->nullOnDelete();
-            // gerado a partir do id depois do insert: não há colisão entre totens
+            // gerado pelo id depois de salvar, assim não repete
             $table->string('codigo', 20)->nullable()->unique();
             $table->string('nome_cliente', 100)->nullable();
             $table->string('status', 20)->default('recebido');
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('pedido_id')->constrained('pedidos')->cascadeOnDelete();
             $table->foreignId('produto_id')->nullable()->constrained('produtos')->nullOnDelete();
-            // cópia do nome e do preço: o histórico não muda se o produto for editado
+            // guarda nome e preço pro histórico não mudar se editarem o produto
             $table->string('nome_produto', 140);
             $table->json('personalizacoes')->nullable(); // {"Gelo": "Sem gelo"}
             $table->string('observacao', 180)->nullable();

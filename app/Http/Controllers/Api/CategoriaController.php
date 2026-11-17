@@ -37,7 +37,7 @@ class CategoriaController extends Controller
         return new CategoriaResource($categoria->loadCount('produtos'));
     }
 
-    // os produtos da categoria ficam "sem categoria" (não são apagados)
+    // os produtos não são apagados, só ficam sem categoria
     public function destroy(Categoria $categoria): JsonResponse
     {
         $categoria->delete();

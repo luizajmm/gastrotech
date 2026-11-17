@@ -14,10 +14,8 @@ use Illuminate\Validation\ValidationException;
 
 class PedidoService
 {
-    // cria o pedido vindo do totem
-    // o preço sempre vem do banco (o carrinho só manda id e quantidade),
-    // e o estoque é travado durante a transação para dois totens não
-    // venderem a última unidade ao mesmo tempo
+    // o preço vem sempre do banco, e o estoque fica travado na transação
+    // pra dois totens não venderem a última unidade juntos
     public function criar(array $dados): Pedido
     {
         $forma = FormaPagamento::from($dados['forma_pagamento']);
@@ -66,7 +64,7 @@ class PedidoService
         return $pedido->load(['itens', 'totem']);
     }
 
-    // leva o pedido para a próxima etapa (Recebido → Em preparo → Pronto → Retirado)
+    // recebido > em preparo > pronto > retirado
     public function avancar(Pedido $pedido): Pedido
     {
         $pedido = DB::transaction(function () use ($pedido) {
@@ -95,7 +93,7 @@ class PedidoService
         return $pedido->load(['itens', 'totem']);
     }
 
-    // cancela, devolve os itens ao estoque e estorna se já estava pago
+    // devolve pro estoque
     public function cancelar(Pedido $pedido): Pedido
     {
         $pedido = DB::transaction(function () use ($pedido) {
@@ -125,7 +123,6 @@ class PedidoService
         return $pedido->load(['itens', 'totem']);
     }
 
-    // confirma pagamento feito no balcão (pedidos em dinheiro)
     public function confirmarPagamento(Pedido $pedido): Pedido
     {
         if ($pedido->status === StatusPedido::Cancelado) {
@@ -139,8 +136,7 @@ class PedidoService
         return $pedido->load(['itens', 'totem']);
     }
 
-    // confere disponibilidade, estoque e personalizações de cada item
-    // junta todos os problemas numa única resposta para o totem mostrar
+    // junta todos os erros numa resposta só pro totem mostrar
     private function validarItens(Collection $itens, Collection $produtos): Collection
     {
         $erros = [];

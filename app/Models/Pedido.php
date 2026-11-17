@@ -70,7 +70,7 @@ class Pedido extends Model
         return max(0, $this->minutosDecorridos() - $this->tempo_estimado_min);
     }
 
-    // código curto mostrado ao cliente: A101, A102...
+    // A101, A102...
     public static function gerarCodigo(int $id): string
     {
         return 'A'.(100 + $id);

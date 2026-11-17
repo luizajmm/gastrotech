@@ -17,7 +17,6 @@ use Illuminate\Validation\ValidationException;
 
 class FinanceiroService
 {
-    // vendas pagas no período: total, por forma de pagamento, por dia e mais vendidos
     public function vendas(Carbon $inicio, Carbon $fim, ?FormaPagamento $forma = null): array
     {
         $base = fn () => $this->pedidosPagos($inicio, $fim, $forma);
@@ -63,7 +62,7 @@ class FinanceiroService
         ];
     }
 
-    // situação da gaveta: saldo inicial + vendas em dinheiro + entradas − saídas
+    // saldo inicial + vendas em dinheiro + entradas - saídas
     public function resumoCaixa(Caixa $caixa): array
     {
         $ate = $caixa->fechado_em ?? now();

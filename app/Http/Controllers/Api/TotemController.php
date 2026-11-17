@@ -15,7 +15,6 @@ use Illuminate\Http\JsonResponse;
 
 class TotemController extends Controller
 {
-    // loja + categorias ativas com os produtos disponíveis
     public function cardapio(): JsonResponse
     {
         $categorias = Categoria::query()
@@ -26,7 +25,7 @@ class TotemController extends Controller
             ->filter(fn (Categoria $c) => $c->produtos->isNotEmpty())
             ->values();
 
-        // produtos sem categoria também aparecem, num grupo "Outros"
+        // produto sem categoria vai pra "Outros"
         $semCategoria = Produto::query()->disponiveis()->whereNull('categoria_id')->orderBy('nome')->get();
 
         if ($semCategoria->isNotEmpty()) {

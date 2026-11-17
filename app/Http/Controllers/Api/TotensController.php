@@ -34,7 +34,7 @@ class TotensController extends Controller
         return new TotemResource($totem);
     }
 
-    // o histórico de pedidos do totem é mantido (o pedido fica sem totem)
+    // os pedidos continuam, só ficam sem totem
     public function destroy(Totem $totem): JsonResponse
     {
         $totem->delete();

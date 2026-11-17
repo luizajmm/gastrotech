@@ -11,8 +11,7 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    // permissões do painel. Cada uma vira um Gate usado nas rotas
-    // com o middleware "can:<permissao>". Quem tem cada uma está em App\Enums\Papel
+    // cada permissão vira um Gate (can:cardapio, can:ver-cardapio...)
     public const PERMISSOES = ['cardapio', 'pedidos', 'caixa', 'usuarios', 'configuracoes'];
 
     public function register(): void
@@ -26,11 +25,10 @@ class AppServiceProvider extends ServiceProvider
             Gate::define("ver-$permissao", fn (User $usuario) => $usuario->podeVer($permissao));
         }
 
-        // tentativas de login: 5 por minuto por e-mail + IP
+        // 5 tentativas de login por minuto
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(5)
             ->by(strtolower((string) $request->input('email')).'|'.$request->ip()));
 
-        // pedidos do totem: evita que alguém dispare pedidos em massa
         RateLimiter::for('totem', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
     }
 }

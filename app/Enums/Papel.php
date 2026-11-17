@@ -21,8 +21,7 @@ enum Papel: string
         };
     }
 
-    // o que cada papel pode fazer no painel
-    // ver também os Gates em AppServiceProvider
+    // o que cada papel pode alterar
     public function permissoes(): array
     {
         return match ($this) {
@@ -33,7 +32,7 @@ enum Papel: string
         };
     }
 
-    // o que cada papel pode ver no painel (somente leitura vê tudo menos a equipe)
+    // o que cada papel pode ver (leitura vê tudo menos a equipe)
     public function areas(): array
     {
         return match ($this) {

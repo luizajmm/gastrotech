@@ -23,7 +23,6 @@ enum StatusPedido: string
         };
     }
 
-    // próxima etapa do fluxo da cozinha, ou null se o pedido já terminou
     public function proximo(): ?self
     {
         return match ($this) {
@@ -34,7 +33,6 @@ enum StatusPedido: string
         };
     }
 
-    // pedido ainda está na fila da cozinha (conta para atraso)
     public function emProducao(): bool
     {
         return in_array($this, [self::Recebido, self::EmPreparo], true);

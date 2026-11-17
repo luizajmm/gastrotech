@@ -5,8 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\File;
 
-// upload de imagem (produto ou logo). O Laravel confere o conteúdo real
-// do arquivo, não o tipo que o navegador diz que ele é
+// confere o conteúdo do arquivo, não só a extensão
 class ImagemRequest extends FormRequest
 {
     public function authorize(): bool

@@ -95,19 +95,19 @@ class PedidoTotemTest extends TestCase
     {
         $bebida = Produto::factory()->comPersonalizacao()->create();
 
-        // Falta o sabor (obrigatório)
+        // sem o sabor
         $this->postJson('/api/totem/pedidos', [
             'forma_pagamento' => 'pix',
             'itens' => [['produto_id' => $bebida->id, 'quantidade' => 1]],
         ])->assertUnprocessable()->assertJsonValidationErrors('itens.0.personalizacoes');
 
-        // Opção que não existe
+        // opção que não existe
         $this->postJson('/api/totem/pedidos', [
             'forma_pagamento' => 'pix',
             'itens' => [['produto_id' => $bebida->id, 'quantidade' => 1, 'personalizacoes' => ['Sabor' => 'Cerveja']]],
         ])->assertUnprocessable()->assertJsonValidationErrors('itens.0.personalizacoes');
 
-        // Correto (gelo é opcional)
+        // certo, gelo é opcional
         $this->postJson('/api/totem/pedidos', [
             'forma_pagamento' => 'pix',
             'itens' => [['produto_id' => $bebida->id, 'quantidade' => 1, 'personalizacoes' => ['Sabor' => 'Guaraná']]],
