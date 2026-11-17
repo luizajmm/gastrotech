@@ -36,12 +36,14 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
     Route::get('dashboard', DashboardController::class);
 
     // cardápio
-    Route::apiResource('categorias', CategoriaController::class)
-        ->parameters(['categorias' => 'categoria'])
-        ->only(['index', 'show']);
-    Route::apiResource('produtos', ProdutoController::class)
-        ->parameters(['produtos' => 'produto'])
-        ->only(['index', 'show']);
+    Route::middleware('can:ver-cardapio')->group(function () {
+        Route::apiResource('categorias', CategoriaController::class)
+            ->parameters(['categorias' => 'categoria'])
+            ->only(['index', 'show']);
+        Route::apiResource('produtos', ProdutoController::class)
+            ->parameters(['produtos' => 'produto'])
+            ->only(['index', 'show']);
+    });
 
     Route::middleware('can:cardapio')->group(function () {
         Route::apiResource('categorias', CategoriaController::class)
@@ -55,8 +57,10 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
     });
 
     // pedidos / cozinha
-    Route::get('pedidos', [PedidoController::class, 'index']);
-    Route::get('pedidos/{pedido}', [PedidoController::class, 'show']);
+    Route::middleware('can:ver-pedidos')->group(function () {
+        Route::get('pedidos', [PedidoController::class, 'index']);
+        Route::get('pedidos/{pedido}', [PedidoController::class, 'show']);
+    });
 
     Route::middleware('can:pedidos')->group(function () {
         Route::post('pedidos/{pedido}/avancar', [PedidoController::class, 'avancar']);
@@ -65,7 +69,7 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
     });
 
     // financeiro
-    Route::prefix('financeiro')->group(function () {
+    Route::prefix('financeiro')->middleware('can:ver-caixa')->group(function () {
         Route::get('vendas', [FinanceiroController::class, 'vendas']);
         Route::get('caixa', [FinanceiroController::class, 'caixa']);
         Route::get('caixas', [FinanceiroController::class, 'historicoCaixas']);
@@ -85,7 +89,7 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
 
     // configurações da loja e totens
     Route::get('configuracoes', [ConfiguracaoController::class, 'show']);
-    Route::get('totens', [TotensController::class, 'index']);
+    Route::get('totens', [TotensController::class, 'index'])->middleware('can:ver-configuracoes');
 
     Route::middleware('can:configuracoes')->group(function () {
         Route::put('configuracoes', [ConfiguracaoController::class, 'update']);

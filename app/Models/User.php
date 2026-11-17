@@ -42,6 +42,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function podeVer(string $area): bool
+    {
+        return $this->ativo && $this->papel->podeVer($area);
+    }
+
     public function pode(string $permissao): bool
     {
         return $this->ativo && $this->papel->pode($permissao);

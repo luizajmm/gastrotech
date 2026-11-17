@@ -23,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
     {
         foreach (self::PERMISSOES as $permissao) {
             Gate::define($permissao, fn (User $usuario) => $usuario->pode($permissao));
+            Gate::define("ver-$permissao", fn (User $usuario) => $usuario->podeVer($permissao));
         }
 
         // tentativas de login: 5 por minuto por e-mail + IP

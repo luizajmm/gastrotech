@@ -33,6 +33,22 @@ enum Papel: string
         };
     }
 
+    // o que cada papel pode ver no painel (somente leitura vê tudo menos a equipe)
+    public function areas(): array
+    {
+        return match ($this) {
+            self::Administrador => ['cardapio', 'pedidos', 'caixa', 'usuarios', 'configuracoes'],
+            self::Cardapio => ['cardapio'],
+            self::Atendimento => ['pedidos', 'caixa'],
+            self::Leitura => ['cardapio', 'pedidos', 'caixa', 'configuracoes'],
+        };
+    }
+
+    public function podeVer(string $area): bool
+    {
+        return in_array($area, $this->areas(), true);
+    }
+
     public function pode(string $permissao): bool
     {
         return in_array($permissao, $this->permissoes(), true);

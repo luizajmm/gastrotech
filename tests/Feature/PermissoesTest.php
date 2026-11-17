@@ -39,6 +39,27 @@ class PermissoesTest extends TestCase
         $this->assertModelExists($produto);
     }
 
+    public function test_atendimento_so_ve_pedidos_e_caixa(): void
+    {
+        $this->entrarComo(Papel::Atendimento);
+
+        $this->getJson('/api/pedidos')->assertOk();
+        $this->getJson('/api/financeiro/caixa')->assertOk();
+        $this->getJson('/api/produtos')->assertForbidden();
+        $this->getJson('/api/totens')->assertForbidden();
+        $this->getJson('/api/usuarios')->assertForbidden();
+        $this->getJson('/api/eu')->assertJsonPath('data.areas', ['pedidos', 'caixa']);
+    }
+
+    public function test_cardapio_so_ve_o_cardapio(): void
+    {
+        $this->entrarComo(Papel::Cardapio);
+
+        $this->getJson('/api/produtos')->assertOk();
+        $this->getJson('/api/pedidos')->assertForbidden();
+        $this->getJson('/api/financeiro/vendas')->assertForbidden();
+    }
+
     public function test_somente_leitura_consulta_mas_nao_altera(): void
     {
         $produto = Produto::factory()->create();
