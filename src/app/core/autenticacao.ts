@@ -32,8 +32,8 @@ export const exigeLogin: CanActivateFn = (_rota, estado) => {
   return inject(Router).createUrlTree(['/entrar'], { queryParams: { volta: estado.url } });
 };
 
-// só entra quem tem a permissão (ex.: equipe = "usuarios"); os outros voltam para a visão geral
-export const exigePermissao =
-  (permissao: string): CanActivateFn =>
+// só entra quem pode ver a área; os outros voltam pra visão geral do painel
+export const exigeArea =
+  (area: string): CanActivateFn =>
   () =>
-    inject(Sessao).pode(permissao) || inject(Router).createUrlTree(['/painel']);
+    inject(Sessao).ve(area) || inject(Router).createUrlTree(['/painel']);

@@ -132,6 +132,7 @@ export interface Usuario {
   email: string;
   papel: Opcao;
   permissoes: string[];
+  areas: string[];
   ativo: boolean;
 }
 

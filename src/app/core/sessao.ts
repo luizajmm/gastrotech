@@ -32,8 +32,17 @@ export class Sessao {
   readonly usuario = signal<Usuario | null>(JSON.parse(ler(CHAVE_USUARIO) ?? 'null'));
   readonly logado = computed(() => !!this.token());
 
+  constructor() {
+    // login salvo de antes das áreas existirem: pede pra entrar de novo
+    if (this.usuario() && !this.usuario()!.areas) this.limpar();
+  }
+
   pode(permissao: string): boolean {
     return !!this.usuario()?.permissoes.includes(permissao);
+  }
+
+  ve(area: string): boolean {
+    return !!this.usuario()?.areas?.includes(area);
   }
 
   async entrar(email: string, senha: string): Promise<void> {

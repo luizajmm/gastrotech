@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { exigeLogin, exigePermissao } from './core/autenticacao';
+import { exigeArea, exigeLogin } from './core/autenticacao';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', title: 'GastroTech', loadComponent: () => import('./inicio/inicio').then((m) => m.Inicio) },
@@ -8,7 +8,7 @@ export const routes: Routes = [
     loadComponent: () => import('./totem/totem-shell').then((m) => m.TotemShell),
     children: [
       { path: '', title: 'Bem-vindo', loadComponent: () => import('./totem/boas-vindas').then((m) => m.BoasVindas) },
-      { path: 'cardapio', title: 'Cardápio', loadComponent: () => import('./totem/cardapio').then((m) => m.CardapioPagina) },
+      { path: 'cardapio', title: 'Cardápio', canActivate: [exigeArea('cardapio')], loadComponent: () => import('./totem/cardapio').then((m) => m.CardapioPagina) },
       { path: 'pedido', title: 'Seu pedido', loadComponent: () => import('./totem/revisao').then((m) => m.Revisao) },
       { path: 'pagamento', title: 'Pagamento', loadComponent: () => import('./totem/pagamento').then((m) => m.Pagamento) },
       { path: 'acompanhar', title: 'Acompanhar pedido', loadComponent: () => import('./totem/acompanhar').then((m) => m.Acompanhar) },
@@ -19,7 +19,7 @@ export const routes: Routes = [
   {
     path: 'cozinha',
     title: 'Cozinha',
-    canActivate: [exigeLogin],
+    canActivate: [exigeLogin, exigeArea('pedidos')],
     loadComponent: () => import('./cozinha/cozinha').then((m) => m.Cozinha),
   },
   {
@@ -28,16 +28,16 @@ export const routes: Routes = [
     loadComponent: () => import('./painel/painel-shell').then((m) => m.PainelShell),
     children: [
       { path: '', title: 'Visão geral', loadComponent: () => import('./painel/visao-geral').then((m) => m.VisaoGeral) },
-      { path: 'pedidos', title: 'Pedidos', loadComponent: () => import('./painel/pedidos').then((m) => m.PedidosPagina) },
-      { path: 'cardapio', title: 'Cardápio', loadComponent: () => import('./painel/cardapio-admin').then((m) => m.CardapioAdmin) },
-      { path: 'financeiro', title: 'Financeiro', loadComponent: () => import('./painel/financeiro').then((m) => m.Financeiro) },
+      { path: 'pedidos', title: 'Pedidos', canActivate: [exigeArea('pedidos')], loadComponent: () => import('./painel/pedidos').then((m) => m.PedidosPagina) },
+      { path: 'cardapio', title: 'Cardápio', canActivate: [exigeArea('cardapio')], loadComponent: () => import('./painel/cardapio-admin').then((m) => m.CardapioAdmin) },
+      { path: 'financeiro', title: 'Financeiro', canActivate: [exigeArea('caixa')], loadComponent: () => import('./painel/financeiro').then((m) => m.Financeiro) },
       {
         path: 'equipe',
         title: 'Equipe',
-        canActivate: [exigePermissao('usuarios')],
+        canActivate: [exigeArea('usuarios')],
         loadComponent: () => import('./painel/equipe').then((m) => m.Equipe),
       },
-      { path: 'configuracoes', title: 'Configurações', loadComponent: () => import('./painel/configuracoes').then((m) => m.Configuracoes) },
+      { path: 'configuracoes', title: 'Configurações', canActivate: [exigeArea('configuracoes')], loadComponent: () => import('./painel/configuracoes').then((m) => m.Configuracoes) },
     ],
   },
   { path: '**', redirectTo: '' },

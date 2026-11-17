@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Sessao } from '../core/sessao';
 
 // barra pra trocar entre totem, cozinha e painel, marcando a tela atual
 @Component({
@@ -12,7 +13,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5" /></svg>
       </a>
       @for (tela of telas; track tela.rota) {
-        <a [routerLink]="tela.rota" routerLinkActive="atual" ariaCurrentWhenActive="page">{{ tela.nome }}</a>
+        @if (!tela.area || sessao.ve(tela.area)) {
+          <a [routerLink]="tela.rota" routerLinkActive="atual" ariaCurrentWhenActive="page">{{ tela.nome }}</a>
+        }
       }
     </nav>
   `,
@@ -56,9 +59,11 @@ export class Telas {
   readonly escuro = input(false);
   readonly largo = input(false);
 
-  protected readonly telas = [
+  protected readonly sessao = inject(Sessao);
+
+  protected readonly telas: { rota: string; nome: string; area?: string }[] = [
     { rota: '/totem', nome: 'Totem' },
-    { rota: '/cozinha', nome: 'Cozinha' },
+    { rota: '/cozinha', nome: 'Cozinha', area: 'pedidos' },
     { rota: '/painel', nome: 'Painel' },
   ];
 }
