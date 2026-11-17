@@ -15,6 +15,8 @@
       </button>
     </div>
 
+    <gt-telas [largo]="true" />
+
     <nav class="menu">
       @for (item of menu; track item.rota) {
         <a
@@ -29,11 +31,6 @@
       }
     </nav>
 
-    <div class="atalhos">
-      <span class="atalhos-titulo">Outras telas</span>
-      <a routerLink="/cozinha">Cozinha</a>
-      <a routerLink="/totem">Totem</a>
-    </div>
 
     <div class="usuario">
       <div>

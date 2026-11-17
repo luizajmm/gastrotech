@@ -9,7 +9,7 @@ import { Sessao } from '../core/sessao';
   template: `
     <main class="tela">
       <header class="marca">
-        <img src="demo/gastrotech-logo.jpg" alt="" width="72" height="72" />
+        <img src="gastrotech-logo.jpg" alt="" width="72" height="72" />
         <h1>GastroTech</h1>
         <p>Escolha a tela que este aparelho vai usar.</p>
       </header>

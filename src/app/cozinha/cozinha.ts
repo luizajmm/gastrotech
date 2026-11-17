@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { CozinhaApi } from '../core/cozinha-api';
 import { Pedido, StatusPedido } from '../core/modelos';
 import { Sessao } from '../core/sessao';
+import { Telas } from '../shared/telas';
 import { AcaoPedido, PedidoCartao } from './pedido-cartao';
 
 interface Coluna {
@@ -19,7 +20,7 @@ const TEMPO_DESTAQUE_NOVO = 10_000;
 
 @Component({
   selector: 'gt-cozinha',
-  imports: [DatePipe, PedidoCartao],
+  imports: [DatePipe, PedidoCartao, Telas],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './cozinha.html',
   styleUrl: './cozinha.css',

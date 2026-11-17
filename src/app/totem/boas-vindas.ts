@@ -30,6 +30,8 @@ import { Loja } from '../core/loja';
       <a class="acompanhar" routerLink="/totem/acompanhar" (click)="$event.stopPropagation()">
         Já pediu? Acompanhe seu pedido
       </a>
+
+      <a class="equipe" routerLink="/" (click)="$event.stopPropagation()">Área da equipe</a>
     </main>
   `,
   styles: `
@@ -40,6 +42,7 @@ import { Loja } from '../core/loja';
       min-height: 100dvh;
       padding: var(--espaco-7) var(--espaco-5) var(--espaco-6);
       text-align: center;
+      position: relative;
       cursor: pointer;
       overflow: clip;
     }
@@ -104,6 +107,19 @@ import { Loja } from '../core/loja';
       font-size: 1.6rem;
       white-space: nowrap;
     }
+
+    .equipe {
+      position: absolute;
+      right: var(--espaco-4);
+      bottom: var(--espaco-4);
+      padding: var(--espaco-2) var(--espaco-3);
+      color: var(--grafite);
+      font-size: 0.85rem;
+      text-decoration: none;
+      opacity: 0.6;
+    }
+    .equipe:hover,
+    .equipe:focus-visible { opacity: 1; text-decoration: underline; }
 
     .acompanhar {
       grid-row: 7;

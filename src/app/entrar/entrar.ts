@@ -11,7 +11,7 @@ import { Sessao } from '../core/sessao';
     <main class="tela">
       <div class="conjunto">
       <form class="caixa" (submit)="$event.preventDefault(); entrar()">
-        <img src="demo/gastrotech-logo.jpg" alt="" width="88" height="88" />
+        <img src="gastrotech-logo.jpg" alt="" width="88" height="88" />
         <h1>Entrar na equipe</h1>
         <p class="texto-suave">Acesso da cozinha e do painel.</p>
 

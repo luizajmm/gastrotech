@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { Avisos } from '../core/avisos';
 import { Sessao } from '../core/sessao';
+import { Telas } from '../shared/telas';
 
 interface ItemMenu {
   rota: string;
@@ -24,7 +25,7 @@ const MENU: ItemMenu[] = [
 
 @Component({
   selector: 'gt-painel-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, Telas],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './painel-shell.html',
   styleUrl: './painel-shell.css',

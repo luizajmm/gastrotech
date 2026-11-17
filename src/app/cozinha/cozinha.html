@@ -5,6 +5,8 @@
       <h1>Cozinha</h1>
     </div>
 
+    <gt-telas [escuro]="true" />
+
     <div class="resumo" aria-live="polite">
       <span>{{ (fila()?.pedidos ?? []).length }} na fila</span>
       @if (atrasados()) {

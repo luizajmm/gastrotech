@@ -51,8 +51,7 @@
   gap: 2px;
 }
 
-.menu a,
-.atalhos a {
+.menu a {
   display: flex;
   align-items: center;
   gap: var(--espaco-3);
@@ -64,8 +63,7 @@
   text-decoration: none;
 }
 
-.menu a:hover,
-.atalhos a:hover {
+.menu a:hover {
   background: var(--fumaca);
 }
 
@@ -85,23 +83,8 @@
   stroke-linejoin: round;
 }
 
-.atalhos {
-  display: grid;
-  gap: 2px;
-  padding-top: var(--espaco-4);
-  border-top: 1px solid var(--linha);
-}
 
-.atalhos-titulo {
-  padding: 0 var(--espaco-3) var(--espaco-1);
-  color: var(--grafite);
-  font-size: 0.8rem;
-}
 
-.atalhos a {
-  min-height: 2.25rem;
-  font-weight: 500;
-}
 
 .usuario {
   display: flex;
