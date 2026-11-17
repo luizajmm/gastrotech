@@ -4,6 +4,14 @@ Sistema de pedidos pra lanchonete. O cliente monta o pedido no totem, o pedido c
 
 Esse é o projeto integrador do meu 2º semestre de Sistemas de Informação no SENAC. A primeira versão foi feita em grupo, em PHP puro, e está em [tcc-pi2/Sistema-Administrativo](https://github.com/tcc-pi2/Sistema-Administrativo). Depois eu reconstruí o sistema separando em uma API em Laravel e um front em Angular.
 
+**[Ver demonstração](https://luizajmm.github.io/gastrotech/)**: roda direto no navegador, com dados de exemplo. Na cozinha e no painel é só escolher um dos acessos de teste.
+
+![Totem](docs/prints/totem.png)
+
+| Cozinha | Painel |
+|---|---|
+| ![Cozinha](docs/prints/cozinha.png) | ![Painel](docs/prints/painel.png) |
+
 ## O que tem
 
 - **Totem:** cardápio por categoria, personalização dos lanches (bebida do combo, ponto da carne...), pagamento por pix, cartão ou dinheiro e acompanhamento do pedido pelo código
