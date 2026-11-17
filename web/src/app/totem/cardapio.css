@@ -1,0 +1,418 @@
+.tela {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'topo topo'
+    'cats prods'
+    'barra barra';
+  height: 100dvh;
+}
+
+/* ---------- Topo ---------- */
+
+.topo {
+  grid-area: topo;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-4);
+  padding: var(--espaco-3) var(--espaco-4) var(--espaco-3) var(--espaco-5);
+  border-bottom: 2px solid var(--tinta);
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  color: var(--tinta);
+  text-decoration: none;
+  font-size: 1.3rem;
+  font-weight: 900;
+  font-variation-settings: 'wdth' 100;
+}
+
+.marca img {
+  width: 2.75rem;
+  height: 2.75rem;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+/* ---------- Categorias ---------- */
+
+.categorias {
+  grid-area: cats;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+  padding: var(--espaco-3);
+  overflow-y: auto;
+  background: var(--fumaca);
+  scrollbar-width: none;
+}
+
+.categoria {
+  display: grid;
+  justify-items: center;
+  gap: var(--espaco-2);
+  min-height: 6.25rem;
+  padding: var(--espaco-4) var(--espaco-2);
+  border: 0;
+  border-radius: var(--raio-medio);
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.15;
+  text-align: center;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.categoria gt-icone-categoria {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.categoria.ativa {
+  background: var(--tinta);
+  color: var(--papel);
+}
+
+/* ---------- Produtos ---------- */
+
+.produtos {
+  grid-area: prods;
+  overflow-y: auto;
+  padding: var(--espaco-6) var(--espaco-5) var(--espaco-7);
+  scroll-behavior: smooth;
+}
+
+.cabecalho-categoria,
+.grade {
+  max-width: 90rem;
+}
+
+.cabecalho-categoria {
+  margin-bottom: var(--espaco-5);
+}
+
+.cabecalho-categoria h1 {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 900;
+  font-variation-settings: 'wdth' 100;
+}
+
+.cabecalho-categoria p {
+  margin-top: var(--espaco-2);
+  font-size: 1.1rem;
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--espaco-6) var(--espaco-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.produto {
+  display: grid;
+  gap: var(--espaco-3);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+
+.foto {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--raio-grande);
+  background: var(--fumaca);
+}
+
+.foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 200ms ease;
+}
+
+.produto:active .foto img {
+  transform: scale(0.97);
+}
+
+.selo,
+.no-pedido {
+  position: absolute;
+  padding: 0.3em 0.75em;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.selo {
+  top: var(--espaco-3);
+  left: var(--espaco-3);
+  background: var(--papel);
+}
+
+.no-pedido {
+  bottom: var(--espaco-3);
+  left: var(--espaco-3);
+  background: var(--brasa);
+}
+
+.info {
+  display: grid;
+  gap: var(--espaco-2);
+}
+
+.info h2 {
+  font-size: 1.35rem;
+  font-variation-settings: 'wdth' 100;
+}
+
+.descricao {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--grafite);
+  font-size: 0.98rem;
+}
+
+.rodape-produto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--espaco-1);
+}
+
+.rodape-produto .preco {
+  font-size: 1.4rem;
+}
+
+.mais {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--tinta);
+}
+
+.mais svg {
+  width: 55%;
+  height: 55%;
+  fill: none;
+  stroke: var(--papel);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+/* O primeiro item de cada categoria ocupa a linha toda, com foto maior */
+.grande {
+  grid-column: 1 / -1;
+}
+
+.grande .produto {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--espaco-5);
+}
+
+/* Em tela baixa (PC, notebook) a foto não pode tomar a tela toda */
+.grande .foto {
+  max-height: min(48dvh, 26rem);
+  aspect-ratio: auto;
+  height: min(48dvh, 26rem);
+}
+
+.grande .info h2 {
+  font-size: clamp(1.6rem, 3.6vw, 2.2rem);
+}
+
+.grande .descricao {
+  -webkit-line-clamp: 4;
+  font-size: 1.05rem;
+}
+
+.grande .rodape-produto .preco {
+  font-size: 1.75rem;
+}
+
+.vazio {
+  padding: var(--espaco-6) 0;
+  color: var(--grafite);
+}
+
+/* ---------- Barra do pedido ---------- */
+
+.barra {
+  grid-area: barra;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-4);
+  min-height: 6rem;
+  padding: var(--espaco-4) var(--espaco-5) calc(var(--espaco-4) + env(safe-area-inset-bottom));
+  background: var(--tinta);
+  color: var(--papel);
+}
+
+.dica {
+  width: 100%;
+  text-align: center;
+  color: #b8b8b8;
+  font-size: 1.05rem;
+}
+
+.resumo {
+  display: grid;
+  line-height: 1.15;
+}
+
+.resumo span {
+  color: #b8b8b8;
+}
+
+.resumo .preco {
+  font-size: 1.75rem;
+  color: var(--brasa);
+}
+
+.barra .btn {
+  min-height: 4.25rem;
+  font-size: 1.25rem;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 7.5rem;
+  z-index: 20;
+  padding: var(--espaco-4) var(--espaco-6);
+  border-radius: 999px;
+  background: var(--papel);
+  box-shadow: var(--traco-triplo);
+  font-weight: 700;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  animation: aparece 220ms ease-out;
+}
+
+@keyframes aparece {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 0.75rem);
+  }
+}
+
+/* ---------- Estados ---------- */
+
+.estado {
+  grid-column: 1 / -1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--espaco-4);
+  padding: var(--espaco-6);
+  text-align: center;
+}
+
+.estado h2 {
+  font-size: 1.75rem;
+}
+
+.carregando {
+  width: 8rem;
+  animation: carrega 1.1s ease-in-out infinite alternate;
+  transform-origin: left;
+}
+
+@keyframes carrega {
+  from {
+    transform: scaleX(0.15);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---------- Celular ---------- */
+
+@media (max-width: 700px) {
+  .tela {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'topo'
+      'cats'
+      'prods'
+      'barra';
+  }
+
+  .topo {
+    padding-left: var(--espaco-4);
+  }
+
+  .marca {
+    font-size: 1.1rem;
+    gap: var(--espaco-2);
+  }
+
+  .marca img {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .categorias {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: var(--espaco-2) var(--espaco-3);
+  }
+
+  .categoria {
+    flex: none;
+    grid-auto-flow: column;
+    align-items: center;
+    min-height: 3rem;
+    padding: var(--espaco-2) var(--espaco-4);
+    border-radius: 999px;
+  }
+
+  .categoria gt-icone-categoria {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+
+  .produtos {
+    padding: var(--espaco-5) var(--espaco-4) var(--espaco-6);
+  }
+
+  .grande .produto {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .grande .foto {
+    height: auto;
+    max-height: none;
+    aspect-ratio: 4 / 3;
+  }
+
+  .barra {
+    min-height: 5rem;
+    padding-inline: var(--espaco-4);
+  }
+
+  .barra .btn {
+    padding: 0 var(--espaco-5);
+    font-size: 1.05rem;
+    min-height: 3.5rem;
+  }
+}

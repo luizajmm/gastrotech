@@ -1,0 +1,221 @@
+<header class="cabecalho-pagina">
+  <div>
+    <h1>Financeiro</h1>
+    <p>Vendas pagas por período e o dinheiro da gaveta.</p>
+  </div>
+</header>
+
+<div class="grade">
+  <!-- ---------- Vendas ---------- -->
+  <section class="bloco vendas" aria-labelledby="titulo-vendas">
+    <div class="bloco-topo">
+      <h2 id="titulo-vendas">Vendas</h2>
+    </div>
+
+    <div class="periodo">
+      <div class="atalhos" role="group" aria-label="Período">
+        @for (a of atalhos; track a.valor) {
+          <button type="button" [class.ativo]="atalho() === a.valor" [attr.aria-pressed]="atalho() === a.valor" (click)="usarAtalho(a.valor)">
+            {{ a.nome }}
+          </button>
+        }
+      </div>
+      <div class="datas">
+        <label class="visualmente-oculto" for="d-inicio">De</label>
+        <input id="d-inicio" type="date" [value]="inicio()" [max]="fim()" (change)="mudarData('inicio', valor($event))" />
+        <span aria-hidden="true">até</span>
+        <label class="visualmente-oculto" for="d-fim">Até</label>
+        <input id="d-fim" type="date" [value]="fim()" [min]="inicio()" (change)="mudarData('fim', valor($event))" />
+      </div>
+    </div>
+
+    @if (erroPeriodo(); as erro) {
+      <p class="erro-campo" role="alert">{{ erro }}</p>
+    }
+
+    @if (vendas(); as v) {
+      <dl class="totais">
+        <div>
+          <dt>Faturamento</dt>
+          <dd class="grande">{{ v.total | dinheiro }}</dd>
+        </div>
+        <div>
+          <dt>Pedidos pagos</dt>
+          <dd>{{ v.quantidade_pedidos }}</dd>
+        </div>
+        <div>
+          <dt>Ticket médio</dt>
+          <dd>{{ v.ticket_medio | dinheiro }}</dd>
+        </div>
+      </dl>
+
+      @if (v.por_dia.length > 1) {
+        <div class="grafico">
+          <h3>Por dia</h3>
+          <gt-grafico-barras [barras]="barras()" />
+        </div>
+      }
+
+      <div class="duas">
+        <div>
+          <h3>Por forma de pagamento</h3>
+          <ul class="formas">
+            @for (f of v.por_forma; track f.valor) {
+              <li>
+                <div class="linha">
+                  <span>{{ f.rotulo }}</span>
+                  <span class="valor-forma"><strong>{{ f.total | dinheiro }}</strong><span class="texto-suave">{{ percentual(f.total, v.total) }}%</span></span>
+                </div>
+                <div class="barra"><span [style.width.%]="(f.total / maiorForma()) * 100"></span></div>
+                <span class="texto-suave nota">{{ f.quantidade }} {{ f.quantidade === 1 ? 'pedido' : 'pedidos' }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+        <div>
+          <h3>Mais vendidos</h3>
+          @if (v.mais_vendidos.length) {
+            <table class="tabela compacta">
+              <thead>
+                <tr><th>Produto</th><th class="num">Qtd.</th><th class="num">Receita</th></tr>
+              </thead>
+              <tbody>
+                @for (m of v.mais_vendidos; track m.nome) {
+                  <tr><td>{{ m.nome }}</td><td class="num">{{ m.quantidade }}</td><td class="num">{{ m.total | dinheiro }}</td></tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <p class="texto-suave">Nenhuma venda paga neste período.</p>
+          }
+        </div>
+      </div>
+    } @else if (!erroPeriodo()) {
+      <div class="vazio-painel">Calculando as vendas</div>
+    }
+  </section>
+
+  <!-- ---------- Caixa ---------- -->
+  <section class="bloco caixa" aria-labelledby="titulo-caixa">
+    <div class="bloco-topo">
+      <h2 id="titulo-caixa">Caixa</h2>
+      @if (caixa(); as c) {
+        <span class="selo selo-ok">Aberto</span>
+      } @else if (caixa() === null) {
+        <span class="selo selo-neutro">Fechado</span>
+      }
+    </div>
+
+    @if (caixa(); as c) {
+      <p class="texto-suave aberto-em">
+        Aberto às {{ c.caixa.aberto_em | date: 'HH:mm' }}
+        @if (c.caixa.aberto_por) {
+          por {{ c.caixa.aberto_por }}
+        }
+      </p>
+
+      <dl class="conta">
+        <div><dt>Saldo inicial</dt><dd>{{ c.resumo.saldo_inicial | dinheiro }}</dd></div>
+        <div><dt>Vendas em dinheiro</dt><dd>+ {{ c.resumo.vendas_dinheiro | dinheiro }}</dd></div>
+        <div><dt>Entradas</dt><dd>+ {{ c.resumo.entradas | dinheiro }}</dd></div>
+        <div><dt>Saídas</dt><dd>− {{ c.resumo.saidas | dinheiro }}</dd></div>
+        <div class="resultado"><dt>Deve haver na gaveta</dt><dd>{{ c.resumo.saldo_esperado | dinheiro }}</dd></div>
+      </dl>
+
+      @if (podeCaixa) {
+        @if (novoMovimento(); as tipo) {
+          <form class="movimento-form" (submit)="$event.preventDefault(); registrarMovimento()" novalidate>
+            <h3>{{ tipo === 'entrada' ? 'Nova entrada' : 'Nova saída' }}</h3>
+            <div class="campo">
+              <label for="m-descricao">Descrição</label>
+              <input
+                id="m-descricao"
+                maxlength="180"
+                [placeholder]="tipo === 'entrada' ? 'Ex.: Reforço de troco' : 'Ex.: Compra de gelo'"
+                [class.invalido]="errosMov()['descricao']"
+                [value]="descricaoMov()"
+                (input)="descricaoMov.set(valor($event))"
+              />
+              @if (errosMov()['descricao']) {
+                <span class="erro-campo">{{ errosMov()['descricao'] }}</span>
+              }
+            </div>
+            <div class="campo">
+              <label for="m-valor">Valor (R$)</label>
+              <input id="m-valor" inputmode="decimal" placeholder="0,00" [class.invalido]="errosMov()['valor']" [value]="valorMov()" (input)="valorMov.set(valor($event))" />
+              @if (errosMov()['valor']) {
+                <span class="erro-campo">{{ errosMov()['valor'] }}</span>
+              }
+            </div>
+            <div class="botoes">
+              <button class="btn btn-contorno" type="button" (click)="novoMovimento.set(null)">Cancelar</button>
+              <button class="btn btn-tinta" type="submit" [disabled]="ocupado()">Registrar {{ tipo === 'entrada' ? 'entrada' : 'saída' }}</button>
+            </div>
+          </form>
+        } @else if (confirmandoFechar()) {
+          <div class="confirmar-fechar" role="group" aria-label="Confirmar fechamento">
+            <p>Fechar o caixa com <strong>{{ c.resumo.saldo_esperado | dinheiro }}</strong> na gaveta? Confira o dinheiro antes.</p>
+            <div class="botoes">
+              <button class="btn btn-contorno" type="button" (click)="confirmandoFechar.set(false)">Voltar</button>
+              <button class="btn btn-tinta" type="button" [disabled]="ocupado()" (click)="fecharCaixa()">Fechar caixa</button>
+            </div>
+          </div>
+        } @else {
+          <div class="botoes">
+            <button class="btn btn-contorno" type="button" (click)="iniciarMovimento('entrada')">Entrada</button>
+            <button class="btn btn-contorno" type="button" (click)="iniciarMovimento('saida')">Saída</button>
+            <button class="btn btn-tinta" type="button" (click)="confirmandoFechar.set(true)">Fechar caixa</button>
+          </div>
+        }
+      }
+
+      <h3 class="titulo-movimentos">Movimentos de hoje</h3>
+      <ul class="movimentos">
+        @for (m of movimentos(); track m.id) {
+          <li>
+            <div>
+              <span>{{ m.descricao }}</span>
+              <span class="texto-suave">{{ m.criado_em | date: 'HH:mm' }}{{ m.usuario ? ', ' + m.usuario : '' }}</span>
+            </div>
+            <strong [class.saida]="m.tipo.valor === 'saida'">{{ m.tipo.valor === 'saida' ? '−' : '+' }} {{ m.valor | dinheiro }}</strong>
+          </li>
+        } @empty {
+          <li class="texto-suave">Nenhuma entrada ou saída manual.</li>
+        }
+      </ul>
+    } @else if (caixa() === null) {
+      <p class="texto-suave">Abra o caixa no começo do expediente, contando o troco que está na gaveta.</p>
+      @if (podeCaixa) {
+        <form class="abrir" (submit)="$event.preventDefault(); abrirCaixa()" novalidate>
+          <div class="campo">
+            <label for="saldo-inicial">Dinheiro na gaveta (R$)</label>
+            <input id="saldo-inicial" inputmode="decimal" placeholder="150,00" [value]="saldoInicial()" (input)="saldoInicial.set(valor($event))" />
+          </div>
+          <button class="btn btn-tinta" type="submit" [disabled]="ocupado()">Abrir caixa</button>
+        </form>
+      }
+    } @else {
+      <div class="vazio-painel">Carregando o caixa</div>
+    }
+
+    @if (historico().length) {
+      <details class="historico">
+        <summary>Caixas anteriores</summary>
+        <table class="tabela compacta">
+          <thead>
+            <tr><th>Aberto</th><th>Fechado</th><th class="num">Final</th></tr>
+          </thead>
+          <tbody>
+            @for (h of historico(); track h.id) {
+              <tr>
+                <td>{{ h.aberto_em | date: 'dd/MM HH:mm' }}</td>
+                <td>{{ h.fechado_em | date: 'dd/MM HH:mm' }}</td>
+                <td class="num">{{ h.saldo_final | dinheiro }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </details>
+    }
+  </section>
+</div>

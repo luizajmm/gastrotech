@@ -1,0 +1,409 @@
+/*
+ * Painel administrativo — peças compartilhadas pelas telas.
+ * Mais denso que o totem (é usado com mouse e teclado), mesma paleta e mesmo traço triplo.
+ */
+
+.painel-app {
+  --toque: 2.75rem;
+  --linha: #dedcd6;
+  font-size: 0.9rem;
+}
+
+.painel-app .btn {
+  min-height: var(--toque);
+  padding: 0 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  gap: var(--espaco-2);
+}
+
+.painel-app .btn-pequeno {
+  min-height: 2.25rem;
+  padding: 0 0.85rem;
+  font-size: 0.85rem;
+}
+
+.painel-app .btn-icone {
+  width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+}
+
+.painel-app .btn svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- Cabeçalho das páginas ---------- */
+
+.cabecalho-pagina {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--espaco-4);
+  margin-bottom: var(--espaco-5);
+}
+
+.cabecalho-pagina h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  text-wrap: balance;
+}
+
+.cabecalho-pagina p {
+  margin-top: var(--espaco-1);
+  color: var(--grafite);
+}
+
+.cabecalho-pagina .acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-2);
+}
+
+/* ---------- Blocos ---------- */
+
+.bloco {
+  min-width: 0;
+  padding: var(--espaco-5);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-medio);
+  background: var(--papel);
+}
+
+.bloco > h2,
+.bloco-topo h2 {
+  font-size: 1.05rem;
+  font-weight: 750;
+}
+
+.bloco-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  margin-bottom: var(--espaco-4);
+}
+
+.bloco > h2 {
+  margin-bottom: var(--espaco-4);
+}
+
+/* ---------- Formulários ---------- */
+
+.campo {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.campo > label,
+.campo > .rotulo {
+  font-weight: 650;
+  font-size: 0.85rem;
+}
+
+.campo .ajuda {
+  color: var(--grafite);
+  font-size: 0.8rem;
+}
+
+.campo .erro-campo {
+  color: var(--alerta);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.painel-app input:not([type='checkbox']):not([type='radio']):not([type='file']),
+.painel-app select,
+.painel-app textarea {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0 0.8rem;
+  border: 1px solid #bdbab3;
+  border-radius: 10px;
+  background: var(--papel);
+  font-size: 0.9rem;
+}
+
+.painel-app textarea {
+  padding: 0.6rem 0.8rem;
+  resize: vertical;
+}
+
+.painel-app input:focus-visible,
+.painel-app select:focus-visible,
+.painel-app textarea:focus-visible {
+  outline: 2px solid var(--tinta);
+  outline-offset: 0;
+  border-color: var(--tinta);
+}
+
+.painel-app .invalido {
+  border-color: var(--alerta) !important;
+}
+
+.painel-app select {
+  appearance: none;
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1rem;
+}
+
+.grade-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--espaco-4);
+}
+
+.grade-campos .largo {
+  grid-column: 1 / -1;
+}
+
+/* Interruptor (liga/desliga) */
+.interruptor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  min-height: 2.6rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.interruptor input {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 2.5rem;
+  height: 1.45rem;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--fumaca-forte);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.interruptor input::after {
+  content: '';
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  background: var(--papel);
+  transition: transform 150ms ease;
+}
+
+.interruptor input:checked {
+  background: var(--tinta);
+}
+
+.interruptor input:checked::after {
+  transform: translateX(1.05rem);
+}
+
+/* ---------- Tabelas ---------- */
+
+/* Cada tela do painel (componente da rota) ocupa a largura disponível, sem empurrar a página */
+.painel-app .conteudo > :not(router-outlet) {
+  display: block;
+  min-width: 0;
+  max-width: 82rem;
+}
+
+.rolagem-tabela {
+  position: relative; /* prende os textos ocultos (leitores de tela) dentro da rolagem */
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela th {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid var(--tinta);
+  color: var(--grafite);
+  font-size: 0.8rem;
+  font-weight: 650;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tabela td {
+  padding: 0.7rem 0.75rem;
+  border-bottom: 1px solid var(--linha);
+  vertical-align: middle;
+}
+
+.tabela tr:last-child td {
+  border-bottom: 0;
+}
+
+.tabela .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tabela .acoes-linha {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.tabela tbody tr:hover {
+  background: #faf9f7;
+}
+
+/* ---------- Selos de situação ---------- */
+
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 650;
+  white-space: nowrap;
+  background: var(--fumaca);
+}
+
+.selo::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.selo-ok {
+  background: var(--tinta);
+  color: var(--papel);
+}
+
+.selo-brasa {
+  background: #fde3d6;
+  color: #8a2c06;
+}
+
+.selo-alerta {
+  background: var(--alerta-fundo);
+  color: var(--alerta);
+}
+
+.selo-neutro {
+  color: var(--grafite);
+}
+
+/* ---------- Estados ---------- */
+
+.vazio-painel {
+  display: grid;
+  justify-items: center;
+  gap: var(--espaco-3);
+  padding: var(--espaco-6) var(--espaco-4);
+  color: var(--grafite);
+  text-align: center;
+}
+
+.confirmar-inline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--espaco-2);
+}
+
+.confirmar-inline span {
+  font-weight: 650;
+}
+
+/* ---------- Janela (formulários) ---------- */
+
+.janela {
+  width: min(100% - 2rem, 44rem);
+  max-height: min(92dvh, 56rem);
+  padding: 0;
+  border: 0;
+  border-radius: var(--raio-grande);
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+.janela[open] {
+  display: flex;
+  flex-direction: column;
+  animation: janela-abre 180ms ease-out;
+}
+
+.janela::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+@keyframes janela-abre {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+.janela-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  padding: var(--espaco-4) var(--espaco-5);
+  border-bottom: 1px solid var(--linha);
+}
+
+.janela-topo h2 {
+  font-size: 1.2rem;
+}
+
+.janela-corpo {
+  display: grid;
+  gap: var(--espaco-5);
+  padding: var(--espaco-5);
+  overflow-y: auto;
+}
+
+.janela-rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--espaco-2);
+  padding: var(--espaco-4) var(--espaco-5);
+  border-top: 1px solid var(--linha);
+}
+
+.janela-rodape .erro-geral {
+  margin-right: auto;
+  color: var(--alerta);
+  font-weight: 600;
+}
+
+.secao-form {
+  display: grid;
+  gap: var(--espaco-4);
+}
+
+.secao-form > h3 {
+  font-size: 0.95rem;
+  font-weight: 750;
+}

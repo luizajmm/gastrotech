@@ -1,0 +1,60 @@
+<div class="moldura" [class.menu-aberto]="menuAberto()">
+  <header class="topo-celular">
+    <button class="btn btn-icone btn-contorno" type="button" aria-label="Abrir menu" (click)="menuAberto.set(true)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+    </button>
+    <span class="marca-texto">GastroTech</span>
+  </header>
+
+  <aside class="lateral" aria-label="Menu do painel">
+    <div class="marca">
+      <img src="gastrotech-logo.jpg" alt="" width="32" height="32" />
+      <span>GastroTech</span>
+      <button class="fechar-menu btn btn-icone" type="button" aria-label="Fechar menu" (click)="menuAberto.set(false)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </div>
+
+    <gt-telas [largo]="true" />
+
+    <nav class="menu">
+      @for (item of menu; track item.rota) {
+        <a
+          [routerLink]="item.rota"
+          routerLinkActive="ativo"
+          [routerLinkActiveOptions]="{ exact: !!item.exato }"
+          ariaCurrentWhenActive="page"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="item.icone" /></svg>
+          {{ item.nome }}
+        </a>
+      }
+    </nav>
+
+
+    <div class="usuario">
+      <div>
+        <strong>{{ nomeUsuario() }}</strong>
+        <span>{{ papelUsuario() }}</span>
+      </div>
+        <button class="btn btn-pequeno btn-contorno" type="button" (click)="sair()">Sair</button>
+    </div>
+  </aside>
+
+  <div class="fundo-menu" (click)="menuAberto.set(false)" aria-hidden="true"></div>
+
+  <main class="conteudo">
+    <router-outlet />
+  </main>
+</div>
+
+<div class="avisos" aria-live="polite">
+  @for (aviso of avisos.lista(); track aviso.id) {
+    <div class="aviso" [class.erro]="aviso.tipo === 'erro'" [attr.role]="aviso.tipo === 'erro' ? 'alert' : 'status'">
+      <span>{{ aviso.texto }}</span>
+      <button type="button" aria-label="Fechar aviso" (click)="avisos.fechar(aviso.id)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </div>
+  }
+</div>

@@ -1,0 +1,222 @@
+<header class="cabecalho-pagina">
+  <div>
+    <h1>Cardápio</h1>
+    <p>O que aparece no totem: produtos, preços, fotos e estoque.</p>
+  </div>
+  @if (podeEditar) {
+    <div class="acoes">
+      @if (aba() === 'produtos') {
+        <button class="btn btn-tinta" type="button" (click)="editandoProduto.set(null)">Novo produto</button>
+      } @else {
+        <button class="btn btn-tinta" type="button" (click)="editandoCategoria.set(null)">Nova categoria</button>
+      }
+    </div>
+  }
+</header>
+
+<div class="abas-pagina" role="tablist" aria-label="Seções do cardápio">
+  <button type="button" role="tab" [attr.aria-selected]="aba() === 'produtos'" [class.ativa]="aba() === 'produtos'" (click)="aba.set('produtos')">
+    Produtos <span>{{ produtos()?.length ?? '' }}</span>
+  </button>
+  <button type="button" role="tab" [attr.aria-selected]="aba() === 'categorias'" [class.ativa]="aba() === 'categorias'" (click)="aba.set('categorias')">
+    Categorias <span>{{ categorias().length }}</span>
+  </button>
+</div>
+
+@if (aba() === 'produtos') {
+  <div class="filtros">
+    <div class="campo busca">
+      <label class="visualmente-oculto" for="f-busca">Buscar produto</label>
+      <input id="f-busca" type="search" placeholder="Buscar pelo nome" [value]="filtro().busca" (input)="filtrar({ busca: valor($event) })" />
+    </div>
+    <div class="campo">
+      <label class="visualmente-oculto" for="f-categoria">Categoria</label>
+      <select id="f-categoria" (change)="filtrar({ categoria_id: valor($event) ? +valor($event) : null })">
+        <option value="" [selected]="!filtro().categoria_id">Todas as categorias</option>
+        @for (c of categorias(); track c.id) {
+          <option [value]="c.id" [selected]="filtro().categoria_id === c.id">{{ c.nome }}</option>
+        }
+      </select>
+    </div>
+    <div class="campo">
+      <label class="visualmente-oculto" for="f-situacao">Situação</label>
+      <select id="f-situacao" (change)="filtrar({ situacao: $any(valor($event)) })">
+        <option value="" [selected]="!filtro().situacao">Qualquer situação</option>
+        <option value="ativos" [selected]="filtro().situacao === 'ativos'">À venda</option>
+        <option value="inativos" [selected]="filtro().situacao === 'inativos'">Fora do totem</option>
+        <option value="estoque_baixo" [selected]="filtro().situacao === 'estoque_baixo'">Estoque baixo</option>
+      </select>
+    </div>
+    @if (filtrosAtivos()) {
+      <button class="btn btn-discreto" type="button" (click)="limparFiltros()">Limpar filtros</button>
+    }
+  </div>
+
+  <section class="bloco tabela-bloco">
+    @if (produtos(); as lista) {
+      @if (lista.length) {
+        <div class="rolagem-tabela">
+          <table class="tabela">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th class="num">Preço</th>
+                <th class="num">Estoque</th>
+                <th>No totem</th>
+                <th><span class="visualmente-oculto">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of lista; track p.id) {
+                <tr [class.inativo]="!p.ativo">
+                  <td>
+                    <div class="produto">
+                      @if (p.imagem_url) {
+                        <img [src]="p.imagem_url" alt="" width="48" height="48" loading="lazy" />
+                      } @else {
+                        <span class="sem-foto" aria-hidden="true"></span>
+                      }
+                      <div>
+                        <strong>{{ p.nome }}</strong>
+                        @if (p.destaque) {
+                          <span class="texto-suave">Em Mais pedidos</span>
+                        }
+                        @if (p.personalizacoes.length) {
+                          <span class="texto-suave">{{ p.personalizacoes.length }} {{ p.personalizacoes.length === 1 ? 'escolha' : 'escolhas' }}</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ p.categoria?.nome ?? 'Sem categoria' }}</td>
+                  <td class="num">{{ p.preco | dinheiro }}</td>
+                  <td class="num">
+                    @if (p.estoque === 0) {
+                      <span class="selo selo-alerta">Esgotado</span>
+                    } @else if (p.estoque <= limiteEstoque()) {
+                      <span class="selo selo-brasa">{{ p.estoque }}</span>
+                    } @else {
+                      {{ p.estoque }}
+                    }
+                  </td>
+                  <td>
+                    @if (podeEditar) {
+                      <label class="interruptor">
+                        <input type="checkbox" [checked]="p.ativo" (change)="alternarAtivo(p)" [attr.aria-label]="(p.ativo ? 'Tirar do totem: ' : 'Colocar no totem: ') + p.nome" />
+                        {{ p.ativo ? 'À venda' : 'Fora' }}
+                      </label>
+                    } @else {
+                      <span [class]="p.ativo ? 'selo selo-ok' : 'selo selo-neutro'">{{ p.ativo ? 'À venda' : 'Fora' }}</span>
+                    }
+                  </td>
+                  <td class="acoes-linha">
+                    @if (podeEditar) {
+                      @if (excluindo() === 'p' + p.id) {
+                        <span class="confirmar-inline">
+                          <span>Excluir?</span>
+                          <button class="btn btn-pequeno btn-alerta" type="button" (click)="excluirProduto(p)">Excluir</button>
+                          <button class="btn btn-pequeno btn-contorno" type="button" (click)="excluindo.set(null)">Voltar</button>
+                        </span>
+                      } @else {
+                        <button class="btn btn-pequeno btn-contorno" type="button" (click)="editandoProduto.set(p)">Editar</button>
+                        <button class="btn btn-pequeno btn-discreto" type="button" (click)="excluindo.set('p' + p.id)">Excluir</button>
+                      }
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (filtrosAtivos()) {
+        <div class="vazio-painel">
+          <p>Nenhum produto com esses filtros.</p>
+          <button class="btn btn-contorno" type="button" (click)="limparFiltros()">Limpar filtros</button>
+        </div>
+      } @else {
+        <div class="vazio-painel">
+          <p>O cardápio está vazio. Cadastre o primeiro produto para ele aparecer no totem.</p>
+          @if (podeEditar) {
+            <button class="btn btn-tinta" type="button" (click)="editandoProduto.set(null)">Novo produto</button>
+          }
+        </div>
+      }
+    } @else {
+      <div class="vazio-painel">Carregando o cardápio</div>
+    }
+  </section>
+} @else {
+  <section class="bloco tabela-bloco">
+    @if (categorias().length) {
+      <div class="rolagem-tabela">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th class="num">Ordem</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+              <th class="num">Produtos</th>
+              <th>No totem</th>
+              <th><span class="visualmente-oculto">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of categorias(); track c.id) {
+              <tr [class.inativo]="!c.ativo">
+                <td class="num">{{ c.ordem }}</td>
+                <td><strong>{{ c.nome }}</strong></td>
+                <td class="texto-suave">{{ c.descricao }}</td>
+                <td class="num">{{ c.total_produtos ?? 0 }}</td>
+                <td><span [class]="c.ativo ? 'selo selo-ok' : 'selo selo-neutro'">{{ c.ativo ? 'Aparece' : 'Escondida' }}</span></td>
+                <td class="acoes-linha">
+                  @if (podeEditar) {
+                    @if (excluindo() === 'c' + c.id) {
+                      <span class="confirmar-inline">
+                        <span>
+                          Excluir?
+                          @if (c.total_produtos) {
+                            Os {{ c.total_produtos }} produtos ficam sem categoria.
+                          }
+                        </span>
+                        <button class="btn btn-pequeno btn-alerta" type="button" (click)="excluirCategoria(c)">Excluir</button>
+                        <button class="btn btn-pequeno btn-contorno" type="button" (click)="excluindo.set(null)">Voltar</button>
+                      </span>
+                    } @else {
+                      <button class="btn btn-pequeno btn-contorno" type="button" (click)="editandoCategoria.set(c)">Editar</button>
+                      <button class="btn btn-pequeno btn-discreto" type="button" (click)="excluindo.set('c' + c.id)">Excluir</button>
+                    }
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="vazio-painel">
+        <p>Nenhuma categoria ainda. Elas organizam o menu lateral do totem.</p>
+        @if (podeEditar) {
+          <button class="btn btn-tinta" type="button" (click)="editandoCategoria.set(null)">Nova categoria</button>
+        }
+      </div>
+    }
+  </section>
+}
+
+@if (editandoProduto() !== undefined) {
+  <gt-produto-form
+    [produto]="editandoProduto() ?? null"
+    [categorias]="categorias()"
+    (fechar)="editandoProduto.set(undefined)"
+    (salvo)="produtoSalvo()"
+  />
+}
+
+@if (editandoCategoria() !== undefined) {
+  <gt-categoria-form
+    [categoria]="editandoCategoria() ?? null"
+    [proximaOrdem]="categorias().length + 1"
+    (fechar)="editandoCategoria.set(undefined)"
+    (salvo)="categoriaSalva()"
+  />
+}

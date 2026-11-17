@@ -1,0 +1,110 @@
+<dialog
+  #dialogo
+  class="painel"
+  [attr.aria-labelledby]="'produto-' + produto().id"
+  (cancel)="$event.preventDefault(); fechar.emit()"
+  (click)="cliqueNoFundo($event)"
+>
+  <div class="rolagem">
+    <div class="foto">
+      @if (produto().imagem_url) {
+        <img [src]="produto().imagem_url" [alt]="produto().nome" />
+      }
+      <button class="fechar" type="button" aria-label="Fechar" (click)="fechar.emit()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </div>
+
+    <div class="conteudo">
+      <header>
+        <h2 [id]="'produto-' + produto().id">{{ produto().nome }}</h2>
+        <span class="preco">{{ produto().preco | dinheiro }}</span>
+      </header>
+
+      @if (produto().descricao) {
+        <p class="descricao">{{ produto().descricao }}</p>
+      }
+
+      @if (produto().porcao || produto().calorias) {
+        <dl class="ficha">
+          @if (produto().porcao) {
+            <div><dt>Porção</dt><dd>{{ produto().porcao }}</dd></div>
+          }
+          @if (produto().calorias) {
+            <div><dt>Calorias</dt><dd>{{ produto().calorias }} kcal</dd></div>
+          }
+          @if (produto().tempo_preparo_min) {
+            <div><dt>Preparo</dt><dd>{{ produto().tempo_preparo_min }} min</dd></div>
+          }
+        </dl>
+      }
+
+      @if (produto().ingredientes) {
+        <p class="ingredientes"><strong>Ingredientes:</strong> {{ produto().ingredientes }}</p>
+      }
+      @if (produto().alergenos.length) {
+        <p class="alergenos">Contém {{ listaAlergenos() }}.</p>
+      }
+
+      @for (grupo of produto().personalizacoes; track grupo.nome) {
+        <fieldset class="grupo">
+          <legend>
+            <span class="grupo-nome">{{ grupo.nome }}</span>
+            <span class="grupo-regra" [class.pendente]="grupo.obrigatorio && !escolhas()[grupo.nome]">
+              {{ grupo.obrigatorio ? 'Escolha uma opção' : 'Opcional' }}
+            </span>
+          </legend>
+          <div class="opcoes" role="radiogroup" [attr.aria-label]="grupo.nome">
+            @for (opcao of grupo.opcoes; track opcao) {
+              <button
+                type="button"
+                class="opcao"
+                role="radio"
+                [attr.aria-checked]="escolhas()[grupo.nome] === opcao"
+                [class.marcada]="escolhas()[grupo.nome] === opcao"
+                (click)="escolher(grupo, opcao)"
+              >
+                {{ opcao }}
+              </button>
+            }
+          </div>
+        </fieldset>
+      }
+
+      <label class="observacao">
+        <span>Alguma observação?</span>
+        <textarea
+          rows="2"
+          maxlength="180"
+          placeholder="Ex.: sem cebola, molho à parte"
+          [value]="observacao()"
+          (input)="observacao.set($any($event.target).value)"
+        ></textarea>
+      </label>
+    </div>
+  </div>
+
+  <footer class="acoes">
+    @if (maximo() < 1) {
+      <p class="aviso">Você já adicionou todas as unidades disponíveis deste item.</p>
+    } @else {
+      <div class="quantidade" role="group" aria-label="Quantidade">
+        <button type="button" aria-label="Diminuir" [disabled]="quantidade() <= 1" (click)="mudarQuantidade(-1)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
+        </button>
+        <output aria-live="polite">{{ quantidade() }}</output>
+        <button type="button" aria-label="Aumentar" [disabled]="quantidade() >= maximo()" (click)="mudarQuantidade(1)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+        </button>
+      </div>
+
+      <button class="btn btn-brasa adicionar" type="button" [disabled]="pendentes().length > 0" (click)="adicionar()">
+        @if (pendentes().length) {
+          Escolha {{ pendentes()[0].toLowerCase() }}
+        } @else {
+          Adicionar <span class="preco">{{ total() | dinheiro }}</span>
+        }
+      </button>
+    }
+  </footer>
+</dialog>

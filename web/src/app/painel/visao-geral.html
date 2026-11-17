@@ -1,0 +1,151 @@
+<header class="cabecalho-pagina">
+  <div>
+    <h1>Visão geral</h1>
+    <p>{{ data }}</p>
+  </div>
+  <div class="acoes">
+    <a class="btn btn-contorno" routerLink="/cozinha">Abrir a cozinha</a>
+  </div>
+</header>
+
+@if (dados(); as d) {
+  <section class="indicadores bloco" aria-label="Números de hoje">
+    <div class="indicador principal">
+      <span class="rotulo">Faturamento hoje</span>
+      <strong class="numero">{{ d.hoje.faturamento | dinheiro }}</strong>
+      <div class="formas" aria-label="Por forma de pagamento">
+        <div class="formas-barra" aria-hidden="true">
+          @for (f of formasHoje(); track f.valor) {
+            <span [class]="'fatia fatia-' + f.valor" [style.width.%]="f.fatia"></span>
+          }
+        </div>
+        <ul>
+          @for (f of formasHoje(); track f.valor) {
+            <li><span [class]="'ponto fatia-' + f.valor"></span>{{ f.rotulo }} {{ f.total | dinheiro }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+    <div class="indicador">
+      <span class="rotulo">Pedidos hoje</span>
+      <strong class="numero">{{ d.hoje.pedidos }}</strong>
+      <span class="nota">sem contar cancelados</span>
+    </div>
+    <div class="indicador">
+      <span class="rotulo">Ticket médio</span>
+      <strong class="numero">{{ d.hoje.ticket_medio | dinheiro }}</strong>
+      <span class="nota">por pedido pago</span>
+    </div>
+    <div class="indicador">
+      <span class="rotulo">Na fila agora</span>
+      <strong class="numero">{{ d.fila.total }}</strong>
+      <span class="nota">{{ d.fila.recebidos }} {{ d.fila.recebidos === 1 ? 'recebido' : 'recebidos' }}, {{ d.fila.em_preparo }} em preparo, {{ d.fila.prontos }} {{ d.fila.prontos === 1 ? 'pronto' : 'prontos' }}</span>
+    </div>
+  </section>
+
+  <div class="grade">
+    <section class="bloco semana">
+      <div class="bloco-topo">
+        <h2>Vendas dos últimos 7 dias</h2>
+        <span class="preco">{{ d.semana.total | dinheiro }}</span>
+      </div>
+      <gt-grafico-barras [barras]="semana()" />
+    </section>
+
+    <section class="bloco">
+      <h2>Mais vendidos na semana</h2>
+      <ol class="ranking">
+        @for (m of d.semana.mais_vendidos; track m.nome) {
+          <li>
+            <div class="ranking-linha">
+              <span>{{ m.nome }}</span>
+              <strong>{{ m.quantidade }} un.</strong>
+            </div>
+            <div class="ranking-barra"><span [style.width.%]="(m.quantidade / maiorVendido()) * 100"></span></div>
+          </li>
+        } @empty {
+          <li class="vazio-painel">Ainda não há vendas nesta semana.</li>
+        }
+      </ol>
+    </section>
+
+    <section class="bloco">
+      <div class="bloco-topo">
+        <h2>Pedidos atrasados</h2>
+        @if (d.atrasados.length) {
+          <span class="selo selo-alerta">{{ d.atrasados.length }}</span>
+        }
+      </div>
+      <ul class="lista">
+        @for (p of d.atrasados; track p.id) {
+          <li>
+            <div>
+              <strong>{{ p.codigo }}</strong> {{ p.nome_cliente }}
+              <span class="texto-suave">{{ resumoItens(p) }}</span>
+            </div>
+            <span class="atraso">{{ minutosDesde(p.criado_em) - p.tempo_estimado_min }} min</span>
+          </li>
+        } @empty {
+          <li class="tudo-certo">Nenhum pedido atrasado agora.</li>
+        }
+      </ul>
+    </section>
+
+    <section class="bloco">
+      <div class="bloco-topo">
+        <h2>Estoque baixo</h2>
+        <a class="link" routerLink="/painel/cardapio">Ver cardápio</a>
+      </div>
+      <ul class="lista">
+        @for (p of d.estoque_baixo.produtos; track p.id) {
+          <li>
+            <span>{{ p.nome }}</span>
+            <span [class]="p.estoque === 0 ? 'selo selo-alerta' : 'selo selo-brasa'">
+              {{ p.estoque === 0 ? 'Esgotado' : p.estoque + ' restantes' }}
+            </span>
+          </li>
+        } @empty {
+          <li class="tudo-certo">Todos os produtos acima de {{ d.estoque_baixo.limite }} unidades.</li>
+        }
+      </ul>
+    </section>
+
+    <section class="bloco recentes">
+      <div class="bloco-topo">
+        <h2>Pedidos recentes</h2>
+        <a class="link" routerLink="/painel/pedidos">Ver todos</a>
+      </div>
+      <div class="rolagem-tabela">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Cliente</th>
+              <th>Itens</th>
+              <th class="num">Total</th>
+              <th>Situação</th>
+              <th class="num">Horário</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of d.recentes; track p.id) {
+              <tr>
+                <td><strong>{{ p.codigo }}</strong></td>
+                <td>{{ p.nome_cliente }}</td>
+                <td class="itens">{{ resumoItens(p) }}</td>
+                <td class="num">{{ p.subtotal | dinheiro }}</td>
+                <td><span [class]="seloStatus(p.status.valor)">{{ p.status.rotulo }}</span></td>
+                <td class="num">{{ p.criado_em | date: 'HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+} @else {
+  <div class="vazio-painel" aria-busy="true">
+    <div class="traco-triplo carregando"></div>
+    Carregando os números de hoje
+  </div>
+}

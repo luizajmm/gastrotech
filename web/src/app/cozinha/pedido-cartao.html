@@ -1,0 +1,79 @@
+<header class="topo">
+  <div class="identificacao">
+    <span class="codigo">{{ pedido().codigo }}</span>
+    <span class="cliente">{{ pedido().nome_cliente || 'Cliente' }}</span>
+  </div>
+
+  <div class="tempo" [attr.aria-label]="minutos() + ' minutos desde o pedido'">
+    @if (pedido().status.valor === 'pronto') {
+      <span class="tempo-valor">{{ minutosPronto() }} min</span>
+      <span class="tempo-legenda">esperando retirada</span>
+    } @else {
+      <span class="tempo-valor">{{ minutos() }} min</span>
+      <span class="tempo-legenda">
+        @if (atraso() > 0) {
+          {{ atraso() }} min atrasado
+        } @else {
+          de {{ pedido().tempo_estimado_min }} previstos
+        }
+      </span>
+    }
+  </div>
+</header>
+
+@if (pendente()) {
+  <p class="pagamento">
+    Pagar no caixa: <strong class="preco">{{ pedido().subtotal | dinheiro }}</strong> em {{ pedido().forma_pagamento.rotulo.toLowerCase() }}
+  </p>
+}
+
+<ul class="itens">
+  @for (item of pedido().itens; track item.id) {
+    <li>
+      <span class="item-nome"><span class="qtd">{{ item.quantidade }}×</span> {{ item.nome }}</span>
+      @if (item.personalizacoes.length) {
+        <span class="escolhas">
+          @for (e of item.personalizacoes; track e.grupo; let ultimo = $last) {
+            {{ e.opcao }}{{ ultimo ? '' : ', ' }}
+          }
+        </span>
+      }
+      @if (item.observacao) {
+        <span class="observacao">{{ item.observacao }}</span>
+      }
+    </li>
+  }
+</ul>
+
+<footer class="acoes">
+  @if (!podeAlterar()) {
+    <p class="somente-leitura">Somente consulta</p>
+  } @else if (confirmandoCancelamento()) {
+    <div class="confirmar" role="group" aria-label="Confirmar cancelamento">
+      <p>
+        Cancelar {{ pedido().codigo }}?
+        @if (!pendente()) {
+          O pagamento será estornado.
+        }
+      </p>
+      <div class="confirmar-botoes">
+        <button class="btn btn-alerta" type="button" [disabled]="ocupado()" (click)="cancelar()">Sim, cancelar</button>
+        <button class="btn btn-contorno" type="button" (click)="confirmandoCancelamento.set(false)">Voltar</button>
+      </div>
+    </div>
+  } @else {
+    <button
+      class="btn btn-largo principal"
+      type="button"
+      [class.btn-brasa]="principal().acao === 'pagamento' || pedido().status.valor !== 'pronto'"
+      [class.btn-tinta]="principal().acao === 'avancar' && pedido().status.valor === 'pronto'"
+      [disabled]="ocupado()"
+      (click)="acao.emit(principal().acao)"
+    >
+      {{ principal().texto }}
+    </button>
+    <button class="cancelar" type="button" [disabled]="ocupado()" (click)="confirmandoCancelamento.set(true)">
+      Cancelar pedido
+    </button>
+  }
+</footer>
