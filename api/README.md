@@ -1,145 +1,67 @@
 # GastroTech · API
 
-Back-end do GastroTech em **Laravel 12**: totem de pedidos, cozinha e painel administrativo.
-Esta é a nova versão do sistema que antes era feito em PHP puro.
+API em Laravel 12 que o totem, a cozinha e o painel usam.
 
-O front-end (Angular) é um projeto separado que consome esta API.
+## Instalar (só na primeira vez)
 
-## O que mudou em relação à versão antiga
+1. No XAMPP, liga o **MySQL**
+2. No phpMyAdmin (http://localhost/phpmyadmin), cria um banco chamado `gastrotech`
+3. Roda o `instalar.bat`
 
-| Antes | Agora |
-|---|---|
-| Exclusão por link (`?excluir=3`) | Exclusão só por `DELETE`, com login por token |
-| Permissões salvas mas não usadas | Cada papel só faz o que pode (veja a tabela abaixo) |
-| Upload confiava no tipo que o navegador informava | O conteúdo real do arquivo é conferido |
-| Código do pedido com `MAX(id) + 1` (podia repetir) | Código gerado a partir do id, depois de salvar |
-| Usuário novo sem senha ganhava "123" | Senha obrigatória (mínimo 6 caracteres) |
-| Pedido em dinheiro já nascia "pago" | Fica pendente até o caixa confirmar |
-| Estoque podia ser vendido duas vezes ao mesmo tempo | Estoque travado durante a criação do pedido |
-| Personalizações em texto (`A: x, y \| B: z`) | JSON estruturado, validado no pedido |
-| Cozinha só atualizava recarregando a página | A cozinha busca os pedidos sozinha a cada 5 segundos |
+Ele instala as dependências, cria o `.env`, monta as tabelas e coloca dados de exemplo (cardápio, usuários e uma semana de vendas pros gráficos).
 
-## Requisitos
+Fora do Windows: `composer setup`.
 
-- **XAMPP** (usamos só o MySQL dele, e o PHP se estiver no `C:\xampp\php`)
-- **PHP 8.2 ou mais novo** (o do XAMPP 8.2 serve)
-- **Composer**: https://getcomposer.org/download/
-- **Node.js 20+** (para o front-end Angular): https://nodejs.org
+## Rodar
 
-## Instalação (uma vez só)
+Roda o `iniciar.bat`. A API fica em http://127.0.0.1:8000.
 
-1. Abra o XAMPP e ligue o **MySQL**.
-2. No phpMyAdmin (http://localhost/phpmyadmin), crie um banco chamado **`gastrotech`**
-   (agrupamento `utf8mb4_unicode_ci`).
-3. Dê dois cliques em **`instalar.bat`**.
+Fora do Windows: `composer dev`.
 
-O instalador baixa as dependências, cria o arquivo `.env`, monta as tabelas e carrega os dados de
-demonstração (cardápio original, usuários e uma semana de vendas para os gráficos).
+## Usuários de teste
 
-> Sem Windows? Rode `composer setup` no terminal.
+A senha de todos é `gastrotech`.
 
-## Rodar o sistema
-
-Dê dois cliques em **`iniciar.bat`**. A API sobe em http://127.0.0.1:8000. Para parar, feche a janela.
-
-> Sem Windows? Rode `composer dev`.
-
-## Usuários de demonstração
-
-Senha de todos: **`gastrotech`**
-
-| E-mail | Papel | Pode |
+| E-mail | Papel | Vê |
 |---|---|---|
-| admin@gastrotech.com | Administrador | Tudo |
-| cardapio@gastrotech.com | Cardápio | Produtos e categorias |
-| atendimento@gastrotech.com | Atendimento | Cozinha (avançar/cancelar/pagamento) e caixa |
-| leitura@gastrotech.com | Somente leitura | Ver tudo, sem alterar nada |
+| admin@gastrotech.com | Administrador | tudo |
+| atendimento@gastrotech.com | Atendimento | cozinha, pedidos e financeiro |
+| cardapio@gastrotech.com | Cardápio | cardápio |
+| leitura@gastrotech.com | Somente leitura | tudo menos a equipe, sem alterar nada |
 
-Todos os usuários logados podem **consultar** o painel. As permissões controlam quem pode **alterar**.
-
-## Testes automatizados
+## Testes
 
 ```bash
 php artisan test
 ```
 
-Os testes usam um banco SQLite em memória (não mexem no MySQL) e cobrem: criação de pedido, preço vindo do
-banco, estoque, personalizações, fluxo da cozinha, cancelamento, caixa, relatório de vendas, permissões de
-cada papel, uploads e regras de usuários.
+Rodam num SQLite em memória, então não mexem no banco do XAMPP.
 
-## Estrutura
+## Pastas
 
 ```
-app/
-  Enums/          Status do pedido, formas de pagamento, papéis... (com os textos em português)
-  Http/
-    Controllers/Api/   Um controller por área
-    Requests/          Validação de tudo que chega
-    Resources/         Formato do JSON que o Angular recebe
-  Models/         Tabelas do banco
-  Services/       Regras de negócio (PedidoService, FinanceiroService)
-database/
-  migrations/     Criação das tabelas
-  seeders/        Dados de demonstração e imagens originais
-routes/
-  api.php         Todas as rotas da API
-tests/Feature/    Testes automatizados
+app/Enums/          status do pedido, formas de pagamento, papéis
+app/Http/           controllers, validações (Requests) e formato do json (Resources)
+app/Models/         tabelas
+app/Services/       regras de pedido e do financeiro
+database/           migrations e dados de exemplo
+routes/api.php      todas as rotas
+tests/Feature/      testes
 ```
 
-## Rotas da API
+## Rotas principais
 
-Todas começam com `/api`. As do painel precisam do cabeçalho `Authorization: Bearer <token>`.
+Todas começam com `/api`. As da equipe precisam do token do login (`Authorization: Bearer ...`).
 
-### Públicas (totem)
+- totem (sem login): `GET /totem/cardapio`, `POST /totem/pedidos`, `GET /totem/pedidos/{codigo}`
+- login: `POST /login` com `{email, senha}`
+- cozinha: `GET /pedidos?status=ativos`, `POST /pedidos/{id}/avancar`, `/cancelar`, `/pagamento`
+- painel: `/dashboard`, `/produtos`, `/categorias`, `/financeiro/...`, `/usuarios`, `/configuracoes`, `/totens`
 
-| Método | Rota | Descrição |
-|---|---|---|
-| GET | `/totem/cardapio` | Dados da loja + categorias com produtos disponíveis |
-| POST | `/totem/pedidos` | Cria o pedido |
-| GET | `/totem/pedidos/{codigo}` | Acompanhamento do pedido pelo cliente |
-| GET | `/opcoes` | Listas para selects (status, formas de pagamento, papéis...) |
-| POST | `/login` | `{email, senha}` → `{token, usuario}` |
+## Se der erro
 
-Exemplo de pedido:
-
-```json
-{
-  "nome_cliente": "Ana",
-  "forma_pagamento": "pix",
-  "totem": "TOTEM-01",
-  "itens": [
-    { "produto_id": 1, "quantidade": 2, "personalizacoes": { "Bebida do combo": "Guaraná", "Gelo": "Sem gelo" }, "observacao": "Sem cebola" },
-    { "produto_id": 3, "quantidade": 1 }
-  ]
-}
-```
-
-### Painel
-
-| Método | Rota | Permissão |
-|---|---|---|
-| GET | `/eu` · POST `/logout` | logado |
-| GET | `/dashboard` | logado |
-| GET | `/categorias` · `/categorias/{id}` | logado |
-| POST/PUT/DELETE | `/categorias` · `/categorias/{id}` | cardapio |
-| GET | `/produtos?busca=&categoria_id=&situacao=` · `/produtos/{id}` | logado |
-| POST/PUT/DELETE | `/produtos` · `/produtos/{id}` | cardapio |
-| POST/DELETE | `/produtos/{id}/imagem` (campo `imagem`) | cardapio |
-| GET | `/pedidos?status=ativos\|todos\|recebido...&busca=` · `/pedidos/{id}` | logado |
-| POST | `/pedidos/{id}/avancar` · `/cancelar` · `/pagamento` | pedidos |
-| GET | `/financeiro/vendas?data_inicio=&data_fim=&forma_pagamento=` | logado |
-| GET | `/financeiro/caixa` · `/financeiro/caixas` · `/financeiro/movimentos` | logado |
-| POST | `/financeiro/caixa/abrir` · `/caixa/fechar` · `/movimentos` | caixa |
-| GET/POST/PUT/DELETE | `/usuarios` · `/usuarios/{id}` | usuarios |
-| GET | `/configuracoes` · `/totens` | logado |
-| PUT | `/configuracoes` · POST `/configuracoes/logo` (campo `imagem`) | configuracoes |
-| POST/PUT/DELETE | `/totens` · `/totens/{id}` | configuracoes |
-
-## Problemas comuns
-
-- **"could not find driver"**: no `C:\xampp\php\php.ini`, tire o `;` da linha `extension=pdo_mysql`.
-- **"The zip extension and unzip/7z commands are both missing"**: no mesmo `php.ini`, tire o `;` de `extension=zip`.
-- **Erro de upload / imagem**: confira se `extension=fileinfo` e `extension=gd` estão ativos no `php.ini`.
-- **Imagens não aparecem**: confira se existe a pasta `public/storage` com as subpastas `produtos` e `marca`. Se não existir, rode o `instalar.bat` de novo.
-- **"Unknown database 'gastrotech'"**: crie o banco no phpMyAdmin (passo 2 da instalação).
-- **Porta 8000 em uso**: feche o outro programa que está usando a porta, ou ajuste `APP_URL` no `.env`.
+- **"could not find driver"**: no `C:\xampp\php\php.ini`, tira o `;` da linha `extension=pdo_mysql`
+- **"The zip extension..."**: no mesmo arquivo, tira o `;` de `extension=zip`
+- **erro no upload de imagem**: confere se `extension=fileinfo` e `extension=gd` estão ativas
+- **imagens não aparecem**: roda `php artisan storage:link`
+- **"Unknown database 'gastrotech'"**: falta criar o banco no phpMyAdmin
