@@ -14,7 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       routes,
       withComponentInputBinding(),
-      // rotas com # funcionam em qualquer servidor (XAMPP, php artisan serve) sem configurar nada
+      // com # funciona em qualquer servidor sem configurar nada
       withHashLocation(),
       withViewTransitions(),
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),

@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { TotemApi } from '../core/totem-api';
 import { CabecalhoEtapa } from '../shared/cabecalho-etapa';
 
-// teclado na tela porque o totem não tem teclado
+// o totem não tem teclado físico
 @Component({
   selector: 'gt-acompanhar',
   imports: [CabecalhoEtapa],

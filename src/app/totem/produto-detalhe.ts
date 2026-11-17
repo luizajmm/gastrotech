@@ -34,7 +34,6 @@ export class ProdutoDetalhe {
   protected readonly quantidade = signal(1);
   protected readonly observacao = signal('');
 
-  // quanto ainda dá para adicionar, descontando o que já está no carrinho
   protected readonly maximo = computed(() =>
     Math.max(0, Math.min(20, this.produto().estoque - this.carrinho.quantidadeDo(this.produto().id))),
   );
@@ -54,7 +53,7 @@ export class ProdutoDetalhe {
   protected escolher(grupo: GrupoPersonalizacao, opcao: string): void {
     this.escolhas.update((atual) => {
       const novo = { ...atual };
-      // opcional: tocar de novo na mesma opção desmarca
+      // se não for obrigatório, tocar de novo desmarca
       if (!grupo.obrigatorio && novo[grupo.nome] === opcao) {
         delete novo[grupo.nome];
       } else {

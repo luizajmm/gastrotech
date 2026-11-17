@@ -17,7 +17,7 @@ import { Usuario } from '../core/modelos';
 import { FalhaFormulario, PainelApi } from '../core/painel-api';
 import { Sessao } from '../core/sessao';
 
-// o que cada papel pode fazer, em linguagem da loja (igual a App\Enums\Papel na API)
+// tem que bater com o Papel.php da api
 const PAPEIS = [
   { valor: 'administrador', nome: 'Administrador', pode: 'Tudo, inclusive equipe e configurações.' },
   { valor: 'cardapio', nome: 'Cardápio', pode: 'Cadastra produtos, preços, fotos e categorias.' },

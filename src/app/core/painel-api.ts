@@ -153,7 +153,7 @@ export class PainelApi {
 
   salvarUsuario(dados: UsuarioForm, id?: number): Observable<Usuario> {
     const corpo: Partial<UsuarioForm> = { ...dados };
-    if (id && !dados.senha) delete corpo.senha; // editar sem trocar a senha
+    if (id && !dados.senha) delete corpo.senha; // senha vazia = não troca
     return this.salvar<Usuario>('usuarios', corpo, id);
   }
 
@@ -230,7 +230,6 @@ export class PainelApi {
   }
 }
 
-// converte o erro HTTP numa mensagem para a tela, com os erros de cada campo
 function traduzir(erro: HttpErrorResponse): Observable<never> {
   if (erro.status === 0) {
     return throwError(() => new FalhaFormulario('Sem conexão com o sistema. Confira se a API está ligada.'));

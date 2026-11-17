@@ -40,7 +40,7 @@ export class Confirmacao implements OnInit {
     { initialValue: null },
   );
 
-  // posição no fluxo: 0 recebido … 3 retirado
+  // 0 recebido ... 3 retirado
   protected readonly etapaAtual = computed(() => {
     const p = this.pedido();
     if (!p) return 0;

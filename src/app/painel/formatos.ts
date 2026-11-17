@@ -19,7 +19,7 @@ export function seloPagamento(status: string): string {
   return status === 'pago' ? 'selo selo-neutro' : status === 'pendente' ? 'selo selo-brasa' : 'selo selo-alerta';
 }
 
-// "2× Combo Smash, 1× Batata Suprema"
+// ex: "2× Combo Smash, 1× Batata Suprema"
 export function resumoItens(pedido: Pedido): string {
   return pedido.itens.map((i) => `${i.quantidade}× ${i.nome}`).join(', ');
 }
@@ -32,7 +32,6 @@ export function dataIso(d: Date): string {
 const diaSemana = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' });
 const diaMes = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' });
 
-// "sex" ou "06/11" para o eixo dos gráficos
 export function rotuloDia(iso: string, curto: boolean): string {
   const d = new Date(`${iso}T12:00:00`);
   return curto ? diaSemana.format(d).replace('.', '') : diaMes.format(d);

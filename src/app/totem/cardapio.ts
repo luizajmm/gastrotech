@@ -7,7 +7,6 @@ import { DinheiroPipe } from '../shared/dinheiro.pipe';
 import { IconeCategoria } from '../shared/icone-categoria';
 import { ProdutoDetalhe } from './produto-detalhe';
 
-// categoria especial com os destaques de todas as categorias
 const MAIS_PEDIDOS = -1;
 
 @Component({

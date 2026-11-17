@@ -66,7 +66,6 @@ export class Cozinha {
     const relogio = setInterval(() => this.agora.set(Date.now()), 15_000);
     inject(DestroyRef).onDestroy(() => clearInterval(relogio));
 
-    // destaca pedidos que chegaram depois que a tela abriu
     effect(() => {
       const ids = (this.fila()?.pedidos ?? []).map((p) => p.id);
       if (!this.fila()) return;
@@ -74,7 +73,7 @@ export class Cozinha {
       let chegaram: number[];
 
       if (!this.vistos) {
-        // ao abrir a tela, destaca o que chegou no último minuto
+        // quando abre a tela, marca o que chegou no último minuto
         this.vistos = new Set(ids);
         chegaram = (this.fila()?.pedidos ?? [])
           .filter((p) => Date.now() - Date.parse(p.criado_em) < 60_000)

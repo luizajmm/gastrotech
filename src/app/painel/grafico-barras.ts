@@ -8,7 +8,7 @@ export interface Barra {
   destaque?: boolean;
 }
 
-// gráfico feito em html mesmo, altura = valor / maior valor
+// fiz em html mesmo, altura = valor / maior valor
 @Component({
   selector: 'gt-grafico-barras',
   imports: [DinheiroPipe],
@@ -73,11 +73,10 @@ export interface Barra {
 export class GraficoBarras {
   readonly barras = input.required<Barra[]>();
 
-  // mais de 10 colunas: esconde os valores e mostra só alguns dias no eixo
+  // muita coluna fica ilegível, então esconde os valores
   protected readonly denso = computed(() => this.barras().length > 10);
   protected readonly passo = computed(() => Math.ceil(this.barras().length / 6));
 
-  // teto do eixo arredondado para um número "redondo", sempre acima do maior valor
   protected readonly teto = computed(() => {
     const maior = Math.max(0, ...this.barras().map((b) => b.valor));
     if (!maior) return 100;

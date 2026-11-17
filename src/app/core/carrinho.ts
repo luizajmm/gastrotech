@@ -2,7 +2,7 @@ import { computed, Injectable, signal } from '@angular/core';
 import { FormaPagamento, ItemNovoPedido, Produto } from './modelos';
 
 export interface LinhaCarrinho {
-  // mesmo produto com escolhas diferentes vira linhas diferentes
+  // mesmo lanche com escolhas diferentes fica em linhas separadas
   chave: string;
   produto: Produto;
   quantidade: number;

@@ -19,7 +19,7 @@ export type AcaoPedido = 'avancar' | 'cancelar' | 'pagamento';
 })
 export class PedidoCartao {
   readonly pedido = input.required<Pedido>();
-  // relógio da tela (ms), para o cronômetro andar sem recarregar a fila
+  // em ms, pro cronômetro andar sem recarregar a fila
   readonly agora = input.required<number>();
   readonly novo = input(false);
   readonly ocupado = input(false);

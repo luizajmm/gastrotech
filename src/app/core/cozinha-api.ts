@@ -16,11 +16,11 @@ export class CozinhaApi {
   private recarregar = new Subject<void>();
 
   fila(): Observable<FilaCozinha> {
-    // busca a fila a cada 5 segundos e também logo depois de cada ação
+    // atualiza a cada 5s e logo depois de cada ação
     return merge(timer(0, 5000), this.recarregar).pipe(
       switchMap(() =>
         this.http.get<{ data: Pedido[] }>(`${CONFIG.apiUrl}/pedidos`, { params: { status: 'ativos' } }).pipe(
-          catchError(() => []), // se a rede falhar, continua mostrando a última fila
+          catchError(() => []), // se cair a rede, fica a última fila
         ),
       ),
       map((r) => ({ pedidos: r.data, atualizadoEm: new Date() })),

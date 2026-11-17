@@ -5,7 +5,7 @@ import { CONFIG } from '../config';
 import { Carrinho } from '../core/carrinho';
 import { Loja } from '../core/loja';
 
-// se ninguém mexer por um tempo, pergunta se ainda tem alguém e depois volta pro início
+// sem ninguém mexendo, pergunta se ainda tem alguém e volta pro início
 @Component({
   selector: 'gt-totem-shell',
   imports: [RouterOutlet],
@@ -78,7 +78,6 @@ export class TotemShell implements OnInit {
 
   protected registrarAtividade(): void {
     this.ultimoToque = Date.now();
-    // qualquer toque enquanto o aviso está aberto significa "ainda estou aqui"
     if (this.perguntando()) this.perguntando.set(false);
   }
 
@@ -95,7 +94,7 @@ export class TotemShell implements OnInit {
 
   private verificar(): void {
     const naInicial = this.router.url === '/totem';
-    // a tela de confirmação tem a própria contagem para voltar ao início
+    // a confirmação já tem a contagem dela
     const naConfirmacao = /^\/totem\/pedido\/[^/]+$/.test(this.router.url);
 
     if (naInicial || naConfirmacao) {

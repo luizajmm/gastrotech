@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Sessao } from '../core/sessao';
 
-// barra pra trocar entre totem, cozinha e painel, marcando a tela atual
 @Component({
   selector: 'gt-telas',
   imports: [RouterLink, RouterLinkActive],

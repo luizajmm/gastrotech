@@ -40,7 +40,6 @@ export class TotemApi {
       );
   }
 
-  // consulta o pedido a cada 5 segundos pra mostrar o andamento
   observar(codigo: string): Observable<Acompanhamento> {
     return timer(0, 5000).pipe(
       switchMap(() => this.acompanhar(codigo)),

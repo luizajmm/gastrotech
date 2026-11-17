@@ -92,7 +92,6 @@ export class Entrar implements OnInit {
   protected readonly enviando = signal(false);
 
   ngOnInit(): void {
-    // quem já entrou não precisa ver o login de novo
     if (this.sessao.logado()) this.router.navigateByUrl(this.volta() || '/cozinha');
   }
 

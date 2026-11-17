@@ -1,4 +1,3 @@
-// tipos iguais ao json que a api devolve
 
 export interface Opcao<T extends string = string> {
   valor: T;
@@ -100,7 +99,6 @@ export interface Acompanhamento {
   criado_em: string;
 }
 
-// erro de validação da API (HTTP 422)
 export interface ErroApi {
   message: string;
   errors?: Record<string, string[]>;
@@ -152,7 +150,7 @@ export interface ProdutoPainel extends Produto {
   categoria?: { id: number; nome: string } | null;
 }
 
-// dados enviados ao salvar um produto (sem foto: ela vai em outra chamada)
+// a foto vai separada
 export interface ProdutoForm {
   categoria_id: number | null;
   nome: string;

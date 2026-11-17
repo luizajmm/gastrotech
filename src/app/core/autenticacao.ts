@@ -26,13 +26,11 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
-// telas da equipe exigem login
 export const exigeLogin: CanActivateFn = (_rota, estado) => {
   if (inject(Sessao).logado()) return true;
   return inject(Router).createUrlTree(['/entrar'], { queryParams: { volta: estado.url } });
 };
 
-// só entra quem pode ver a área; os outros voltam pra visão geral do painel
 export const exigeArea =
   (area: string): CanActivateFn =>
   () =>

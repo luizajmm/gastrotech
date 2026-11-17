@@ -20,7 +20,6 @@ function gravar(chave: string, valor: string | null): void {
     if (valor === null) localStorage.removeItem(chave);
     else localStorage.setItem(chave, valor);
   } catch {
-    // navegador sem armazenamento: a sessão dura só até recarregar a página
   }
 }
 
@@ -33,7 +32,7 @@ export class Sessao {
   readonly logado = computed(() => !!this.token());
 
   constructor() {
-    // login salvo de antes das áreas existirem: pede pra entrar de novo
+    // login antigo sem as áreas, pede pra entrar de novo
     if (this.usuario() && !this.usuario()!.areas) this.limpar();
   }
 
