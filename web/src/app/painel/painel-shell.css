@@ -4,9 +4,9 @@
 
 .moldura {
   display: grid;
-  grid-template-columns: 14rem minmax(0, 1fr);
+  grid-template-columns: 15rem minmax(0, 1fr);
   min-height: 100dvh;
-  background: linear-gradient(to right, var(--papel) calc(14rem - 1px), var(--linha) calc(14rem - 1px) 14rem, var(--fumaca) 14rem);
+  background: linear-gradient(to right, var(--papel) calc(15rem - 1px), var(--linha) calc(15rem - 1px) 15rem, var(--fumaca) 15rem);
 }
 
 /* ---------- Menu lateral ---------- */

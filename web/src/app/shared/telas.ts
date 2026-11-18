@@ -45,7 +45,7 @@ import { Sessao } from '../core/sessao';
     svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
     .largo { display: flex; width: 100%; }
-    .largo a { flex: 1; min-width: 0; justify-content: center; padding: 0 0.4rem; font-size: 0.82rem; }
+    .largo a { flex: 1 1 auto; justify-content: center; padding: 0 0.45rem; font-size: 0.8rem; }
     .largo .inicio { flex: none; padding: 0 0.45rem; }
 
     .escuro { background: #262626; }
