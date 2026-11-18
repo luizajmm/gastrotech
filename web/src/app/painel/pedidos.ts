@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { Avisos } from '../core/avisos';
 import { FiltroPedidos, Paginado, Pedido } from '../core/modelos';
 import { PainelApi } from '../core/painel-api';
+import { Sessao } from '../core/sessao';
 import { DinheiroPipe } from '../shared/dinheiro.pipe';
 import { seloPagamento, seloStatus } from './formatos';
 
@@ -121,6 +122,26 @@ const FILTROS: { valor: FiltroPedidos['status']; nome: string }[] = [
                             e encerrado às {{ pedido.finalizado_em | date: 'HH:mm' }}
                           }
                         </p>
+                        @if (podeCancelar && !encerrado(pedido)) {
+                          <div class="cancelar">
+                            @if (cancelando() === pedido.id) {
+                              <span class="confirmar-inline">
+                                <span>
+                                  Cancelar o pedido {{ pedido.codigo }}?
+                                  @if (pedido.status_pagamento.valor === 'pago') {
+                                    O valor vai ser estornado.
+                                  }
+                                </span>
+                                <button class="btn btn-pequeno btn-alerta" type="button" [disabled]="ocupado()" (click)="cancelar(pedido)">
+                                  {{ ocupado() ? 'Cancelando' : 'Cancelar pedido' }}
+                                </button>
+                                <button class="btn btn-pequeno btn-contorno" type="button" [disabled]="ocupado()" (click)="cancelando.set(null)">Voltar</button>
+                              </span>
+                            } @else {
+                              <button class="btn btn-pequeno btn-discreto" type="button" (click)="cancelando.set(pedido.id)">Cancelar pedido</button>
+                            }
+                          </div>
+                        }
                       </td>
                     </tr>
                   }
@@ -166,6 +187,7 @@ const FILTROS: { valor: FiltroPedidos['status']; nome: string }[] = [
     tr.detalhe ul { display: grid; gap: 0.4rem; margin: 0 0 0.5rem; padding: 0.75rem 1rem; list-style: none; border-left: 3px solid var(--tinta); background: var(--papel); border-radius: 0 8px 8px 0; }
     tr.detalhe li { display: flex; justify-content: space-between; gap: var(--espaco-4); }
     tr.detalhe p { font-size: 0.8rem; padding-left: 1rem; }
+    .cancelar { padding: 0.5rem 0 0.25rem 1rem; }
     .paginacao { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--espaco-3); padding: var(--espaco-3) 0.75rem var(--espaco-2); border-top: 1px solid var(--linha); }
     .paginacao div { display: flex; gap: var(--espaco-2); }
   `,
@@ -173,6 +195,12 @@ const FILTROS: { valor: FiltroPedidos['status']; nome: string }[] = [
 export class PedidosPagina {
   private api = inject(PainelApi);
   private avisos = inject(Avisos);
+  private sessao = inject(Sessao);
+
+  protected readonly podeCancelar = this.sessao.pode('pedidos');
+  protected readonly cancelando = signal<number | null>(null);
+  protected readonly ocupado = signal(false);
+  private ultimaBusca = 0;
 
   protected readonly filtros = FILTROS;
   protected readonly seloStatus = seloStatus;
@@ -191,7 +219,26 @@ export class PedidosPagina {
   protected mudar(parte: Partial<FiltroPedidos>): void {
     this.filtro.update((f) => ({ ...f, ...parte }));
     this.aberto.set(null);
+    this.cancelando.set(null);
     this.carregar();
+  }
+
+  protected encerrado(pedido: Pedido): boolean {
+    return pedido.status.valor === 'retirado' || pedido.status.valor === 'cancelado';
+  }
+
+  protected async cancelar(pedido: Pedido): Promise<void> {
+    this.ocupado.set(true);
+    try {
+      await firstValueFrom(this.api.cancelarPedido(pedido.id));
+      this.avisos.sucesso(`Pedido ${pedido.codigo} cancelado.`);
+      this.cancelando.set(null);
+      await this.carregar();
+    } catch (e) {
+      this.avisos.erro(e, 'Não foi possível cancelar o pedido.');
+    } finally {
+      this.ocupado.set(false);
+    }
   }
 
   protected limpar(): void {
@@ -200,13 +247,16 @@ export class PedidosPagina {
   }
 
   private async carregar(): Promise<void> {
+    // se clicar rápido em outro filtro, só vale a resposta da última busca
+    const busca = ++this.ultimaBusca;
     this.carregando.set(true);
     try {
-      this.pagina.set(await firstValueFrom(this.api.pedidos(this.filtro())));
+      const pagina = await firstValueFrom(this.api.pedidos(this.filtro()));
+      if (busca === this.ultimaBusca) this.pagina.set(pagina);
     } catch (e) {
-      this.avisos.erro(e, 'Não foi possível carregar os pedidos.');
+      if (busca === this.ultimaBusca) this.avisos.erro(e, 'Não foi possível carregar os pedidos.');
     } finally {
-      this.carregando.set(false);
+      if (busca === this.ultimaBusca) this.carregando.set(false);
     }
   }
 }

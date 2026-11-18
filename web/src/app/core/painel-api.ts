@@ -81,6 +81,10 @@ export class PainelApi {
     return this.http.get<Paginado<Pedido>>(`${this.url}/pedidos`, { params }).pipe(catchError(traduzir));
   }
 
+  cancelarPedido(id: number): Observable<Pedido> {
+    return this.post<Pedido>(`pedidos/${id}/cancelar`, {});
+  }
+
   categorias(): Observable<CategoriaPainel[]> {
     return this.get<CategoriaPainel[]>('categorias');
   }

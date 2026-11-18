@@ -16,7 +16,7 @@ Esse é o projeto integrador do meu 2º semestre de Sistemas de Informação no 
 
 - **Totem:** cardápio por categoria, personalização dos lanches (bebida do combo, ponto da carne...), pagamento por pix, cartão ou dinheiro e acompanhamento do pedido pelo código
 - **Cozinha:** fila com recebidos, em preparo e prontos, tempo de cada pedido e aviso de atraso
-- **Painel:** visão geral do dia, histórico de pedidos, cadastro de produtos e categorias, financeiro com abertura e fechamento de caixa, equipe e configurações da loja
+- **Painel:** visão geral do dia, histórico de pedidos (dá pra cancelar por ali também), cadastro de produtos e categorias, financeiro com abertura e fechamento de caixa, equipe e configurações da loja
 - **Login da equipe** com papéis: cada pessoa só vê e mexe no que é da função dela
 
 ## O que mudou da versão antiga
