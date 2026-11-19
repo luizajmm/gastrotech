@@ -8,7 +8,7 @@ export const routes: Routes = [
     loadComponent: () => import('./totem/totem-shell').then((m) => m.TotemShell),
     children: [
       { path: '', title: 'Bem-vindo', loadComponent: () => import('./totem/boas-vindas').then((m) => m.BoasVindas) },
-      { path: 'cardapio', title: 'Cardápio', canActivate: [exigeArea('cardapio')], loadComponent: () => import('./totem/cardapio').then((m) => m.CardapioPagina) },
+      { path: 'cardapio', title: 'Cardápio', loadComponent: () => import('./totem/cardapio').then((m) => m.CardapioPagina) },
       { path: 'pedido', title: 'Seu pedido', loadComponent: () => import('./totem/revisao').then((m) => m.Revisao) },
       { path: 'pagamento', title: 'Pagamento', loadComponent: () => import('./totem/pagamento').then((m) => m.Pagamento) },
       { path: 'acompanhar', title: 'Acompanhar pedido', loadComponent: () => import('./totem/acompanhar').then((m) => m.Acompanhar) },
