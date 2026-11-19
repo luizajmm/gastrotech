@@ -1,5 +1,7 @@
 # GastroTech
 
+[![testes](https://github.com/luizajmm/gastrotech/actions/workflows/testes.yml/badge.svg)](https://github.com/luizajmm/gastrotech/actions/workflows/testes.yml)
+
 Sistema de pedidos pra lanchonete. O cliente monta o pedido no totem, o pedido cai na tela da cozinha e o dono acompanha tudo pelo painel (cardápio, vendas, caixa e equipe).
 
 Esse é o projeto integrador do meu 2º semestre de Sistemas de Informação no SENAC. A primeira versão foi feita em grupo, em PHP puro, e está em [tcc-pi2/Sistema-Administrativo](https://github.com/tcc-pi2/Sistema-Administrativo). Depois eu reconstruí o sistema separando em uma API em Laravel e um front em Angular.
@@ -32,6 +34,14 @@ Esse é o projeto integrador do meu 2º semestre de Sistemas de Informação no 
 
 - `api/`: PHP 8.2, Laravel 12, MySQL
 - `web/`: Angular, TypeScript, HTML e CSS
+
+O desenho das tabelas e o porquê de algumas escolhas estão em [docs/banco.md](docs/banco.md).
+
+A cada push, o GitHub Actions roda os testes da api e o build do front.
+
+## Demonstração
+
+A [demonstração](https://luizajmm.github.io/gastrotech/) é o mesmo front, mas sem a api: as chamadas são respondidas no próprio navegador, com um banco de exemplo em memória (some quando recarrega a página). Esse código fica só na branch `demonstracao`, em `web/src/demo`, pra não misturar com o sistema de verdade.
 
 ## Como rodar
 
