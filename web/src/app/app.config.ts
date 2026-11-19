@@ -5,6 +5,7 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { routes } from './app.routes';
 import { tokenInterceptor } from './core/autenticacao';
+import { demoInterceptor } from '../demo/interceptor';
 
 registerLocaleData(localePt);
 
@@ -19,7 +20,7 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions(),
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
     ),
-    provideHttpClient(withFetch(), withInterceptors([tokenInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([tokenInterceptor, demoInterceptor])),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
   ],
 };

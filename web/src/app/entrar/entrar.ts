@@ -44,10 +44,32 @@ import { Sessao } from '../core/sessao';
         </button>
 
       </form>
+
+      <aside class="acessos" aria-labelledby="acessos-titulo">
+        <h2 id="acessos-titulo">Acessos de teste</h2>
+        <p class="texto-suave">Isto é uma demonstração. Toque em um pra preencher, a senha de todos é <strong>gastrotech</strong>.</p>
+        <ul>
+          @for (a of acessos; track a.email) {
+            <li>
+              <button type="button" (click)="email.set(a.email); senha.set('gastrotech'); erro.set(null)">
+                <strong>{{ a.papel }}</strong>
+                <span>{{ a.ve }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      </aside>
       </div>
     </main>
   `,
   styles: `
+    .acessos { display: grid; gap: var(--espaco-2); width: min(100%, 19rem); }
+    .acessos h2 { font-size: 1rem; }
+    .acessos p { font-size: 0.9rem; }
+    .acessos ul { display: grid; gap: var(--espaco-2); margin: var(--espaco-2) 0 0; padding: 0; list-style: none; }
+    .acessos button { display: grid; gap: 0.1rem; width: 100%; padding: var(--espaco-2) var(--espaco-3); border: 0; border-radius: var(--raio-medio); background: var(--papel); text-align: left; color: var(--tinta); }
+    .acessos button:hover, .acessos button:focus-visible { box-shadow: inset 0 0 0 2px var(--tinta); outline: none; }
+    .acessos button span { font-size: 0.82rem; color: var(--grafite); }
     .tela {
       display: grid;
       place-items: center;
@@ -90,6 +112,13 @@ export class Entrar implements OnInit {
   protected readonly senha = signal('');
   protected readonly erro = signal<string | null>(null);
   protected readonly enviando = signal(false);
+
+  protected readonly acessos = [
+    { papel: 'Administrador', email: 'admin@gastrotech.com', ve: 'tudo' },
+    { papel: 'Atendimento', email: 'atendimento@gastrotech.com', ve: 'cozinha, pedidos e caixa' },
+    { papel: 'Cardápio', email: 'cardapio@gastrotech.com', ve: 'só o cardápio' },
+    { papel: 'Somente leitura', email: 'leitura@gastrotech.com', ve: 'vê, mas não altera' },
+  ];
 
   ngOnInit(): void {
     if (this.sessao.logado()) this.router.navigateByUrl(this.volta() || '/cozinha');
