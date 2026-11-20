@@ -12,6 +12,7 @@ use App\Models\Pedido;
 use App\Models\Produto;
 use App\Services\PedidoService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TotemController extends Controller
 {
@@ -48,6 +49,25 @@ class TotemController extends Controller
         return (new AcompanhamentoPedidoResource($pedido))
             ->response()
             ->setStatusCode(201);
+    }
+
+    // o totem confere o cupom antes do pagamento pra mostrar o desconto.
+    // o valor de verdade é calculado de novo quando o pedido é criado
+    public function cupom(Request $request, string $codigo, PedidoService $pedidos): JsonResponse
+    {
+        $subtotal = (float) $request->validate(['subtotal' => ['required', 'numeric', 'min:0']])['subtotal'];
+        $cupom = $pedidos->conferirCupom($codigo, $subtotal);
+
+        return response()->json([
+            'data' => [
+                'codigo' => $cupom->codigo,
+                'descricao' => $cupom->descricao,
+                'tipo' => $cupom->tipo->value,
+                'valor' => (float) $cupom->valor,
+                'pedido_minimo' => $cupom->pedido_minimo === null ? null : (float) $cupom->pedido_minimo,
+                'desconto' => $cupom->descontoPara($subtotal),
+            ],
+        ]);
     }
 
     public function acompanhar(string $codigo): AcompanhamentoPedidoResource

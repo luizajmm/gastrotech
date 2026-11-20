@@ -21,6 +21,7 @@ class CriarPedidoRequest extends FormRequest
             'nome_cliente' => ['nullable', 'string', 'max:60'],
             'forma_pagamento' => ['required', Rule::enum(FormaPagamento::class)],
             'consumo' => ['nullable', Rule::enum(Consumo::class)],
+            'cupom' => ['nullable', 'string', 'max:30'],
             'totem' => ['nullable', 'string', 'exists:totens,codigo'],
             'itens' => ['required', 'array', 'min:1', 'max:30'],
             'itens.*.produto_id' => ['required', 'integer'],

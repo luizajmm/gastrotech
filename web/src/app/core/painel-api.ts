@@ -7,6 +7,8 @@ import {
   CaixaAtual,
   CategoriaPainel,
   Configuracoes,
+  Cupom,
+  CupomForm,
   Dashboard,
   ErroApi,
   FiltroPedidos,
@@ -153,6 +155,18 @@ export class PainelApi {
 
   registrarMovimento(dados: MovimentoForm): Observable<Movimento> {
     return this.post<Movimento>('financeiro/movimentos', dados);
+  }
+
+  cupons(): Observable<Cupom[]> {
+    return this.get<Cupom[]>('cupons');
+  }
+
+  salvarCupom(dados: CupomForm, id?: number): Observable<Cupom> {
+    return this.salvar<Cupom>('cupons', dados, id);
+  }
+
+  excluirCupom(id: number): Observable<void> {
+    return this.excluir(`cupons/${id}`);
   }
 
   usuarios(): Observable<Usuario[]> {

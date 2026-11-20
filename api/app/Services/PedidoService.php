@@ -6,6 +6,7 @@ use App\Enums\Consumo;
 use App\Enums\FormaPagamento;
 use App\Enums\StatusPagamento;
 use App\Enums\StatusPedido;
+use App\Models\Cupom;
 use App\Models\Pedido;
 use App\Models\Produto;
 use App\Models\Totem;
@@ -31,6 +32,9 @@ class PedidoService
                 ->keyBy('id');
 
             $linhas = $this->validarItens($itens, $produtos);
+            $subtotal = round($linhas->sum(fn ($l) => (float) $l['produto']->preco * $l['quantidade']), 2);
+            $cupom = $this->cupom($dados['cupom'] ?? null, $subtotal);
+            $desconto = $cupom?->descontoPara($subtotal) ?? 0.0;
 
             $pedido = Pedido::query()->create([
                 'totem_id' => $this->totem($dados['totem'] ?? null)?->id,
@@ -40,7 +44,11 @@ class PedidoService
                 'forma_pagamento' => $forma,
                 'consumo' => $dados['consumo'] ?? Consumo::Local->value,
                 'pago_em' => $forma->pagoNoTotem() ? now() : null,
-                'subtotal' => $linhas->sum(fn ($l) => (float) $l['produto']->preco * $l['quantidade']),
+                'subtotal' => $subtotal,
+                'desconto' => $desconto,
+                'total' => round($subtotal - $desconto, 2),
+                'cupom_id' => $cupom?->id,
+                'cupom_codigo' => $cupom?->codigo,
                 'tempo_estimado_min' => (int) $linhas->max(fn ($l) => $l['produto']->tempo_preparo_min),
             ]);
 
@@ -57,6 +65,7 @@ class PedidoService
                 $linha['produto']->decrement('estoque', $linha['quantidade']);
             }
 
+            $cupom?->increment('usos');
             $pedido->update(['codigo' => Pedido::gerarCodigo($pedido->id)]);
 
             return $pedido;
@@ -109,6 +118,11 @@ class PedidoService
                 if ($item->produto_id) {
                     Produto::query()->whereKey($item->produto_id)->increment('estoque', $item->quantidade);
                 }
+            }
+
+            // o uso do cupom volta, senão um cancelamento gasta o limite
+            if ($pedido->cupom_id) {
+                Cupom::query()->whereKey($pedido->cupom_id)->where('usos', '>', 0)->decrement('usos');
             }
 
             $pedido->status = StatusPedido::Cancelado;
@@ -205,6 +219,34 @@ class PedidoService
         }
 
         return $linhas;
+    }
+
+    // usado pelo totem pra mostrar o desconto antes de pagar
+    public function conferirCupom(string $codigo, float $subtotal): Cupom
+    {
+        $cupom = Cupom::query()->where('codigo', Cupom::normalizar($codigo))->first();
+
+        if (! $cupom) {
+            throw ValidationException::withMessages(['cupom' => 'Não encontramos esse cupom. Confira as letras.']);
+        }
+
+        if ($problema = $cupom->problemaPara($subtotal)) {
+            throw ValidationException::withMessages(['cupom' => $problema]);
+        }
+
+        return $cupom;
+    }
+
+    // dentro da transação: trava o cupom pra dois totens não passarem do limite juntos
+    private function cupom(?string $codigo, float $subtotal): ?Cupom
+    {
+        if ($codigo === null || trim($codigo) === '') {
+            return null;
+        }
+
+        Cupom::query()->where('codigo', Cupom::normalizar($codigo))->lockForUpdate()->first();
+
+        return $this->conferirCupom($codigo, $subtotal);
     }
 
     private function totem(?string $codigo): ?Totem

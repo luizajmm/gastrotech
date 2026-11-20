@@ -26,7 +26,7 @@
 
 @if (pendente()) {
   <p class="pagamento">
-    Pagar no caixa: <strong class="preco">{{ pedido().subtotal | dinheiro }}</strong> em {{ pedido().forma_pagamento.rotulo.toLowerCase() }}
+    Pagar no caixa: <strong class="preco">{{ pedido().total | dinheiro }}</strong> em {{ pedido().forma_pagamento.rotulo.toLowerCase() }}
   </p>
 }
 

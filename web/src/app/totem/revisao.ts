@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { Carrinho } from '../core/carrinho';
+import { TotemApi } from '../core/totem-api';
 import { CabecalhoEtapa } from '../shared/cabecalho-etapa';
 import { DinheiroPipe } from '../shared/dinheiro.pipe';
 
@@ -64,10 +66,55 @@ import { DinheiroPipe } from '../shared/dinheiro.pipe';
           }
         </ul>
 
+        <section class="cupom" aria-label="Cupom de desconto">
+          @if (carrinho.cupom(); as c) {
+            <div class="cupom-aplicado">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v8a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2zM9 9.5h.01M15 14.5h.01M15 9l-6 6" /></svg>
+              <div>
+                <strong>Cupom {{ c.codigo }}</strong>
+                @if (carrinho.cupomAbaixoDoMinimo()) {
+                  <span class="cupom-aviso">Vale para pedidos a partir de {{ c.pedido_minimo | dinheiro }}</span>
+                } @else {
+                  <span>{{ c.descricao || 'Desconto aplicado' }}: −{{ carrinho.desconto() | dinheiro }}</span>
+                }
+              </div>
+              <button type="button" class="remover" (click)="carrinho.cupom.set(null)">Remover</button>
+            </div>
+          } @else if (digitandoCupom()) {
+            <form class="cupom-form" (submit)="$event.preventDefault(); aplicarCupom()">
+              <label class="visualmente-oculto" for="cupom">Código do cupom</label>
+              <input
+                id="cupom"
+                type="text"
+                maxlength="30"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                placeholder="Código do cupom"
+                [value]="codigoCupom()"
+                (input)="codigoCupom.set($any($event.target).value.toUpperCase()); erroCupom.set(null)"
+              />
+              <button class="btn btn-tinta" type="submit" [disabled]="!codigoCupom().trim() || conferindo()">
+                {{ conferindo() ? 'Conferindo' : 'Aplicar' }}
+              </button>
+            </form>
+            @if (erroCupom(); as erro) {
+              <p class="cupom-erro" role="alert">{{ erro }}</p>
+            }
+          } @else {
+            <button type="button" class="abrir-cupom" (click)="digitandoCupom.set(true)">Tem um cupom de desconto?</button>
+          }
+        </section>
+
         <footer class="fechamento">
           <div class="total">
-            <span>Total</span>
-            <strong class="preco">{{ carrinho.total() | dinheiro }}</strong>
+            <span>
+              Total
+              @if (carrinho.desconto()) {
+                <small>de <s>{{ carrinho.total() | dinheiro }}</s></small>
+              }
+            </span>
+            <strong class="preco">{{ carrinho.aPagar() | dinheiro }}</strong>
           </div>
           <a class="btn btn-brasa btn-largo" routerLink="/totem/pagamento">Ir para o pagamento</a>
           <a class="btn btn-contorno btn-largo" routerLink="/totem/cardapio">Adicionar mais itens</a>
@@ -89,6 +136,30 @@ import { DinheiroPipe } from '../shared/dinheiro.pipe';
       font-size: 1.1rem; font-weight: 700; color: var(--grafite);
     }
     .consumo button[aria-checked='true'] { background: var(--tinta); color: var(--papel); }
+
+    .cupom { width: min(100%, 60rem); margin: 0 auto var(--espaco-4); padding: 0 var(--espaco-5); }
+    .abrir-cupom {
+      padding: var(--espaco-3) 0; border: 0; background: none;
+      font-size: 1.1rem; font-weight: 700; text-decoration: underline; text-underline-offset: 0.25em;
+    }
+    .cupom-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--espaco-3); }
+    .cupom-form input {
+      min-height: 3.5rem; padding: 0 var(--espaco-4);
+      border: 2px solid var(--tinta); border-radius: var(--raio-medio);
+      font-size: 1.2rem; font-weight: 700; letter-spacing: 0.06em;
+    }
+    .cupom-form input::placeholder { letter-spacing: 0; font-weight: 400; color: #8a8a8a; }
+    .cupom-form .btn { min-height: 3.5rem; padding-inline: var(--espaco-6); }
+    .cupom-erro { margin-top: var(--espaco-2); color: var(--alerta); font-weight: 600; }
+    .cupom-aplicado {
+      display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--espaco-3); align-items: center;
+      padding: var(--espaco-3) var(--espaco-4); border-radius: var(--raio-medio); background: var(--fumaca);
+    }
+    .cupom-aplicado svg { width: 2rem; height: 2rem; fill: none; stroke: var(--brasa-escura); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .cupom-aplicado div { display: grid; }
+    .cupom-aplicado .remover { margin: 0; }
+    .cupom-aviso { color: var(--alerta); font-weight: 600; }
+    .total small { display: block; color: var(--grafite); font-size: 0.95rem; font-weight: 500; }
 
     .linhas { flex: 1; margin-block: 0; padding: var(--espaco-3) var(--espaco-5); list-style: none; }
 
@@ -156,6 +227,28 @@ import { DinheiroPipe } from '../shared/dinheiro.pipe';
 })
 export class Revisao {
   protected readonly carrinho = inject(Carrinho);
+  private api = inject(TotemApi);
+
+  protected readonly digitandoCupom = signal(false);
+  protected readonly codigoCupom = signal('');
+  protected readonly erroCupom = signal<string | null>(null);
+  protected readonly conferindo = signal(false);
+
+  protected async aplicarCupom(): Promise<void> {
+    const codigo = this.codigoCupom().trim();
+    if (!codigo || this.conferindo()) return;
+
+    this.conferindo.set(true);
+    try {
+      this.carrinho.cupom.set(await firstValueFrom(this.api.conferirCupom(codigo, this.carrinho.total())));
+      this.digitandoCupom.set(false);
+      this.codigoCupom.set('');
+    } catch (e) {
+      this.erroCupom.set(e instanceof Error ? e.message : 'Não foi possível conferir o cupom.');
+    } finally {
+      this.conferindo.set(false);
+    }
+  }
 
   protected escolhasDe(personalizacoes: Record<string, string>): string[] {
     return Object.entries(personalizacoes).map(([grupo, opcao]) => `${grupo}: ${opcao}`);

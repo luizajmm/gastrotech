@@ -68,6 +68,7 @@ export interface NovoPedido {
   nome_cliente?: string | null;
   forma_pagamento: FormaPagamento;
   consumo: Consumo;
+  cupom?: string | null;
   totem?: string | null;
   itens: ItemNovoPedido[];
 }
@@ -96,6 +97,9 @@ export interface Acompanhamento {
   consumo: Opcao<Consumo>;
   etapas: EtapaPedido[];
   subtotal: number;
+  desconto: number;
+  total: number;
+  cupom: string | null;
   tempo_estimado_min: number;
   minutos_decorridos: number;
   itens: ItemPedido[];
@@ -117,6 +121,9 @@ export interface Pedido {
   forma_pagamento: Opcao<FormaPagamento>;
   consumo: Opcao<Consumo>;
   subtotal: number;
+  desconto: number;
+  total: number;
+  cupom: string | null;
   tempo_estimado_min: number;
   minutos_decorridos: number;
   minutos_atraso: number;
@@ -273,4 +280,40 @@ export interface FiltroPedidos {
   status: 'todos' | StatusPedido;
   busca: string;
   pagina: number;
+}
+
+export type TipoCupom = 'percentual' | 'valor';
+
+// o que o totem recebe ao conferir um cupom
+export interface CupomAplicado {
+  codigo: string;
+  descricao: string | null;
+  tipo: TipoCupom;
+  valor: number;
+  pedido_minimo: number | null;
+  desconto: number;
+}
+
+export interface Cupom {
+  id: number;
+  codigo: string;
+  descricao: string | null;
+  tipo: Opcao<TipoCupom>;
+  valor: number;
+  pedido_minimo: number | null;
+  validade: string | null;
+  limite_usos: number | null;
+  usos: number;
+  ativo: boolean;
+}
+
+export interface CupomForm {
+  codigo: string;
+  descricao: string | null;
+  tipo: TipoCupom;
+  valor: number;
+  pedido_minimo: number | null;
+  validade: string | null;
+  limite_usos: number | null;
+  ativo: boolean;
 }

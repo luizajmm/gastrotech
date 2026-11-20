@@ -170,7 +170,7 @@
                 <td><strong>{{ p.codigo }}</strong></td>
                 <td>{{ p.nome_cliente }}</td>
                 <td class="itens">{{ resumoItens(p) }}</td>
-                <td class="num">{{ p.subtotal | dinheiro }}</td>
+                <td class="num">{{ p.total | dinheiro }}</td>
                 <td><span [class]="seloStatus(p.status.valor)">{{ p.status.rotulo }}</span></td>
                 <td class="num">{{ p.criado_em | date: 'HH:mm' }}</td>
               </tr>

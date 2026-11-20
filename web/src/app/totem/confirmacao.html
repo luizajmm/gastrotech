@@ -31,7 +31,7 @@
 
     @if (pagarNoCaixa() && !cancelado()) {
       <div class="pagar-caixa" role="note">
-        <strong>Pague {{ p.subtotal | dinheiro }} no caixa</strong>
+        <strong>Pague {{ p.total | dinheiro }} no caixa</strong>
         <span>O pedido só é entregue depois do pagamento.</span>
       </div>
     }
@@ -54,7 +54,7 @@
     <details class="itens">
       <summary>
         <span>{{ p.itens.length }} {{ p.itens.length === 1 ? 'item' : 'itens' }} no pedido</span>
-        <span class="preco">{{ p.subtotal | dinheiro }}</span>
+        <span class="preco">{{ p.total | dinheiro }}</span>
       </summary>
       <ul>
         @for (item of p.itens; track item.id) {
@@ -69,6 +69,11 @@
           </li>
         }
       </ul>
+      @if (p.desconto) {
+        <p class="pagamento texto-suave">
+          Desconto{{ p.cupom ? ' do cupom ' + p.cupom : '' }}: −{{ p.desconto | dinheiro }}
+        </p>
+      }
       <p class="pagamento texto-suave">
         Pagamento: {{ p.forma_pagamento.rotulo }} ({{ p.status_pagamento.rotulo.toLowerCase() }})
         @if (p.consumo) {

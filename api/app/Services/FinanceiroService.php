@@ -22,17 +22,17 @@ class FinanceiroService
     {
         $base = fn () => $this->pedidosPagos($inicio, $fim, $forma);
 
-        $total = (float) $base()->sum('subtotal');
+        $total = (float) $base()->sum('total');
         $quantidade = $base()->count();
 
         $porForma = $base()
-            ->select('forma_pagamento', DB::raw('SUM(subtotal) as total'), DB::raw('COUNT(*) as quantidade'))
+            ->select('forma_pagamento', DB::raw('SUM(total) as total'), DB::raw('COUNT(*) as quantidade'))
             ->groupBy('forma_pagamento')
             ->get()
             ->keyBy(fn ($linha) => $linha->forma_pagamento->value);
 
         $porDia = $base()
-            ->select(DB::raw('DATE(pago_em) as dia'), DB::raw('SUM(subtotal) as total'), DB::raw('COUNT(*) as quantidade'))
+            ->select(DB::raw('DATE(pago_em) as dia'), DB::raw('SUM(total) as total'), DB::raw('COUNT(*) as quantidade'))
             ->groupBy(DB::raw('DATE(pago_em)'))
             ->get()
             ->keyBy('dia');
@@ -72,7 +72,7 @@ class FinanceiroService
             ->where('status_pagamento', StatusPagamento::Pago)
             ->where('forma_pagamento', FormaPagamento::Dinheiro)
             ->whereBetween('pago_em', [$caixa->aberto_em, $ate])
-            ->sum('subtotal');
+            ->sum('total');
 
         $entradas = (float) $caixa->movimentos()->where('tipo', TipoMovimento::Entrada)->sum('valor');
         $saidas = (float) $caixa->movimentos()->where('tipo', TipoMovimento::Saida)->sum('valor');

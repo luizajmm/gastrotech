@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\ConfiguracaoController;
+use App\Http\Controllers\Api\CupomController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FinanceiroController;
 use App\Http\Controllers\Api\OpcoesController;
@@ -19,6 +20,7 @@ Route::prefix('totem')->group(function () {
     Route::get('cardapio', [TotemController::class, 'cardapio']);
     Route::post('pedidos', [TotemController::class, 'criarPedido'])->middleware('throttle:totem');
     Route::get('pedidos/{codigo}', [TotemController::class, 'acompanhar']);
+    Route::get('cupons/{codigo}', [TotemController::class, 'cupom'])->middleware('throttle:totem');
 });
 
 Route::get('opcoes', OpcoesController::class);
@@ -41,6 +43,7 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
         Route::apiResource('produtos', ProdutoController::class)
             ->parameters(['produtos' => 'produto'])
             ->only(['index', 'show']);
+        Route::get('cupons', [CupomController::class, 'index']);
     });
 
     Route::middleware('can:cardapio')->group(function () {
@@ -49,6 +52,9 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
             ->only(['store', 'update', 'destroy']);
         Route::apiResource('produtos', ProdutoController::class)
             ->parameters(['produtos' => 'produto'])
+            ->only(['store', 'update', 'destroy']);
+        Route::apiResource('cupons', CupomController::class)
+            ->parameters(['cupons' => 'cupom'])
             ->only(['store', 'update', 'destroy']);
         Route::post('produtos/{produto}/imagem', [ProdutoController::class, 'enviarImagem']);
         Route::delete('produtos/{produto}/imagem', [ProdutoController::class, 'removerImagem']);

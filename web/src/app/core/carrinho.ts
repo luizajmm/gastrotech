@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { Consumo, FormaPagamento, ItemNovoPedido, Produto } from './modelos';
+import { Consumo, CupomAplicado, FormaPagamento, ItemNovoPedido, Produto } from './modelos';
 
 export interface LinhaCarrinho {
   // mesmo lanche com escolhas diferentes fica em linhas separadas
@@ -24,6 +24,21 @@ export class Carrinho {
     () => Math.round(this._linhas().reduce((s, l) => s + l.produto.preco * l.quantidade, 0) * 100) / 100,
   );
   readonly vazio = computed(() => this._linhas().length === 0);
+
+  // o desconto é recalculado aqui quando o cliente mexe no pedido;
+  // a api confere de novo na hora de criar
+  readonly cupom = signal<CupomAplicado | null>(null);
+  readonly cupomAbaixoDoMinimo = computed(() => {
+    const c = this.cupom();
+    return !!c && c.pedido_minimo !== null && this.total() < c.pedido_minimo;
+  });
+  readonly desconto = computed(() => {
+    const c = this.cupom();
+    if (!c || this.cupomAbaixoDoMinimo()) return 0;
+    const bruto = c.tipo === 'percentual' ? (this.total() * c.valor) / 100 : c.valor;
+    return Math.round(Math.min(bruto, this.total()) * 100) / 100;
+  });
+  readonly aPagar = computed(() => Math.round((this.total() - this.desconto()) * 100) / 100);
 
   quantidadeDo(produtoId: number): number {
     return this._linhas()
@@ -70,5 +85,6 @@ export class Carrinho {
     this.nomeCliente.set('');
     this.formaPagamento.set(null);
     this.consumo.set('local');
+    this.cupom.set(null);
   }
 }

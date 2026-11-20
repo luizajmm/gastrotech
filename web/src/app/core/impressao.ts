@@ -10,7 +10,7 @@ export class Impressao {
     const consumo = pedido.consumo?.valor === 'viagem' ? '<p class="faixa">PARA LEVAR</p>' : '<p class="faixa leve">COMER AQUI</p>';
     const pagamento =
       pedido.status_pagamento.valor === 'pendente'
-        ? `<p class="aviso">PAGAR NO CAIXA: ${dinheiro(pedido.subtotal)}</p>`
+        ? `<p class="aviso">PAGAR NO CAIXA: ${dinheiro(pedido.total)}</p>`
         : '';
 
     this.imprimir(`Comanda ${pedido.codigo}`, `
@@ -27,6 +27,11 @@ export class Impressao {
   }
 
   comprovante(pedido: Acompanhamento, nomeLoja: string): void {
+    const desconto = pedido.desconto
+      ? `<p class="linha"><span>Subtotal</span><span>${dinheiro(pedido.subtotal)}</span></p>
+         <p class="linha"><span>Desconto${pedido.cupom ? ` (${esc(pedido.cupom)})` : ''}</span><span>- ${dinheiro(pedido.desconto)}</span></p>`
+      : '';
+
     this.imprimir(`Pedido ${pedido.codigo}`, `
       <p class="centro forte">${esc(nomeLoja)}</p>
       <p class="centro pequeno">${data(pedido.criado_em)}</p>
@@ -37,7 +42,8 @@ export class Impressao {
       <hr />
       ${pedido.itens.map(itemComprovante).join('')}
       <hr />
-      <p class="linha forte"><span>TOTAL</span><span>${dinheiro(pedido.subtotal)}</span></p>
+      ${desconto}
+      <p class="linha forte"><span>TOTAL</span><span>${dinheiro(pedido.total)}</span></p>
       <p class="linha"><span>Pagamento</span><span>${esc(pedido.forma_pagamento.rotulo)} (${esc(pedido.status_pagamento.rotulo.toLowerCase())})</span></p>
       ${pedido.status_pagamento.valor === 'pendente' ? '<p class="aviso">Pague no caixa antes de retirar</p>' : ''}
       <hr />

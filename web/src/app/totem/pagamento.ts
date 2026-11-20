@@ -71,8 +71,13 @@ const OPCOES: OpcaoPagamento[] = [
 
         <footer class="fechamento">
           <div class="total">
-            <span>{{ carrinho.quantidadeItens() }} {{ carrinho.quantidadeItens() === 1 ? 'item' : 'itens' }}</span>
-            <strong class="preco">{{ carrinho.total() | dinheiro }}</strong>
+            <span>
+              {{ carrinho.quantidadeItens() }} {{ carrinho.quantidadeItens() === 1 ? 'item' : 'itens' }}
+              @if (carrinho.desconto()) {
+                · cupom {{ carrinho.cupom()?.codigo }} (−{{ carrinho.desconto() | dinheiro }})
+              }
+            </span>
+            <strong class="preco">{{ carrinho.aPagar() | dinheiro }}</strong>
           </div>
           <button class="btn btn-brasa btn-largo" type="submit" [disabled]="!carrinho.formaPagamento() || enviando()">
             @if (enviando()) {
@@ -201,6 +206,7 @@ export class Pagamento implements OnInit {
           nome_cliente: this.carrinho.nomeCliente().trim() || null,
           forma_pagamento: forma,
           consumo: this.carrinho.consumo(),
+          cupom: this.carrinho.desconto() ? this.carrinho.cupom()?.codigo : null,
           itens: this.carrinho.itensParaApi(),
         }),
       );

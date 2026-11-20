@@ -88,7 +88,7 @@
     } @else {
       <div class="resumo" aria-live="polite">
         <span>{{ carrinho.quantidadeItens() }} {{ carrinho.quantidadeItens() === 1 ? 'item' : 'itens' }}</span>
-        <strong class="preco">{{ carrinho.total() | dinheiro }}</strong>
+        <strong class="preco">{{ carrinho.aPagar() | dinheiro }}</strong>
       </div>
       <a class="btn btn-brasa" routerLink="/totem/pedido">Revisar pedido</a>
     }

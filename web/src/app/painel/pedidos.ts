@@ -84,7 +84,7 @@ const FILTROS: { valor: FiltroPedidos['status']; nome: string }[] = [
                       }
                     </td>
                     <td class="itens">{{ pedido.itens.length }} {{ pedido.itens.length === 1 ? 'item' : 'itens' }}</td>
-                    <td class="num">{{ pedido.subtotal | dinheiro }}</td>
+                    <td class="num">{{ pedido.total | dinheiro }}</td>
                     <td>
                       {{ pedido.forma_pagamento.rotulo }}
                       <span [class]="seloPagamento(pedido.status_pagamento.valor)">{{ pedido.status_pagamento.rotulo }}</span>

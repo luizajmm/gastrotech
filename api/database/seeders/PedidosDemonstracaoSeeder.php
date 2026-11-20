@@ -6,8 +6,10 @@ use App\Enums\Consumo;
 use App\Enums\FormaPagamento;
 use App\Enums\StatusPagamento;
 use App\Enums\StatusPedido;
+use App\Enums\TipoCupom;
 use App\Enums\TipoMovimento;
 use App\Models\Caixa;
+use App\Models\Cupom;
 use App\Models\Pedido;
 use App\Models\Produto;
 use App\Models\Totem;
@@ -31,12 +33,21 @@ class PedidosDemonstracaoSeeder extends Seeder
         $totens = Totem::all();
         $admin = User::query()->where('email', 'admin@gastrotech.com')->first();
 
+        Cupom::query()->insert([
+            ['codigo' => 'BEMVINDO10', 'descricao' => '10% no primeiro pedido', 'tipo' => TipoCupom::Percentual->value, 'valor' => 10, 'pedido_minimo' => null, 'validade' => null, 'limite_usos' => null, 'ativo' => true, 'usos' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['codigo' => 'COMBO5', 'descricao' => 'R$ 5 de desconto acima de R$ 30', 'tipo' => TipoCupom::Valor->value, 'valor' => 5, 'pedido_minimo' => 30, 'validade' => now()->addMonth()->toDateString(), 'limite_usos' => 100, 'ativo' => true, 'usos' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['codigo' => 'INAUGURACAO', 'descricao' => 'Semana de inauguração', 'tipo' => TipoCupom::Percentual->value, 'valor' => 15, 'pedido_minimo' => null, 'validade' => now()->subDays(10)->toDateString(), 'limite_usos' => null, 'ativo' => false, 'usos' => 0, 'created_at' => now(), 'updated_at' => now()],
+        ]);
+
+        // movimento concentrado no almoço e na janta
+        $horarios = [11, 12, 12, 12, 13, 13, 14, 15, 16, 17, 18, 19, 19, 19, 20, 20, 21];
+
         // vendas dos últimos 7 dias
         for ($dia = 7; $dia >= 1; $dia--) {
             $quantidade = mt_rand(9, 18);
 
             for ($i = 0; $i < $quantidade; $i++) {
-                $quando = now()->subDays($dia)->setTime(mt_rand(11, 21), mt_rand(0, 59));
+                $quando = now()->subDays($dia)->setTime($horarios[array_rand($horarios)], mt_rand(0, 59));
                 $this->criarPedido($produtos, $totens->random(), $quando, StatusPedido::Retirado);
             }
         }
@@ -111,6 +122,7 @@ class PedidosDemonstracaoSeeder extends Seeder
         $pedido->forceFill([
             'codigo' => Pedido::gerarCodigo($pedido->id),
             'subtotal' => $subtotal,
+            'total' => $subtotal,
             'created_at' => $quando,
             'updated_at' => $quando,
         ])->save();

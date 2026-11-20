@@ -179,7 +179,7 @@ export class Financeiro {
     this.exportando.set(true);
     try {
       const pedidos = await firstValueFrom(this.api.pedidosPagos(this.inicio(), this.fim()));
-      const total = pedidos.reduce((s, p) => s + p.subtotal, 0);
+      const total = pedidos.reduce((s, p) => s + p.total, 0);
       const linhas: Celula[][] = [
         ['Data', 'Hora', 'Pedido', 'Cliente', 'Consumo', 'Pagamento', 'Itens', 'Valor (R$)'],
         ...pedidos.map((p) => {
@@ -192,7 +192,7 @@ export class Financeiro {
             p.consumo?.rotulo,
             p.forma_pagamento.rotulo,
             p.itens.map((i) => `${i.quantidade}x ${i.nome}`).join(', '),
-            numeroPlanilha(p.subtotal),
+            numeroPlanilha(p.total),
           ];
         }),
         [],
