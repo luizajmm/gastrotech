@@ -33,7 +33,7 @@ export class VisaoGeral {
     return dias.map((d) => ({
       rotulo: d.data === ultimo ? 'hoje' : rotuloDia(d.data, true),
       valor: d.total,
-      detalhe: `${d.quantidade} ped.`,
+      detalhe: `${d.quantidade} ${d.quantidade === 1 ? 'pago' : 'pagos'}`,
       destaque: d.data === ultimo,
     }));
   });
