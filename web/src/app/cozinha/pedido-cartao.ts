@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { Pedido } from '../core/modelos';
 import { DinheiroPipe } from '../shared/dinheiro.pipe';
+import { DuracaoPipe } from '../shared/duracao.pipe';
 
 export type AcaoPedido = 'avancar' | 'cancelar' | 'pagamento';
 
 @Component({
   selector: 'gt-pedido-cartao',
-  imports: [DinheiroPipe],
+  imports: [DinheiroPipe, DuracaoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pedido-cartao.html',
   styleUrl: './pedido-cartao.css',

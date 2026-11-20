@@ -6,6 +6,7 @@ import { Avisos } from '../core/avisos';
 import { Dashboard } from '../core/modelos';
 import { PainelApi } from '../core/painel-api';
 import { DinheiroPipe } from '../shared/dinheiro.pipe';
+import { DuracaoPipe } from '../shared/duracao.pipe';
 import { resumoItens, rotuloDia, seloStatus } from './formatos';
 import { Barra, GraficoBarras } from './grafico-barras';
 
@@ -13,7 +14,7 @@ const hoje = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric',
 
 @Component({
   selector: 'gt-visao-geral',
-  imports: [DatePipe, DinheiroPipe, GraficoBarras, RouterLink],
+  imports: [DatePipe, DinheiroPipe, DuracaoPipe, GraficoBarras, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './visao-geral.html',
   styleUrl: './visao-geral.css',

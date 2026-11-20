@@ -6,15 +6,15 @@
 
   <div class="tempo" [attr.aria-label]="minutos() + ' minutos desde o pedido'">
     @if (pedido().status.valor === 'pronto') {
-      <span class="tempo-valor">{{ minutosPronto() }} min</span>
+      <span class="tempo-valor">{{ minutosPronto() | duracao }}</span>
       <span class="tempo-legenda">esperando retirada</span>
     } @else {
-      <span class="tempo-valor">{{ minutos() }} min</span>
+      <span class="tempo-valor">{{ minutos() | duracao }}</span>
       <span class="tempo-legenda">
         @if (atraso() > 0) {
-          {{ atraso() }} min atrasado
+          {{ atraso() | duracao }} de atraso
         } @else {
-          de {{ pedido().tempo_estimado_min }} previstos
+          de {{ pedido().tempo_estimado_min | duracao }} previstos
         }
       </span>
     }

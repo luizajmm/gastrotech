@@ -83,7 +83,7 @@
               <strong>{{ p.codigo }}</strong> {{ p.nome_cliente }}
               <span class="texto-suave">{{ resumoItens(p) }}</span>
             </div>
-            <span class="atraso">{{ minutosDesde(p.criado_em) - p.tempo_estimado_min }} min</span>
+            <span class="atraso">{{ minutosDesde(p.criado_em) - p.tempo_estimado_min | duracao }}</span>
           </li>
         } @empty {
           <li class="tudo-certo">Nenhum pedido atrasado agora.</li>
