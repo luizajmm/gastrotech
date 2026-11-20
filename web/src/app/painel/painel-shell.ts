@@ -18,6 +18,7 @@ const MENU: ItemMenu[] = [
   { rota: '/painel', nome: 'Visão geral', exato: true, icone: 'M4 13h6V4H4zM14 20h6v-9h-6zM14 4v4h6V4zM4 20h6v-4H4z' },
   { rota: '/painel/pedidos', nome: 'Pedidos', area: 'pedidos', icone: 'M7 4h10v16l-2.5-1.5L12 20l-2.5-1.5L7 20zM10 9h4M10 13h4' },
   { rota: '/painel/cardapio', nome: 'Cardápio', area: 'cardapio', icone: 'M4 10.5a8 6 0 0 1 16 0zM3 14h18M5 17v.5A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5V17' },
+  { rota: '/painel/insumos', nome: 'Insumos', area: 'cardapio', icone: 'M5 8h14l-1 12H6zM8 8V6a4 4 0 0 1 8 0v2M9 12v4M15 12v4' },
   { rota: '/painel/cupons', nome: 'Promoções', area: 'cardapio', icone: 'M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v8a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2zM9 9.5h.01M15 14.5h.01M15 9l-6 6' },
   { rota: '/painel/financeiro', nome: 'Financeiro', area: 'caixa', icone: 'M4 19V9M10 19V5M16 19v-7M3 19h18' },
   { rota: '/painel/equipe', nome: 'Equipe', area: 'usuarios', icone: 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3 20a6 6 0 0 1 12 0M16 4.5a3.5 3.5 0 0 1 0 6.5M18 14.5a6 6 0 0 1 3 5.5' },

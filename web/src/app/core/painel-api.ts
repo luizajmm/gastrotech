@@ -13,6 +13,8 @@ import {
   Dashboard,
   ErroApi,
   FiltroPedidos,
+  Insumo,
+  InsumoForm,
   Movimento,
   Paginado,
   Pedido,
@@ -164,6 +166,22 @@ export class PainelApi {
 
   salvarCupom(dados: CupomForm, id?: number): Observable<Cupom> {
     return this.salvar<Cupom>('cupons', dados, id);
+  }
+
+  insumos(): Observable<Insumo[]> {
+    return this.get<Insumo[]>('insumos');
+  }
+
+  salvarInsumo(dados: InsumoForm, id?: number): Observable<Insumo> {
+    return this.salvar<Insumo>('insumos', dados, id);
+  }
+
+  entradaInsumo(id: number, quantidade: number): Observable<Insumo> {
+    return this.post<Insumo>(`insumos/${id}/entrada`, { quantidade });
+  }
+
+  excluirInsumo(id: number): Observable<void> {
+    return this.excluir(`insumos/${id}`);
   }
 
   clientesFidelidade(): Observable<ClientesFidelidade> {

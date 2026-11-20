@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
 
 class Produto extends Model
@@ -41,6 +42,23 @@ class Produto extends Model
     public function categoria(): BelongsTo
     {
         return $this->belongsTo(Categoria::class);
+    }
+
+    // ficha técnica
+    public function insumos(): BelongsToMany
+    {
+        return $this->belongsToMany(Insumo::class, 'produto_insumo')->withPivot('quantidade');
+    }
+
+    // quantas unidades dá pra vender agora: o menor entre o estoque do produto
+    // e o que os insumos da ficha ainda rendem (precisa dos insumos carregados)
+    public function disponivelParaVenda(): int
+    {
+        $rendimento = $this->insumos->map(
+            fn (Insumo $i) => (int) floor((float) $i->estoque / max(0.001, (float) $i->pivot->quantidade) + 1e-9)
+        );
+
+        return (int) min($this->estoque, $rendimento->min() ?? PHP_INT_MAX);
     }
 
     public function scopeDisponiveis(Builder $query): Builder

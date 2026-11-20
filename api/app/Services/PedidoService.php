@@ -7,6 +7,7 @@ use App\Enums\FormaPagamento;
 use App\Enums\StatusPagamento;
 use App\Enums\StatusPedido;
 use App\Models\Cupom;
+use App\Models\Insumo;
 use App\Models\Pedido;
 use App\Models\Produto;
 use App\Models\Totem;
@@ -34,6 +35,7 @@ class PedidoService
                 ->keyBy('id');
 
             $linhas = $this->validarItens($itens, $produtos);
+            $this->baixarInsumos($linhas);
             $subtotal = round($linhas->sum(fn ($l) => (float) $l['produto']->preco * $l['quantidade']), 2);
             $cupom = $this->cupom($dados['cupom'] ?? null, $subtotal);
             $desconto = $cupom?->descontoPara($subtotal) ?? 0.0;
@@ -134,6 +136,14 @@ class PedidoService
             foreach ($pedido->itens as $item) {
                 if ($item->produto_id) {
                     Produto::query()->whereKey($item->produto_id)->increment('estoque', $item->quantidade);
+                }
+            }
+
+            // os insumos voltam pela ficha de agora (se mudaram a ficha no meio, a volta é aproximada)
+            $ficha = DB::table('produto_insumo')->whereIn('produto_id', $pedido->itens->pluck('produto_id')->filter())->get();
+            foreach ($pedido->itens as $item) {
+                foreach ($ficha->where('produto_id', $item->produto_id) as $linha) {
+                    Insumo::query()->whereKey($linha->insumo_id)->increment('estoque', (float) $linha->quantidade * $item->quantidade);
                 }
             }
 
@@ -241,6 +251,42 @@ class PedidoService
         }
 
         return $linhas;
+    }
+
+    // soma o que o pedido gasta de cada insumo, trava e confere antes de baixar
+    private function baixarInsumos(Collection $linhas): void
+    {
+        $ficha = DB::table('produto_insumo')->whereIn('produto_id', $linhas->map(fn ($l) => $l['produto']->id))->get();
+
+        if ($ficha->isEmpty()) {
+            return;
+        }
+
+        $insumos = Insumo::query()->whereIn('id', $ficha->pluck('insumo_id')->unique())->lockForUpdate()->get()->keyBy('id');
+        $precisa = [];
+        $produtoDo = [];
+
+        foreach ($linhas as $linha) {
+            foreach ($ficha->where('produto_id', $linha['produto']->id) as $item) {
+                $precisa[$item->insumo_id] = ($precisa[$item->insumo_id] ?? 0) + (float) $item->quantidade * $linha['quantidade'];
+                $produtoDo[$item->insumo_id] ??= $linha['produto']->nome;
+            }
+        }
+
+        $erros = [];
+        foreach ($precisa as $id => $quantidade) {
+            if ((float) $insumos[$id]->estoque + 1e-9 < $quantidade) {
+                $erros["itens.insumo_{$id}"] = "{$produtoDo[$id]} acabou por agora (faltou {$insumos[$id]->nome}).";
+            }
+        }
+
+        if ($erros) {
+            throw ValidationException::withMessages($erros);
+        }
+
+        foreach ($precisa as $id => $quantidade) {
+            $insumos[$id]->decrement('estoque', $quantidade);
+        }
     }
 
     // usado pelo totem pra mostrar o desconto antes de pagar

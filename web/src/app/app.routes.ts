@@ -36,6 +36,7 @@ export const routes: Routes = [
       { path: '', title: 'Visão geral', loadComponent: () => import('./painel/visao-geral').then((m) => m.VisaoGeral) },
       { path: 'pedidos', title: 'Pedidos', canActivate: [exigeArea('pedidos')], loadComponent: () => import('./painel/pedidos').then((m) => m.PedidosPagina) },
       { path: 'cardapio', title: 'Cardápio', canActivate: [exigeArea('cardapio')], loadComponent: () => import('./painel/cardapio-admin').then((m) => m.CardapioAdmin) },
+      { path: 'insumos', title: 'Insumos', canActivate: [exigeArea('cardapio')], loadComponent: () => import('./painel/insumos').then((m) => m.Insumos) },
       { path: 'cupons', title: 'Promoções', canActivate: [exigeArea('cardapio')], loadComponent: () => import('./painel/cupons').then((m) => m.Cupons) },
       { path: 'financeiro', title: 'Financeiro', canActivate: [exigeArea('caixa')], loadComponent: () => import('./painel/financeiro').then((m) => m.Financeiro) },
       {

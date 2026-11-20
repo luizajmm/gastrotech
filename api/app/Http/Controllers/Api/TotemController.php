@@ -15,6 +15,7 @@ use App\Models\Produto;
 use App\Services\FidelidadeService;
 use App\Services\PedidoService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -25,13 +26,16 @@ class TotemController extends Controller
         $categorias = Categoria::query()
             ->ativas()
             ->ordenadas()
-            ->with(['produtos' => fn ($q) => $q->disponiveis()->orderByDesc('destaque')->orderBy('nome')])
+            ->with(['produtos' => fn ($q) => $q->disponiveis()->with('insumos')->orderByDesc('destaque')->orderBy('nome')])
             ->get()
+            ->each(fn (Categoria $c) => $c->setRelation('produtos', $this->comInsumosEmDia($c->produtos)))
             ->filter(fn (Categoria $c) => $c->produtos->isNotEmpty())
             ->values();
 
         // produto sem categoria vai pra "Outros"
-        $semCategoria = Produto::query()->disponiveis()->whereNull('categoria_id')->orderBy('nome')->get();
+        $semCategoria = $this->comInsumosEmDia(
+            Produto::query()->disponiveis()->with('insumos')->whereNull('categoria_id')->orderBy('nome')->get()
+        );
 
         if ($semCategoria->isNotEmpty()) {
             $outros = new Categoria(['nome' => 'Outros', 'icone' => 'outros', 'ordem' => 999]);
@@ -44,6 +48,18 @@ class TotemController extends Controller
             'loja' => Configuracao::publicas(),
             'categorias' => CategoriaResource::collection($categorias),
         ]);
+    }
+
+    // o totem vê o estoque que os insumos ainda rendem, e não vê a ficha em si
+    private function comInsumosEmDia(Collection $produtos): Collection
+    {
+        return $produtos
+            ->each(function (Produto $p) {
+                $p->estoque = $p->disponivelParaVenda();
+                $p->unsetRelation('insumos');
+            })
+            ->filter(fn (Produto $p) => $p->estoque > 0)
+            ->values();
     }
 
     public function criarPedido(CriarPedidoRequest $request, PedidoService $pedidos): JsonResponse

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\StatusPedido;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\InsumoResource;
 use App\Http\Resources\PedidoResource;
+use App\Models\Insumo;
 use App\Http\Resources\ProdutoResource;
 use App\Models\Configuracao;
 use App\Models\Pedido;
@@ -50,6 +52,7 @@ class DashboardController extends Controller
                 'atrasados' => PedidoResource::collection($atrasados->take(5)),
                 'estoque_baixo' => [
                     'limite' => $limite,
+                    'insumos' => InsumoResource::collection(Insumo::query()->acabando()->orderBy('nome')->limit(6)->get()),
                     'produtos' => ProdutoResource::collection(
                         Produto::query()->with('categoria')->estoqueBaixo($limite)->orderBy('estoque')->limit(6)->get()
                     ),

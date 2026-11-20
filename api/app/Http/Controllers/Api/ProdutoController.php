@@ -11,6 +11,7 @@ use App\Models\Produto;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProdutoController extends Controller
@@ -24,7 +25,7 @@ class ProdutoController extends Controller
         ]);
 
         $produtos = Produto::query()
-            ->with('categoria')
+            ->with(['categoria', 'insumos'])
             ->when($request->filled('busca'), function ($q) use ($request) {
                 $termo = '%'.$request->string('busca')->trim().'%';
                 $q->where(fn ($q) => $q->where('nome', 'like', $termo)->orWhere('descricao', 'like', $termo));
@@ -41,21 +42,43 @@ class ProdutoController extends Controller
 
     public function store(SalvarProdutoRequest $request): JsonResponse
     {
-        $produto = Produto::query()->create($request->validated());
+        $produto = DB::transaction(function () use ($request) {
+            $produto = Produto::query()->create($request->safe()->except('ficha'));
+            $this->salvarFicha($produto, $request);
 
-        return (new ProdutoResource($produto->load('categoria')))->response()->setStatusCode(201);
+            return $produto;
+        });
+
+        return (new ProdutoResource($produto->load(['categoria', 'insumos'])))->response()->setStatusCode(201);
     }
 
     public function show(Produto $produto): ProdutoResource
     {
-        return new ProdutoResource($produto->load('categoria'));
+        return new ProdutoResource($produto->load(['categoria', 'insumos']));
     }
 
     public function update(SalvarProdutoRequest $request, Produto $produto): ProdutoResource
     {
-        $produto->update($request->validated());
+        DB::transaction(function () use ($request, $produto) {
+            $produto->update($request->safe()->except('ficha'));
+            $this->salvarFicha($produto, $request);
+        });
 
-        return new ProdutoResource($produto->load('categoria'));
+        return new ProdutoResource($produto->load(['categoria', 'insumos']));
+    }
+
+    // só mexe na ficha quando ela vem no corpo (a tela de cardápio às vezes só troca o "ativo")
+    private function salvarFicha(Produto $produto, SalvarProdutoRequest $request): void
+    {
+        if (! $request->has('ficha')) {
+            return;
+        }
+
+        $produto->insumos()->sync(
+            collect($request->validated('ficha') ?? [])
+                ->mapWithKeys(fn ($linha) => [$linha['insumo_id'] => ['quantidade' => $linha['quantidade']]])
+                ->all()
+        );
     }
 
     public function destroy(Produto $produto): JsonResponse

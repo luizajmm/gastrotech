@@ -119,3 +119,40 @@
     padding-top: 0;
   }
 }
+
+/* ficha técnica */
+.ficha-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 10rem auto;
+  gap: var(--espaco-3);
+  align-items: center;
+}
+
+.ficha-linha .quantidade {
+  position: relative;
+}
+
+.ficha-linha .quantidade input {
+  padding-right: 2.6rem;
+}
+
+.ficha-linha .unidade {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--grafite);
+  font-size: 0.85rem;
+  font-weight: 650;
+  pointer-events: none;
+}
+
+.sem-ficha {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 560px) {
+  .ficha-linha {
+    grid-template-columns: minmax(0, 1fr) 7rem auto;
+  }
+}

@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Avisos } from '../core/avisos';
-import { CategoriaPainel, GrupoPersonalizacao, ProdutoForm, ProdutoPainel } from '../core/modelos';
+import { CategoriaPainel, GrupoPersonalizacao, Insumo, ProdutoForm, ProdutoPainel } from '../core/modelos';
 import { FalhaFormulario, PainelApi } from '../core/painel-api';
 
 interface GrupoEditavel {
@@ -61,6 +61,8 @@ export class ProdutoFormJanela implements OnInit {
   protected readonly destaque = signal(false);
   protected readonly ativo = signal(true);
   protected readonly grupos = signal<GrupoEditavel[]>([]);
+  protected readonly insumos = signal<Insumo[]>([]);
+  protected readonly ficha = signal<{ chave: number; insumo_id: number; quantidade: string }[]>([]);
 
   protected readonly fotoAtual = signal<string | null>(null);
   protected readonly fotoNova = signal<File | null>(null);
@@ -81,8 +83,20 @@ export class ProdutoFormJanela implements OnInit {
   }
 
   ngOnInit(): void {
+    firstValueFrom(this.api.insumos())
+      .then((lista) => this.insumos.set(lista))
+      .catch(() => this.insumos.set([]));
+
     const p = this.produto();
     if (!p) return;
+
+    this.ficha.set(
+      (p.ficha ?? []).map((f) => ({
+        chave: this.proximaChave++,
+        insumo_id: f.insumo_id,
+        quantidade: String(f.quantidade).replace('.', ','),
+      })),
+    );
 
     this.nome.set(p.nome);
     this.categoriaId.set(p.categoria_id);
@@ -111,6 +125,24 @@ export class ProdutoFormJanela implements OnInit {
 
   protected valor(evento: Event): string {
     return (evento.target as HTMLInputElement).value;
+  }
+
+  protected adicionarInsumo(): void {
+    const usados = new Set(this.ficha().map((l) => l.insumo_id));
+    const livre = this.insumos().find((i) => !usados.has(i.id)) ?? this.insumos()[0];
+    this.ficha.update((f) => [...f, { chave: this.proximaChave++, insumo_id: livre.id, quantidade: '1' }]);
+  }
+
+  protected alterarFicha(chave: number, mudanca: Partial<{ insumo_id: number; quantidade: string }>): void {
+    this.ficha.update((f) => f.map((l) => (l.chave === chave ? { ...l, ...mudanca } : l)));
+  }
+
+  protected removerInsumo(chave: number): void {
+    this.ficha.update((f) => f.filter((l) => l.chave !== chave));
+  }
+
+  protected unidadeDe(id: number): string {
+    return this.insumos().find((i) => i.id === id)?.unidade ?? '';
   }
 
   protected adicionarGrupo(): void {
@@ -181,9 +213,17 @@ export class ProdutoFormJanela implements OnInit {
         opcoes: lista(g.opcoes),
         obrigatorio: g.obrigatorio,
       })),
+      ficha: this.ficha().map((l) => ({ insumo_id: l.insumo_id, quantidade: numero(l.quantidade) })),
       destaque: this.destaque(),
       ativo: this.ativo(),
     };
+
+    if (dados.ficha!.some((l) => !(l.quantidade > 0))) {
+      this.erros.update((e) => ({ ...e, ficha: 'Informe quanto vai de cada insumo, por exemplo 1 ou 0,5.' }));
+    }
+    if (new Set(dados.ficha!.map((l) => l.insumo_id)).size !== dados.ficha!.length) {
+      this.erros.update((e) => ({ ...e, ficha: 'O mesmo insumo aparece duas vezes na ficha.' }));
+    }
 
     if (!dados.nome) this.erros.update((e) => ({ ...e, nome: 'Dê um nome ao produto.' }));
     if (!(dados.preco >= 0) || !this.preco().trim()) this.erros.update((e) => ({ ...e, preco: 'Informe o preço, por exemplo 24,90.' }));

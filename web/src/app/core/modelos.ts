@@ -183,6 +183,35 @@ export interface CategoriaPainel {
 
 export interface ProdutoPainel extends Produto {
   categoria?: { id: number; nome: string } | null;
+  ficha?: ItemFicha[];
+  // quanto dá pra vender somando o estoque do produto e dos insumos
+  disponivel?: number;
+}
+
+export type UnidadeInsumo = 'un' | 'g' | 'kg' | 'ml' | 'l';
+
+export interface ItemFicha {
+  insumo_id: number;
+  nome?: string;
+  unidade?: UnidadeInsumo;
+  quantidade: number;
+}
+
+export interface Insumo {
+  id: number;
+  nome: string;
+  unidade: UnidadeInsumo;
+  estoque: number;
+  estoque_minimo: number | null;
+  acabando: boolean;
+  usado_em?: string[];
+}
+
+export interface InsumoForm {
+  nome: string;
+  unidade: UnidadeInsumo;
+  estoque: number;
+  estoque_minimo: number | null;
 }
 
 // a foto vai separada
@@ -200,6 +229,7 @@ export interface ProdutoForm {
   tags: string[];
   alergenos: string[];
   personalizacoes: GrupoPersonalizacao[];
+  ficha?: { insumo_id: number; quantidade: number }[];
   destaque: boolean;
   ativo: boolean;
 }
@@ -246,7 +276,7 @@ export interface Dashboard {
     comentarios: { codigo: string; nome_cliente: string | null; nota: number; comentario: string; em: string }[];
   };
   atrasados: Pedido[];
-  estoque_baixo: { limite: number; produtos: ProdutoPainel[] };
+  estoque_baixo: { limite: number; produtos: ProdutoPainel[]; insumos: Insumo[] };
   recentes: Pedido[];
 }
 

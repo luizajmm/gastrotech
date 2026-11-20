@@ -9,6 +9,7 @@ import { DinheiroPipe } from '../shared/dinheiro.pipe';
 import { DuracaoPipe } from '../shared/duracao.pipe';
 import { resumoItens, rotuloDia, seloStatus } from './formatos';
 import { Barra, GraficoBarras } from './grafico-barras';
+import { quantidadeBr } from './insumos';
 
 const hoje = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 
@@ -28,6 +29,7 @@ export class VisaoGeral {
   protected readonly resumoItens = resumoItens;
   protected readonly seloStatus = seloStatus;
   protected readonly Math = Math;
+  protected readonly quantidade = quantidadeBr;
 
   protected readonly semana = computed<Barra[]>(() => {
     const dias = this.dados()?.semana.por_dia ?? [];

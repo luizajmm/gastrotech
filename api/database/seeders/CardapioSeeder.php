@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Categoria;
+use App\Models\Insumo;
 use App\Models\Produto;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
@@ -150,6 +151,37 @@ class CardapioSeeder extends Seeder
                     'imagem' => $arquivo,
                     'ativo' => true,
                 ],
+            );
+        }
+
+        $this->fichasTecnicas();
+    }
+
+    // o cheddar já começa abaixo do mínimo pra aparecer o aviso no painel
+    private function fichasTecnicas(): void
+    {
+        $insumos = collect([
+            ['Pão brioche', 'un', 80, 20],
+            ['Blend smash 90g', 'un', 120, 30],
+            ['Bacon', 'g', 1800, 500],
+            ['Queijo cheddar', 'un', 26, 30],
+            ['Batata palito', 'g', 9000, 2000],
+            ['Sorvete de chocolate', 'ml', 4000, 1000],
+        ])->mapWithKeys(fn ($i) => [$i[0] => Insumo::query()->updateOrCreate(
+            ['nome' => $i[0]],
+            ['unidade' => $i[1], 'estoque' => $i[2], 'estoque_minimo' => $i[3]],
+        )]);
+
+        $fichas = [
+            'X-Bacon Artesanal' => ['Pão brioche' => 1, 'Blend smash 90g' => 2, 'Bacon' => 40, 'Queijo cheddar' => 2],
+            'Combo Smash' => ['Pão brioche' => 1, 'Blend smash 90g' => 2, 'Queijo cheddar' => 1, 'Batata palito' => 150],
+            'Batata Suprema' => ['Batata palito' => 300, 'Bacon' => 30, 'Queijo cheddar' => 1],
+            'Milkshake Chocolate' => ['Sorvete de chocolate' => 250],
+        ];
+
+        foreach ($fichas as $produto => $itens) {
+            Produto::query()->where('nome', $produto)->first()?->insumos()->sync(
+                collect($itens)->mapWithKeys(fn ($qtd, $nome) => [$insumos[$nome]->id => ['quantidade' => $qtd]])->all()
             );
         }
     }

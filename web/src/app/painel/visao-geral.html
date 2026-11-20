@@ -192,6 +192,12 @@
         } @empty {
           <li class="tudo-certo">Todos os produtos acima de {{ d.estoque_baixo.limite }} unidades.</li>
         }
+        @for (i of d.estoque_baixo.insumos; track i.id) {
+          <li>
+            <span>{{ i.nome }} <small class="texto-suave">insumo</small></span>
+            <a class="selo selo-alerta" routerLink="/painel/insumos">{{ quantidade(i.estoque) }} {{ i.unidade }}</a>
+          </li>
+        }
       </ul>
     </section>
 

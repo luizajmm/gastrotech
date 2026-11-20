@@ -31,6 +31,13 @@ class ProdutoResource extends JsonResource
             'tempo_preparo_min' => $this->tempo_preparo_min,
             'destaque' => $this->destaque,
             'ativo' => $this->ativo,
+            'ficha' => $this->whenLoaded('insumos', fn () => $this->insumos->map(fn ($i) => [
+                'insumo_id' => $i->id,
+                'nome' => $i->nome,
+                'unidade' => $i->unidade,
+                'quantidade' => (float) $i->pivot->quantidade,
+            ])->values()),
+            'disponivel' => $this->whenLoaded('insumos', fn () => $this->disponivelParaVenda()),
         ];
     }
 }

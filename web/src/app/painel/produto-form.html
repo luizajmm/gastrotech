@@ -86,6 +86,48 @@
 
     <section class="secao-form">
       <div class="secao-topo">
+        <h3>Ficha técnica</h3>
+        <button class="btn btn-pequeno btn-contorno" type="button" [disabled]="!insumos().length" (click)="adicionarInsumo()">Adicionar insumo</button>
+      </div>
+      <p class="ajuda-secao">
+        Quanto de cada insumo vai em uma unidade do produto. A cada venda isso sai do estoque dos insumos, e o item some do totem quando faltar algum.
+      </p>
+
+      @for (linha of ficha(); track linha.chave) {
+        <div class="ficha-linha">
+          <div class="campo">
+            <label class="visualmente-oculto" [for]="'f-insumo-' + linha.chave">Insumo</label>
+            <select [id]="'f-insumo-' + linha.chave" (change)="alterarFicha(linha.chave, { insumo_id: +$any($event.target).value })">
+              @for (i of insumos(); track i.id) {
+                <option [value]="i.id" [selected]="i.id === linha.insumo_id">{{ i.nome }}</option>
+              }
+            </select>
+          </div>
+          <div class="campo quantidade">
+            <label class="visualmente-oculto" [for]="'f-qtd-' + linha.chave">Quantidade</label>
+            <input [id]="'f-qtd-' + linha.chave" inputmode="decimal" [value]="linha.quantidade" (input)="alterarFicha(linha.chave, { quantidade: valor($event) })" />
+            <span class="unidade">{{ unidadeDe(linha.insumo_id) }}</span>
+          </div>
+          <button class="btn btn-icone btn-discreto" type="button" aria-label="Tirar da ficha" (click)="removerInsumo(linha.chave)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </button>
+        </div>
+      } @empty {
+        <p class="texto-suave sem-ficha">
+          @if (insumos().length) {
+            Sem ficha: o produto usa só o estoque dele.
+          } @else {
+            Cadastre os insumos em Insumos pra montar a ficha.
+          }
+        </p>
+      }
+      @if (erros()['ficha']) {
+        <span class="erro-campo">{{ erros()['ficha'] }}</span>
+      }
+    </section>
+
+    <section class="secao-form">
+      <div class="secao-topo">
         <h3>Personalizações</h3>
         <button class="btn btn-pequeno btn-contorno" type="button" (click)="adicionarGrupo()">Adicionar escolha</button>
       </div>

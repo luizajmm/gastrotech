@@ -35,6 +35,10 @@ class SalvarProdutoRequest extends FormRequest
             'alergenos' => ['nullable', 'array', 'max:10'],
             'alergenos.*' => ['string', 'max:40'],
 
+            'ficha' => ['sometimes', 'nullable', 'array', 'max:20'],
+            'ficha.*.insumo_id' => ['required', 'integer', 'distinct', 'exists:insumos,id'],
+            'ficha.*.quantidade' => ['required', 'numeric', 'gt:0', 'max:99999'],
+
             'personalizacoes' => ['nullable', 'array', 'max:6'],
             'personalizacoes.*.nome' => ['required', 'string', 'max:60', 'distinct'],
             'personalizacoes.*.opcoes' => ['required', 'array', 'min:2', 'max:12'],
@@ -46,6 +50,8 @@ class SalvarProdutoRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'ficha.*.insumo_id.distinct' => 'O mesmo insumo aparece duas vezes na ficha.',
+            'ficha.*.quantidade.gt' => 'A quantidade do insumo precisa ser maior que zero.',
             'personalizacoes.*.opcoes.min' => 'Cada personalização precisa de pelo menos 2 opções.',
             'personalizacoes.*.nome.distinct' => 'Há duas personalizações com o mesmo nome.',
         ];

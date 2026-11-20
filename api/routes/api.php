@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ConfiguracaoController;
 use App\Http\Controllers\Api\CupomController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FinanceiroController;
+use App\Http\Controllers\Api\InsumoController;
 use App\Http\Controllers\Api\OpcoesController;
 use App\Http\Controllers\Api\PedidoController;
 use App\Http\Controllers\Api\ProdutoController;
@@ -47,6 +48,7 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
             ->only(['index', 'show']);
         Route::get('cupons', [CupomController::class, 'index']);
         Route::get('clientes', [CupomController::class, 'clientes']);
+        Route::get('insumos', [InsumoController::class, 'index']);
     });
 
     Route::middleware('can:cardapio')->group(function () {
@@ -59,6 +61,10 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
         Route::apiResource('cupons', CupomController::class)
             ->parameters(['cupons' => 'cupom'])
             ->only(['store', 'update', 'destroy']);
+        Route::apiResource('insumos', InsumoController::class)
+            ->parameters(['insumos' => 'insumo'])
+            ->only(['store', 'update', 'destroy']);
+        Route::post('insumos/{insumo}/entrada', [InsumoController::class, 'entrada']);
         Route::post('produtos/{produto}/imagem', [ProdutoController::class, 'enviarImagem']);
         Route::delete('produtos/{produto}/imagem', [ProdutoController::class, 'removerImagem']);
     });
