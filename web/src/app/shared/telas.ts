@@ -44,9 +44,10 @@ import { Sessao } from '../core/sessao';
     .inicio { padding: 0 var(--espaco-2); }
     svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-    .largo { display: flex; width: 100%; }
-    .largo a { flex: 1 1 auto; justify-content: center; padding: 0 0.45rem; font-size: 0.8rem; }
-    .largo .inicio { flex: none; padding: 0 0.45rem; }
+    /* na lateral do painel: duas colunas, e o início fica no logo */
+    .largo { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-radius: var(--raio-medio); }
+    .largo a { justify-content: center; border-radius: 10px; font-size: 0.85rem; }
+    .largo .inicio { display: none; }
 
     .escuro { background: #262626; }
     .escuro a { color: #bdbdbd; }
@@ -63,6 +64,7 @@ export class Telas {
   protected readonly telas: { rota: string; nome: string; area?: string }[] = [
     { rota: '/totem', nome: 'Totem' },
     { rota: '/cozinha', nome: 'Cozinha', area: 'pedidos' },
+    { rota: '/retirada', nome: 'Retirada', area: 'pedidos' },
     { rota: '/painel', nome: 'Painel' },
   ];
 }

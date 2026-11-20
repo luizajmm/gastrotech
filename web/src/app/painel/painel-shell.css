@@ -33,6 +33,14 @@
   font-weight: 800;
 }
 
+.marca-link {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  color: inherit;
+  text-decoration: none;
+}
+
 .marca img {
   width: 1.75rem;
   height: 1.75rem;
