@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Consumo;
 use App\Enums\FormaPagamento;
 use App\Enums\StatusPagamento;
 use App\Enums\StatusPedido;
@@ -78,11 +79,12 @@ class PedidosDemonstracaoSeeder extends Seeder
             'status' => $status,
             'status_pagamento' => $pago ? StatusPagamento::Pago : StatusPagamento::Pendente,
             'forma_pagamento' => $forma,
+            'consumo' => mt_rand(1, 10) <= 4 ? Consumo::Viagem : Consumo::Local,
             'subtotal' => 0,
             'tempo_estimado_min' => (int) $escolhidos->max('tempo_preparo_min'),
             'pago_em' => $pago ? $quando : null,
-            'pronto_em' => in_array($status, [StatusPedido::Pronto, StatusPedido::Retirado], true) ? $quando->copy()->addMinutes(15) : null,
-            'finalizado_em' => $status === StatusPedido::Retirado ? $quando->copy()->addMinutes(20) : null,
+            'pronto_em' => in_array($status, [StatusPedido::Pronto, StatusPedido::Retirado], true) ? $quando->copy()->addMinutes(max(4, (int) $escolhidos->max('tempo_preparo_min') + mt_rand(-4, 8))) : null,
+            'finalizado_em' => $status === StatusPedido::Retirado ? $quando->copy()->addMinutes(max(8, (int) $escolhidos->max('tempo_preparo_min') + 12)) : null,
         ]);
 
         $subtotal = 0;

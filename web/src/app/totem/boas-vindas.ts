@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { Router, RouterLink } from '@angular/router';
 import { Carrinho } from '../core/carrinho';
 import { Loja } from '../core/loja';
+import { Consumo } from '../core/modelos';
 
 @Component({
   selector: 'gt-boas-vindas',
@@ -23,9 +24,16 @@ import { Loja } from '../core/loja';
         <p class="frase">{{ frase() }}</p>
       }
 
-      <button class="btn btn-brasa comecar" type="button" (click)="comecar(); $event.stopPropagation()">
-        Toque para pedir
-      </button>
+      <div class="comecar" role="group" aria-label="Onde você vai comer?">
+        <button class="btn btn-brasa" type="button" (click)="comecar('local'); $event.stopPropagation()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 3c-1.7 0-3 2.2-3 5s1.3 4 3 4v9" /></svg>
+          Comer aqui
+        </button>
+        <button class="btn btn-tinta" type="button" (click)="comecar('viagem'); $event.stopPropagation()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8zM9 8V6a3 3 0 0 1 6 0v2" /></svg>
+          Para levar
+        </button>
+      </div>
 
       <a class="acompanhar" routerLink="/totem/acompanhar" (click)="$event.stopPropagation()">
         Já pediu? Acompanhe seu pedido
@@ -101,12 +109,22 @@ import { Loja } from '../core/loja';
 
     .comecar {
       grid-row: 5;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--espaco-4);
+      width: min(100%, 36rem);
       margin-top: clamp(var(--espaco-5), 5dvh, var(--espaco-7));
-      min-height: 5.5rem;
-      padding: 0 var(--espaco-7);
-      font-size: 1.6rem;
+    }
+    .comecar .btn {
+      flex-direction: column;
+      gap: var(--espaco-2);
+      min-height: 8.5rem;
+      padding: var(--espaco-4);
+      border-radius: var(--raio-grande);
+      font-size: 1.5rem;
       white-space: nowrap;
     }
+    .comecar svg { width: 2.6rem; height: 2.6rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
     .equipe {
       position: absolute;
@@ -130,7 +148,8 @@ import { Loja } from '../core/loja';
     }
 
     @media (max-width: 700px) {
-      .comecar { padding: 0 var(--espaco-6); font-size: 1.35rem; min-height: 4.5rem; }
+      .comecar .btn { font-size: 1.25rem; min-height: 7rem; }
+      .comecar svg { width: 2.2rem; height: 2.2rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -149,8 +168,10 @@ export class BoasVindas {
   protected readonly frase = computed(() => this.loja.cardapio()?.loja.frase_totem);
   protected readonly logo = computed(() => this.loja.cardapio()?.loja.logo_url ?? 'gastrotech-logo.jpg');
 
-  protected comecar(): void {
+  // tocar no fundo da tela também começa, como "comer aqui"
+  protected comecar(consumo: Consumo = 'local'): void {
     this.carrinho.limpar();
+    this.carrinho.consumo.set(consumo);
     this.loja.carregar(true);
     this.router.navigateByUrl('/totem/cardapio');
   }

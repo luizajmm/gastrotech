@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Consumo;
 use App\Enums\FormaPagamento;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -19,6 +20,7 @@ class CriarPedidoRequest extends FormRequest
         return [
             'nome_cliente' => ['nullable', 'string', 'max:60'],
             'forma_pagamento' => ['required', Rule::enum(FormaPagamento::class)],
+            'consumo' => ['nullable', Rule::enum(Consumo::class)],
             'totem' => ['nullable', 'string', 'exists:totens,codigo'],
             'itens' => ['required', 'array', 'min:1', 'max:30'],
             'itens.*.produto_id' => ['required', 'integer'],

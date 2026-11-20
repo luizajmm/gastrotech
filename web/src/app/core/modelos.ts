@@ -5,6 +5,7 @@ export interface Opcao<T extends string = string> {
 }
 
 export type FormaPagamento = 'pix' | 'cartao' | 'dinheiro';
+export type Consumo = 'local' | 'viagem';
 export type StatusPedido = 'recebido' | 'em_preparo' | 'pronto' | 'retirado' | 'cancelado';
 export type StatusPagamento = 'pendente' | 'pago' | 'estornado';
 
@@ -66,6 +67,7 @@ export interface ItemNovoPedido {
 export interface NovoPedido {
   nome_cliente?: string | null;
   forma_pagamento: FormaPagamento;
+  consumo: Consumo;
   totem?: string | null;
   itens: ItemNovoPedido[];
 }
@@ -91,6 +93,7 @@ export interface Acompanhamento {
   status: Opcao<StatusPedido>;
   status_pagamento: Opcao<StatusPagamento>;
   forma_pagamento: Opcao<FormaPagamento>;
+  consumo: Opcao<Consumo>;
   etapas: EtapaPedido[];
   subtotal: number;
   tempo_estimado_min: number;
@@ -112,6 +115,7 @@ export interface Pedido {
   proximo_status: Opcao<StatusPedido> | null;
   status_pagamento: Opcao<StatusPagamento>;
   forma_pagamento: Opcao<FormaPagamento>;
+  consumo: Opcao<Consumo>;
   subtotal: number;
   tempo_estimado_min: number;
   minutos_decorridos: number;

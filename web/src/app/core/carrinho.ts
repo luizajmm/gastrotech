@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { FormaPagamento, ItemNovoPedido, Produto } from './modelos';
+import { Consumo, FormaPagamento, ItemNovoPedido, Produto } from './modelos';
 
 export interface LinhaCarrinho {
   // mesmo lanche com escolhas diferentes fica em linhas separadas
@@ -17,6 +17,7 @@ export class Carrinho {
   readonly linhas = this._linhas.asReadonly();
   readonly nomeCliente = signal('');
   readonly formaPagamento = signal<FormaPagamento | null>(null);
+  readonly consumo = signal<Consumo>('local');
 
   readonly quantidadeItens = computed(() => this._linhas().reduce((s, l) => s + l.quantidade, 0));
   readonly total = computed(
@@ -68,5 +69,6 @@ export class Carrinho {
     this._linhas.set([]);
     this.nomeCliente.set('');
     this.formaPagamento.set(null);
+    this.consumo.set('local');
   }
 }

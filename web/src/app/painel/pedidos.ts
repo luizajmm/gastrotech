@@ -77,7 +77,12 @@ const FILTROS: { valor: FiltroPedidos['status']; nome: string }[] = [
                 @for (pedido of p.data; track pedido.id) {
                   <tr [class.aberta]="aberto() === pedido.id">
                     <td><strong>{{ pedido.codigo }}</strong></td>
-                    <td>{{ pedido.nome_cliente }}</td>
+                    <td>
+                      {{ pedido.nome_cliente }}
+                      @if (pedido.consumo?.valor === 'viagem') {
+                        <span class="selo">Levar</span>
+                      }
+                    </td>
                     <td class="itens">{{ pedido.itens.length }} {{ pedido.itens.length === 1 ? 'item' : 'itens' }}</td>
                     <td class="num">{{ pedido.subtotal | dinheiro }}</td>
                     <td>

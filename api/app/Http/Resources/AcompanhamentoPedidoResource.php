@@ -20,6 +20,7 @@ class AcompanhamentoPedidoResource extends JsonResource
             'status' => OpcaoEnum::de($this->status),
             'status_pagamento' => OpcaoEnum::de($this->status_pagamento),
             'forma_pagamento' => OpcaoEnum::de($this->forma_pagamento),
+            'consumo' => OpcaoEnum::de($this->consumo),
             'etapas' => $etapas->map(fn (StatusPedido $etapa, int $i) => [
                 ...OpcaoEnum::de($etapa),
                 'concluida' => $atual !== false && $i <= $atual,

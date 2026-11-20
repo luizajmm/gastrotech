@@ -148,4 +148,23 @@ class PedidoTotemTest extends TestCase
 
         $this->getJson('/api/totem/pedidos/Z999')->assertNotFound();
     }
+
+    public function test_pedido_guarda_se_e_pra_comer_aqui_ou_levar(): void
+    {
+        $produto = Produto::factory()->create();
+        $item = [['produto_id' => $produto->id, 'quantidade' => 1]];
+
+        $this->postJson('/api/totem/pedidos', ['forma_pagamento' => 'pix', 'consumo' => 'viagem', 'itens' => $item])
+            ->assertCreated()
+            ->assertJsonPath('data.consumo.valor', 'viagem')
+            ->assertJsonPath('data.consumo.rotulo', 'Para levar');
+
+        // totem antigo que não manda nada continua funcionando
+        $this->postJson('/api/totem/pedidos', ['forma_pagamento' => 'pix', 'itens' => $item])
+            ->assertCreated()
+            ->assertJsonPath('data.consumo.valor', 'local');
+
+        $this->postJson('/api/totem/pedidos', ['forma_pagamento' => 'pix', 'consumo' => 'drive', 'itens' => $item])
+            ->assertUnprocessable();
+    }
 }

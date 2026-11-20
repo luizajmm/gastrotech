@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Consumo;
 use App\Enums\FormaPagamento;
 use App\Enums\StatusPagamento;
 use App\Enums\StatusPedido;
@@ -37,6 +38,7 @@ class PedidoService
                 'status' => StatusPedido::Recebido,
                 'status_pagamento' => $forma->pagoNoTotem() ? StatusPagamento::Pago : StatusPagamento::Pendente,
                 'forma_pagamento' => $forma,
+                'consumo' => $dados['consumo'] ?? Consumo::Local->value,
                 'pago_em' => $forma->pagoNoTotem() ? now() : null,
                 'subtotal' => $linhas->sum(fn ($l) => (float) $l['produto']->preco * $l['quantidade']),
                 'tempo_estimado_min' => (int) $linhas->max(fn ($l) => $l['produto']->tempo_preparo_min),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\Consumo;
 use App\Enums\FormaPagamento;
 use App\Enums\Papel;
 use App\Enums\StatusPagamento;
@@ -21,6 +22,7 @@ class OpcoesController extends Controller
                 'status_pedido' => StatusPedido::opcoes(),
                 'status_pagamento' => StatusPagamento::opcoes(),
                 'formas_pagamento' => FormaPagamento::opcoes(),
+                'consumo' => Consumo::opcoes(),
                 'tipos_movimento' => TipoMovimento::opcoes(),
                 'status_totem' => StatusTotem::opcoes(),
             ],

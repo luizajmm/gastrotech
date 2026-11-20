@@ -2,6 +2,9 @@
   <div class="identificacao">
     <span class="codigo">{{ pedido().codigo }}</span>
     <span class="cliente">{{ pedido().nome_cliente || 'Cliente' }}</span>
+    @if (pedido().consumo; as consumo) {
+      <span class="consumo" [class.viagem]="consumo.valor === 'viagem'">{{ consumo.rotulo }}</span>
+    }
   </div>
 
   <div class="tempo" [attr.aria-label]="minutos() + ' minutos desde o pedido'">

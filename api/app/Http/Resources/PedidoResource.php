@@ -17,6 +17,7 @@ class PedidoResource extends JsonResource
             'proximo_status' => OpcaoEnum::de($this->status->proximo()),
             'status_pagamento' => OpcaoEnum::de($this->status_pagamento),
             'forma_pagamento' => OpcaoEnum::de($this->forma_pagamento),
+            'consumo' => OpcaoEnum::de($this->consumo),
             'subtotal' => (float) $this->subtotal,
             'tempo_estimado_min' => $this->tempo_estimado_min,
             'minutos_decorridos' => $this->minutosDecorridos(),

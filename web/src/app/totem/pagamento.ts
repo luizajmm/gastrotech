@@ -200,6 +200,7 @@ export class Pagamento implements OnInit {
         this.api.criarPedido({
           nome_cliente: this.carrinho.nomeCliente().trim() || null,
           forma_pagamento: forma,
+          consumo: this.carrinho.consumo(),
           itens: this.carrinho.itensParaApi(),
         }),
       );

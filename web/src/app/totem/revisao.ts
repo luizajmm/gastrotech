@@ -18,6 +18,15 @@ import { DinheiroPipe } from '../shared/dinheiro.pipe';
           <a class="btn btn-tinta" routerLink="/totem/cardapio">Ver o cardápio</a>
         </section>
       } @else {
+        <div class="consumo" role="radiogroup" aria-label="Onde você vai comer?">
+          <button type="button" role="radio" [attr.aria-checked]="carrinho.consumo() === 'local'" (click)="carrinho.consumo.set('local')">
+            Comer aqui
+          </button>
+          <button type="button" role="radio" [attr.aria-checked]="carrinho.consumo() === 'viagem'" (click)="carrinho.consumo.set('viagem')">
+            Para levar
+          </button>
+        </div>
+
         <ul class="linhas">
           @for (linha of carrinho.linhas(); track linha.chave) {
             <li class="linha">
@@ -69,6 +78,17 @@ import { DinheiroPipe } from '../shared/dinheiro.pipe';
   styles: `
     .tela { display: flex; flex-direction: column; min-height: 100dvh; }
     .linhas, .fechamento, .vazio { width: min(100%, 60rem); margin-inline: auto; }
+
+    .consumo {
+      display: grid; grid-template-columns: 1fr 1fr; gap: var(--espaco-1);
+      width: min(100% - 2 * var(--espaco-5), 60rem - 2 * var(--espaco-5)); margin: var(--espaco-4) auto 0; padding: var(--espaco-1);
+      border-radius: 999px; background: var(--fumaca);
+    }
+    .consumo button {
+      min-height: 3.25rem; border: 0; border-radius: 999px; background: none;
+      font-size: 1.1rem; font-weight: 700; color: var(--grafite);
+    }
+    .consumo button[aria-checked='true'] { background: var(--tinta); color: var(--papel); }
 
     .linhas { flex: 1; margin-block: 0; padding: var(--espaco-3) var(--espaco-5); list-style: none; }
 

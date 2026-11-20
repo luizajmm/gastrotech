@@ -69,7 +69,12 @@
           </li>
         }
       </ul>
-      <p class="pagamento texto-suave">Pagamento: {{ p.forma_pagamento.rotulo }} ({{ p.status_pagamento.rotulo.toLowerCase() }})</p>
+      <p class="pagamento texto-suave">
+        Pagamento: {{ p.forma_pagamento.rotulo }} ({{ p.status_pagamento.rotulo.toLowerCase() }})
+        @if (p.consumo) {
+          · {{ p.consumo.rotulo }}
+        }
+      </p>
     </details>
 
     <footer class="saida">

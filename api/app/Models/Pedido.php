@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Consumo;
 use App\Enums\FormaPagamento;
 use App\Enums\StatusPagamento;
 use App\Enums\StatusPedido;
@@ -16,7 +17,7 @@ class Pedido extends Model
 
     protected $fillable = [
         'totem_id', 'codigo', 'nome_cliente', 'status', 'status_pagamento',
-        'forma_pagamento', 'subtotal', 'tempo_estimado_min',
+        'forma_pagamento', 'consumo', 'subtotal', 'tempo_estimado_min',
         'pago_em', 'pronto_em', 'finalizado_em',
     ];
 
@@ -26,6 +27,7 @@ class Pedido extends Model
             'status' => StatusPedido::class,
             'status_pagamento' => StatusPagamento::class,
             'forma_pagamento' => FormaPagamento::class,
+            'consumo' => Consumo::class,
             'subtotal' => 'decimal:2',
             'tempo_estimado_min' => 'integer',
             'pago_em' => 'datetime',
