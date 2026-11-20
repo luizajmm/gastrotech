@@ -12,6 +12,7 @@ use App\Models\Pedido;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -117,6 +118,16 @@ class FinanceiroService
         ]);
 
         return $caixa;
+    }
+
+    // lista pra planilha do contador
+    public function pedidosDoPeriodo(Carbon $inicio, Carbon $fim, ?FormaPagamento $forma = null): Collection
+    {
+        return $this->pedidosPagos($inicio, $fim, $forma)
+            ->with('itens')
+            ->orderBy('pago_em')
+            ->limit(5000)
+            ->get();
     }
 
     private function pedidosPagos(Carbon $inicio, Carbon $fim, ?FormaPagamento $forma): Builder

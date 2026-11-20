@@ -127,6 +127,10 @@ export class PainelApi {
     return this.get<Vendas>('financeiro/vendas', new HttpParams().set('data_inicio', inicio).set('data_fim', fim));
   }
 
+  pedidosPagos(inicio: string, fim: string): Observable<Pedido[]> {
+    return this.get<Pedido[]>('financeiro/vendas/pedidos', new HttpParams().set('data_inicio', inicio).set('data_fim', fim));
+  }
+
   caixa(): Observable<CaixaAtual | null> {
     return this.get<CaixaAtual | null>('financeiro/caixa');
   }

@@ -10,6 +10,15 @@
   <section class="bloco vendas" aria-labelledby="titulo-vendas">
     <div class="bloco-topo">
       <h2 id="titulo-vendas">Vendas</h2>
+      <button
+        class="btn btn-pequeno btn-contorno"
+        type="button"
+        title="Um pedido pago por linha, abre no Excel"
+        [disabled]="exportando() || !vendas()?.quantidade_pedidos"
+        (click)="exportar()"
+      >
+        {{ exportando() ? 'Gerando planilha' : 'Baixar planilha' }}
+      </button>
     </div>
 
     <div class="periodo">

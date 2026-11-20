@@ -69,6 +69,7 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
     // financeiro
     Route::prefix('financeiro')->middleware('can:ver-caixa')->group(function () {
         Route::get('vendas', [FinanceiroController::class, 'vendas']);
+        Route::get('vendas/pedidos', [FinanceiroController::class, 'pedidos']);
         Route::get('caixa', [FinanceiroController::class, 'caixa']);
         Route::get('caixas', [FinanceiroController::class, 'historicoCaixas']);
         Route::get('movimentos', [FinanceiroController::class, 'movimentos']);

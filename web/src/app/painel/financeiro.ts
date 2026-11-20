@@ -6,6 +6,7 @@ import { Caixa, CaixaAtual, Movimento, Vendas } from '../core/modelos';
 import { FalhaFormulario, PainelApi } from '../core/painel-api';
 import { Sessao } from '../core/sessao';
 import { DinheiroPipe } from '../shared/dinheiro.pipe';
+import { baixarPlanilha, Celula, numeroPlanilha } from '../shared/planilha';
 import { dataIso, rotuloDia } from './formatos';
 import { Barra, GraficoBarras } from './grafico-barras';
 
@@ -59,6 +60,7 @@ export class Financeiro {
   protected readonly errosMov = signal<Record<string, string>>({});
   protected readonly confirmandoFechar = signal(false);
   protected readonly ocupado = signal(false);
+  protected readonly exportando = signal(false);
 
   protected readonly barras = computed<Barra[]>(() => {
     const dias = this.vendas()?.por_dia ?? [];
@@ -169,6 +171,38 @@ export class Financeiro {
       this.avisos.erro(e);
     } finally {
       this.ocupado.set(false);
+    }
+  }
+
+  // planilha pro contador: um pedido pago por linha, no período escolhido
+  protected async exportar(): Promise<void> {
+    this.exportando.set(true);
+    try {
+      const pedidos = await firstValueFrom(this.api.pedidosPagos(this.inicio(), this.fim()));
+      const total = pedidos.reduce((s, p) => s + p.subtotal, 0);
+      const linhas: Celula[][] = [
+        ['Data', 'Hora', 'Pedido', 'Cliente', 'Consumo', 'Pagamento', 'Itens', 'Valor (R$)'],
+        ...pedidos.map((p) => {
+          const pago = new Date(p.pago_em ?? p.criado_em);
+          return [
+            pago.toLocaleDateString('pt-BR'),
+            pago.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            p.codigo,
+            p.nome_cliente,
+            p.consumo?.rotulo,
+            p.forma_pagamento.rotulo,
+            p.itens.map((i) => `${i.quantidade}x ${i.nome}`).join(', '),
+            numeroPlanilha(p.subtotal),
+          ];
+        }),
+        [],
+        ['Total', '', `${pedidos.length} pedidos`, '', '', '', '', numeroPlanilha(total)],
+      ];
+      baixarPlanilha(`vendas-${this.inicio()}-a-${this.fim()}.csv`, linhas);
+    } catch (e) {
+      this.avisos.erro(e, 'Não foi possível gerar a planilha.');
+    } finally {
+      this.exportando.set(false);
     }
   }
 

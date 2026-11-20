@@ -72,4 +72,21 @@ class FinanceiroTest extends TestCase
         $this->getJson('/api/financeiro/vendas?forma_pagamento=pix')->assertJsonPath('data.total', 30);
         $this->getJson('/api/financeiro/vendas?data_inicio=2026-02-10&data_fim=2026-02-01')->assertUnprocessable();
     }
+
+    public function test_lista_os_pedidos_pagos_pra_planilha(): void
+    {
+        $this->vender('pix', 30);
+        $this->vender('dinheiro', 99); // pendente não entra
+
+        $this->entrarComo(Papel::Leitura);
+
+        $this->getJson('/api/financeiro/vendas/pedidos?data_inicio='.today()->toDateString().'&data_fim='.today()->toDateString())
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.subtotal', 30)
+            ->assertJsonPath('data.0.forma_pagamento.valor', 'pix');
+
+        $this->entrarComo(Papel::Cardapio);
+        $this->getJson('/api/financeiro/vendas/pedidos')->assertForbidden();
+    }
 }

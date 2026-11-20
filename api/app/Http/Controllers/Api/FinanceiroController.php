@@ -8,6 +8,7 @@ use App\Http\Requests\FiltroPeriodoRequest;
 use App\Http\Requests\MovimentoCaixaRequest;
 use App\Http\Resources\CaixaResource;
 use App\Http\Resources\MovimentoCaixaResource;
+use App\Http\Resources\PedidoResource;
 use App\Models\Caixa;
 use App\Services\FinanceiroService;
 use Illuminate\Http\JsonResponse;
@@ -24,6 +25,13 @@ class FinanceiroController extends Controller
         return response()->json([
             'data' => $this->financeiro->vendas($request->inicio(), $request->fim(), $request->forma()),
         ]);
+    }
+
+    public function pedidos(FiltroPeriodoRequest $request): AnonymousResourceCollection
+    {
+        return PedidoResource::collection(
+            $this->financeiro->pedidosDoPeriodo($request->inicio(), $request->fim(), $request->forma())
+        );
     }
 
     public function caixa(): JsonResponse
