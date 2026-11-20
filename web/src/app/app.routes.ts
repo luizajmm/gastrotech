@@ -23,6 +23,12 @@ export const routes: Routes = [
     loadComponent: () => import('./cozinha/cozinha').then((m) => m.Cozinha),
   },
   {
+    path: 'retirada',
+    title: 'Retirada',
+    canActivate: [exigeLogin, exigeArea('pedidos')],
+    loadComponent: () => import('./retirada/retirada').then((m) => m.Retirada),
+  },
+  {
     path: 'painel',
     canActivate: [exigeLogin],
     loadComponent: () => import('./painel/painel-shell').then((m) => m.PainelShell),

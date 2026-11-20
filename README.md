@@ -2,7 +2,7 @@
 
 [![testes](https://github.com/luizajmm/gastrotech/actions/workflows/testes.yml/badge.svg)](https://github.com/luizajmm/gastrotech/actions/workflows/testes.yml)
 
-Sistema de pedidos pra lanchonete. O cliente monta o pedido no totem, o pedido cai na tela da cozinha e o dono acompanha tudo pelo painel (cardápio, vendas, caixa e equipe).
+Sistema de pedidos pra lanchonete. O cliente monta o pedido no totem, o pedido cai na tela da cozinha, a TV do balcão chama quando fica pronto e o dono acompanha tudo pelo painel (cardápio, vendas, caixa e equipe).
 
 Esse é o projeto integrador do meu 2º semestre de Sistemas de Informação no SENAC. A primeira versão foi feita em grupo, em PHP puro, e está em [tcc-pi2/Sistema-Administrativo](https://github.com/tcc-pi2/Sistema-Administrativo). Depois eu reconstruí o sistema separando em uma API em Laravel e um front em Angular.
 
@@ -14,10 +14,13 @@ Esse é o projeto integrador do meu 2º semestre de Sistemas de Informação no 
 |---|---|
 | ![Cozinha](docs/prints/cozinha.png) | ![Painel](docs/prints/painel.png) |
 
+![Retirada](docs/prints/retirada.png)
+
 ## O que tem
 
 - **Totem:** cardápio por categoria, personalização dos lanches (bebida do combo, ponto da carne...), pagamento por pix, cartão ou dinheiro e acompanhamento do pedido pelo código
-- **Cozinha:** fila com recebidos, em preparo e prontos, tempo de cada pedido e aviso de atraso
+- **Cozinha:** fila com recebidos, em preparo e prontos, tempo de cada pedido, aviso de atraso e campainha quando chega pedido novo
+- **Retirada:** tela pra TV do balcão com os pedidos em preparo e os prontos; quando um fica pronto, o código aparece grande e toca a campainha
 - **Painel:** visão geral do dia, histórico de pedidos (dá pra cancelar por ali também), cadastro de produtos e categorias, financeiro com abertura e fechamento de caixa, equipe e configurações da loja
 - **Login da equipe** com papéis: cada pessoa só vê e mexe no que é da função dela
 

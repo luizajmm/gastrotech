@@ -25,6 +25,11 @@ import { Sessao } from '../core/sessao';
           <strong>Cozinha</strong>
           <span>Fila de pedidos que atualiza sozinha.</span>
         </a>
+        <a class="opcao" routerLink="/retirada">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v11H3zM8 20h8M12 16v4M7 10.5h4M14 9v3" /></svg>
+          <strong>Retirada</strong>
+          <span>TV do balcão que chama o pedido pronto.</span>
+        </a>
         <a class="opcao" routerLink="/painel">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4v4h6V4zM4 20h6v-4H4z" /></svg>
           <strong>Painel</strong>
@@ -58,9 +63,9 @@ import { Sessao } from '../core/sessao';
     .marca p { color: var(--grafite); }
     .opcoes {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: var(--espaco-4);
-      width: min(100%, 52rem);
+      width: min(100%, 64rem);
     }
     .opcao {
       display: grid;
@@ -83,6 +88,9 @@ import { Sessao } from '../core/sessao';
     .opcao span { color: var(--grafite); }
     .rodape { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--espaco-3); color: var(--grafite); }
     .rodape .btn { min-height: 2.75rem; font-size: 1rem; }
+    @media (max-width: 900px) {
+      .opcoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
     @media (max-width: 640px) {
       .opcoes { grid-template-columns: minmax(0, 1fr); }
       .opcao { grid-template-columns: auto 1fr; column-gap: var(--espaco-4); align-items: center; }

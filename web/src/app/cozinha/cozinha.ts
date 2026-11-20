@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { CozinhaApi } from '../core/cozinha-api';
 import { Pedido, StatusPedido } from '../core/modelos';
 import { Sessao } from '../core/sessao';
+import { Som } from '../core/som';
 import { Telas } from '../shared/telas';
 import { AcaoPedido, PedidoCartao } from './pedido-cartao';
 
@@ -28,6 +29,7 @@ const TEMPO_DESTAQUE_NOVO = 10_000;
 export class Cozinha {
   private api = inject(CozinhaApi);
   protected sessao = inject(Sessao);
+  protected som = inject(Som);
   private router = inject(Router);
 
   protected readonly fila = toSignal(this.api.fila());
@@ -85,6 +87,7 @@ export class Cozinha {
       if (!chegaram.length) return;
 
       chegaram.forEach((id) => this.vistos!.add(id));
+      this.som.tocar();
       this.novos.update((atual) => new Set([...atual, ...chegaram]));
       setTimeout(
         () => this.novos.update((atual) => new Set([...atual].filter((id) => !chegaram.includes(id)))),
