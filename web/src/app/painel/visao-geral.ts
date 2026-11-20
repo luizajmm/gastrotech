@@ -39,6 +39,24 @@ export class VisaoGeral {
     }));
   });
 
+  protected readonly porHora = computed<Barra[]>(() => {
+    const horas = this.dados()?.operacao.por_hora ?? [];
+    const maior = Math.max(0, ...horas.map((h) => h.pedidos));
+    return horas.map((h) => ({
+      rotulo: `${h.hora}h`,
+      valor: h.pedidos,
+      destaque: maior > 0 && h.pedidos === maior,
+    }));
+  });
+
+  protected readonly pico = computed(() => {
+    const horas = this.dados()?.operacao.por_hora ?? [];
+    const maior = Math.max(0, ...horas.map((h) => h.pedidos));
+    if (!maior) return null;
+    const picos = horas.filter((h) => h.pedidos === maior).map((h) => `${h.hora}h`);
+    return picos.slice(0, 2).join(' e ');
+  });
+
   protected readonly formasHoje = computed(() => {
     const d = this.dados();
     if (!d) return [];

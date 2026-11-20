@@ -15,7 +15,7 @@ export function duracao(minutos: number): string {
 
 @Pipe({ name: 'duracao' })
 export class DuracaoPipe implements PipeTransform {
-  transform(minutos: number): string {
-    return duracao(minutos);
+  transform(minutos: number | null | undefined): string {
+    return duracao(minutos ?? 0);
   }
 }

@@ -71,6 +71,43 @@
 
     <section class="bloco">
       <div class="bloco-topo">
+        <h2>Movimento por horário</h2>
+        @if (pico(); as p) {
+          <span class="texto-suave">pico às {{ p }}</span>
+        }
+      </div>
+      <gt-grafico-barras [barras]="porHora()" unidade="pedidos" />
+      <p class="nota-grafico texto-suave">Pedidos feitos em cada hora, somando os últimos 7 dias.</p>
+    </section>
+
+    <section class="bloco preparo">
+      <h2>Tempo de preparo</h2>
+      @if (d.operacao.preparo.medio_min !== null) {
+        <div class="preparo-numeros">
+          <div>
+            <strong class="numero">{{ d.operacao.preparo.medio_min | duracao }}</strong>
+            <span class="nota">média real, do pedido até ficar pronto</span>
+          </div>
+          <div>
+            <strong class="numero">{{ d.operacao.preparo.previsto_min | duracao }}</strong>
+            <span class="nota">média prevista no cardápio</span>
+          </div>
+        </div>
+        <div class="prazo">
+          <div class="prazo-topo">
+            <span>Prontos no prazo</span>
+            <strong>{{ d.operacao.preparo.no_prazo_pct }}%</strong>
+          </div>
+          <div class="ranking-barra"><span [style.width.%]="d.operacao.preparo.no_prazo_pct"></span></div>
+          <span class="nota">{{ d.operacao.preparo.pedidos }} pedidos nos últimos 7 dias</span>
+        </div>
+      } @else {
+        <p class="vazio-painel">Nenhum pedido ficou pronto nos últimos 7 dias.</p>
+      }
+    </section>
+
+    <section class="bloco">
+      <div class="bloco-topo">
         <h2>Pedidos atrasados</h2>
         @if (d.atrasados.length) {
           <span class="selo selo-alerta">{{ d.atrasados.length }}</span>

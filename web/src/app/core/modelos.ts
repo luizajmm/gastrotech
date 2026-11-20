@@ -204,6 +204,10 @@ export interface Dashboard {
   hoje: { faturamento: number; pedidos: number; ticket_medio: number; por_forma: TotalForma[] };
   fila: { total: number; recebidos: number; em_preparo: number; prontos: number };
   semana: { total: number; por_dia: VendaDia[]; mais_vendidos: MaisVendido[] };
+  operacao: {
+    por_hora: { hora: number; pedidos: number }[];
+    preparo: { pedidos: number; medio_min: number | null; previsto_min: number | null; no_prazo_pct: number | null };
+  };
   atrasados: Pedido[];
   estoque_baixo: { limite: number; produtos: ProdutoPainel[] };
   recentes: Pedido[];

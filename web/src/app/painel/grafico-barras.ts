@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { DinheiroPipe } from '../shared/dinheiro.pipe';
+import { dinheiro } from '../shared/dinheiro.pipe';
 
 export interface Barra {
   rotulo: string;
@@ -11,22 +11,21 @@ export interface Barra {
 // fiz em html mesmo, altura = valor / maior valor
 @Component({
   selector: 'gt-grafico-barras',
-  imports: [DinheiroPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="grafico" [class.denso]="denso()" role="img" [attr.aria-label]="descricao()">
       <div class="eixo" aria-hidden="true">
-        <span>{{ teto() | dinheiro }}</span>
-        <span>{{ teto() / 2 | dinheiro }}</span>
-        <span>R$ 0</span>
+        <span>{{ formatar(teto()) }}</span>
+        <span>{{ formatar(teto() / 2) }}</span>
+        <span>{{ formatar(0) }}</span>
       </div>
       <div class="area">
         <div class="guias" aria-hidden="true"><span></span><span></span><span></span></div>
         @for (barra of barras(); track $index; let i = $index, ultimo = $last) {
-          <div class="coluna" [class.destaque]="barra.destaque" [title]="barra.rotulo + ': ' + (barra.valor | dinheiro)">
+          <div class="coluna" [class.destaque]="barra.destaque" [title]="barra.rotulo + ': ' + formatar(barra.valor)">
             <div class="barra" [style.height.%]="teto() ? (barra.valor / teto()) * 100 : 0">
               @if (barra.valor && !denso()) {
-                <span class="valor">{{ barra.valor | dinheiro }}</span>
+                <span class="valor">{{ formatar(barra.valor) }}</span>
               }
             </div>
             <span class="rotulo">{{ denso() && i % passo() !== 0 && !ultimo ? '' : barra.rotulo }}</span>
@@ -72,6 +71,8 @@ export interface Barra {
 })
 export class GraficoBarras {
   readonly barras = input.required<Barra[]>();
+  // vendas em reais ou contagem de pedidos
+  readonly unidade = input<'dinheiro' | 'pedidos'>('dinheiro');
 
   // muita coluna fica ilegível, então esconde os valores
   protected readonly denso = computed(() => this.barras().length > 10);
@@ -79,14 +80,20 @@ export class GraficoBarras {
 
   protected readonly teto = computed(() => {
     const maior = Math.max(0, ...this.barras().map((b) => b.valor));
-    if (!maior) return 100;
+    if (!maior) return this.unidade() === 'dinheiro' ? 100 : 4;
+    if (this.unidade() === 'pedidos' && maior < 10) return Math.ceil(maior / 2) * 2;
     const passo = 10 ** Math.floor(Math.log10(maior));
     return Math.ceil(maior / passo) * passo;
   });
 
+  protected formatar(valor: number): string {
+    if (this.unidade() === 'dinheiro') return valor ? dinheiro(valor) : 'R$ 0';
+    return String(Math.round(valor * 10) / 10).replace('.', ',');
+  }
+
   protected readonly descricao = computed(() =>
     this.barras()
-      .map((b) => `${b.rotulo}: R$ ${b.valor.toFixed(2).replace('.', ',')}`)
+      .map((b) => `${b.rotulo}: ${this.formatar(b.valor)}`)
       .join('; '),
   );
 }

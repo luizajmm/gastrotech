@@ -239,3 +239,38 @@
     border-top: 0;
   }
 }
+
+/* ---------- Operação ---------- */
+
+.nota-grafico {
+  margin-top: var(--espaco-3);
+  font-size: 0.8rem;
+}
+
+.preparo {
+  display: grid;
+  align-content: start;
+  gap: var(--espaco-5);
+}
+
+.preparo-numeros {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espaco-4);
+}
+
+.preparo-numeros div,
+.prazo {
+  display: grid;
+  gap: var(--espaco-1);
+}
+
+.prazo-topo {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 650;
+}
+
+.prazo .ranking-barra span {
+  background: var(--brasa);
+}
