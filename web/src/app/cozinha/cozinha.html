@@ -25,10 +25,18 @@
         class="sair"
         type="button"
         data-som
-        [class.som-alerta]="som.ligado() && som.bloqueado()"
+        [class.som-alerta]="som.chamando() || (som.ligado() && som.bloqueado())"
         (click)="som.alternar()"
       >
-        {{ !som.ligado() ? 'Som desligado' : som.bloqueado() ? 'Toque para ativar o som' : 'Som ligado' }}
+        {{
+          som.chamando()
+            ? 'Pedido novo! Toque para silenciar'
+            : !som.ligado()
+              ? 'Som desligado'
+              : som.bloqueado()
+                ? 'Toque para ativar o som'
+                : 'Som ligado'
+        }}
       </button>
       <span class="relogio">{{ agora() | date: 'HH:mm' }}</span>
       <button class="sair" type="button" (click)="sair()" [title]="sessao.usuario()?.nome ?? ''">Sair</button>

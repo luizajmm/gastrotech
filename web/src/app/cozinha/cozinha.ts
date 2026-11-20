@@ -66,7 +66,10 @@ export class Cozinha {
 
   constructor() {
     const relogio = setInterval(() => this.agora.set(Date.now()), 15_000);
-    inject(DestroyRef).onDestroy(() => clearInterval(relogio));
+    inject(DestroyRef).onDestroy(() => {
+      clearInterval(relogio);
+      this.som.pararChamada();
+    });
 
     effect(() => {
       const ids = (this.fila()?.pedidos ?? []).map((p) => p.id);
@@ -87,7 +90,7 @@ export class Cozinha {
       if (!chegaram.length) return;
 
       chegaram.forEach((id) => this.vistos!.add(id));
-      this.som.tocar();
+      this.som.chamar();
       this.novos.update((atual) => new Set([...atual, ...chegaram]));
       setTimeout(
         () => this.novos.update((atual) => new Set([...atual].filter((id) => !chegaram.includes(id)))),

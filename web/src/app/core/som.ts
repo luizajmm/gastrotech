@@ -9,7 +9,10 @@ const CHAVE = 'gastrotech.som';
 export class Som {
   readonly ligado = signal(lerPreferencia());
   readonly bloqueado = signal(true);
+  readonly chamando = signal(false);
   private contexto?: AudioContext;
+  private repeticao?: ReturnType<typeof setInterval>;
+  private limite?: ReturnType<typeof setTimeout>;
 
   constructor() {
     if (this.ligado()) this.preparar();
@@ -17,13 +20,36 @@ export class Som {
     const destravar = (e: Event) => {
       // o clique no próprio botão já é tratado pelo alternar()
       if ((e.target as Element | null)?.closest?.('[data-som]')) return;
+      // qualquer toque na tela quer dizer que alguém viu o pedido
+      this.pararChamada();
       if (this.ligado()) this.preparar();
     };
     document.addEventListener('pointerdown', destravar, true);
     document.addEventListener('keydown', destravar, true);
   }
 
+  // pra cozinha: o sino fica tocando até alguém mexer na tela (no máximo 2 min)
+  chamar(): void {
+    if (!this.ligado()) return;
+    this.tocarInsistente();
+    if (this.chamando()) return;
+    this.chamando.set(true);
+    this.repeticao = setInterval(() => this.tocarInsistente(), 2500);
+    this.limite = setTimeout(() => this.pararChamada(), 120_000);
+  }
+
+  pararChamada(): void {
+    if (!this.chamando()) return;
+    clearInterval(this.repeticao);
+    clearTimeout(this.limite);
+    this.chamando.set(false);
+  }
+
   alternar(): void {
+    if (this.chamando()) {
+      this.pararChamada();
+      return;
+    }
     if (this.ligado() && !this.bloqueado()) {
       this.ligado.set(false);
       salvarPreferencia(false);
@@ -43,6 +69,15 @@ export class Som {
 
     tocarSino(ctx, ctx.currentTime);
     tocarSino(ctx, ctx.currentTime + 0.32, 0.8);
+  }
+
+  // três batidas rápidas, mais alto, pra chamar atenção no meio do barulho
+  private tocarInsistente(): void {
+    const ctx = this.contexto;
+    if (!this.ligado() || !ctx) return;
+    if (ctx.state === 'suspended') void ctx.resume();
+
+    [0, 0.15, 0.3].forEach((t, i) => tocarSino(ctx, ctx.currentTime + t, i === 2 ? 1.4 : 1.2, i === 1 ? 1760 : 1568));
   }
 
   private preparar(): void {
