@@ -12,6 +12,7 @@ use App\Models\Categoria;
 use App\Models\Configuracao;
 use App\Models\Pedido;
 use App\Models\Produto;
+use App\Services\FidelidadeService;
 use App\Services\PedidoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -71,6 +72,11 @@ class TotemController extends Controller
                 'desconto' => $cupom->descontoPara($subtotal),
             ],
         ]);
+    }
+
+    public function fidelidade(string $telefone, FidelidadeService $fidelidade): JsonResponse
+    {
+        return response()->json(['data' => $fidelidade->consultar($telefone)]);
     }
 
     // só depois que o pedido fica pronto, e uma vez só

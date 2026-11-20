@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { Consumo, CupomAplicado, FormaPagamento, ItemNovoPedido, Produto } from './modelos';
+import { ConsultaFidelidade, Consumo, CupomAplicado, FormaPagamento, ItemNovoPedido, Produto } from './modelos';
 
 export interface LinhaCarrinho {
   // mesmo lanche com escolhas diferentes fica em linhas separadas
@@ -32,7 +32,16 @@ export class Carrinho {
     const c = this.cupom();
     return !!c && c.pedido_minimo !== null && this.total() < c.pedido_minimo;
   });
+  // cartão fidelidade: o celular só é guardado depois de consultado
+  readonly telefone = signal('');
+  readonly fidelidade = signal<ConsultaFidelidade | null>(null);
+  readonly resgatarPremio = signal(false);
+
   readonly desconto = computed(() => {
+    const f = this.fidelidade();
+    if (this.resgatarPremio() && f?.pode_resgatar) {
+      return Math.round(Math.min(f.premio, this.total()) * 100) / 100;
+    }
     const c = this.cupom();
     if (!c || this.cupomAbaixoDoMinimo()) return 0;
     const bruto = c.tipo === 'percentual' ? (this.total() * c.valor) / 100 : c.valor;
@@ -86,5 +95,8 @@ export class Carrinho {
     this.formaPagamento.set(null);
     this.consumo.set('local');
     this.cupom.set(null);
+    this.telefone.set('');
+    this.fidelidade.set(null);
+    this.resgatarPremio.set(false);
   }
 }

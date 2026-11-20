@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Enums\StatusPedido;
+use App\Services\FidelidadeService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -30,6 +31,12 @@ class AcompanhamentoPedidoResource extends JsonResource
             'total' => (float) $this->total,
             'cupom' => $this->cupom_codigo,
             'avaliacao' => $this->avaliacao,
+            // quantos selos o cliente tem agora, pra mostrar na confirmação
+            'fidelidade' => $this->cliente_id ? [
+                'selos' => $this->cliente?->selos ?? 0,
+                'meta' => app(FidelidadeService::class)->meta(),
+                'resgate' => (bool) $this->fidelidade_resgate,
+            ] : null,
             'tempo_estimado_min' => $this->tempo_estimado_min,
             'minutos_decorridos' => $this->minutosDecorridos(),
             'itens' => ItemPedidoResource::collection($this->whenLoaded('itens')),

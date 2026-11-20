@@ -22,6 +22,7 @@ Route::prefix('totem')->group(function () {
     Route::get('pedidos/{codigo}', [TotemController::class, 'acompanhar']);
     Route::post('pedidos/{codigo}/avaliacao', [TotemController::class, 'avaliar'])->middleware('throttle:totem');
     Route::get('cupons/{codigo}', [TotemController::class, 'cupom'])->middleware('throttle:totem');
+    Route::get('fidelidade/{telefone}', [TotemController::class, 'fidelidade'])->middleware('throttle:totem');
 });
 
 Route::get('opcoes', OpcoesController::class);
@@ -45,6 +46,7 @@ Route::middleware(['auth:sanctum', 'ativo'])->group(function () {
             ->parameters(['produtos' => 'produto'])
             ->only(['index', 'show']);
         Route::get('cupons', [CupomController::class, 'index']);
+        Route::get('clientes', [CupomController::class, 'clientes']);
     });
 
     Route::middleware('can:cardapio')->group(function () {

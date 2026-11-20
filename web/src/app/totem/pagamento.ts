@@ -74,7 +74,7 @@ const OPCOES: OpcaoPagamento[] = [
             <span>
               {{ carrinho.quantidadeItens() }} {{ carrinho.quantidadeItens() === 1 ? 'item' : 'itens' }}
               @if (carrinho.desconto()) {
-                · cupom {{ carrinho.cupom()?.codigo }} (−{{ carrinho.desconto() | dinheiro }})
+                · {{ carrinho.resgatarPremio() ? 'prêmio fidelidade' : 'cupom ' + carrinho.cupom()?.codigo }} (−{{ carrinho.desconto() | dinheiro }})
               }
             </span>
             <strong class="preco">{{ carrinho.aPagar() | dinheiro }}</strong>
@@ -206,7 +206,9 @@ export class Pagamento implements OnInit {
           nome_cliente: this.carrinho.nomeCliente().trim() || null,
           forma_pagamento: forma,
           consumo: this.carrinho.consumo(),
-          cupom: this.carrinho.desconto() ? this.carrinho.cupom()?.codigo : null,
+          cupom: this.carrinho.desconto() && !this.carrinho.resgatarPremio() ? this.carrinho.cupom()?.codigo : null,
+          telefone: this.carrinho.fidelidade() ? this.carrinho.telefone() : null,
+          resgatar_premio: this.carrinho.resgatarPremio() && !!this.carrinho.fidelidade()?.pode_resgatar,
           itens: this.carrinho.itensParaApi(),
         }),
       );

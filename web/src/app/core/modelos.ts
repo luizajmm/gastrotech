@@ -50,6 +50,24 @@ export interface Loja {
   frase_totem: string | null;
   logo_url: string | null;
   tempo_espera_min: number;
+  fidelidade: RegrasFidelidade;
+}
+
+export interface RegrasFidelidade {
+  ativa: boolean;
+  meta: number;
+  premio: number;
+}
+
+export interface ConsultaFidelidade extends RegrasFidelidade {
+  selos: number;
+  pode_resgatar: boolean;
+}
+
+export interface ClientesFidelidade {
+  regras: RegrasFidelidade;
+  total: number;
+  clientes: { id: number; telefone: string; selos: number; resgates: number; pedidos: number; ultimo_pedido_em: string | null }[];
 }
 
 export interface Cardapio {
@@ -69,6 +87,8 @@ export interface NovoPedido {
   forma_pagamento: FormaPagamento;
   consumo: Consumo;
   cupom?: string | null;
+  telefone?: string | null;
+  resgatar_premio?: boolean;
   totem?: string | null;
   itens: ItemNovoPedido[];
 }
@@ -101,6 +121,7 @@ export interface Acompanhamento {
   total: number;
   cupom: string | null;
   avaliacao: number | null;
+  fidelidade: { selos: number; meta: number; resgate: boolean } | null;
   tempo_estimado_min: number;
   minutos_decorridos: number;
   itens: ItemPedido[];
@@ -125,6 +146,7 @@ export interface Pedido {
   desconto: number;
   total: number;
   cupom: string | null;
+  fidelidade: { resgate: boolean } | null;
   avaliacao: { nota: number; comentario: string | null; em: string | null } | null;
   tempo_estimado_min: number;
   minutos_decorridos: number;
@@ -269,6 +291,7 @@ export interface Configuracoes {
   logo_url: string | null;
   tempo_espera_min: number;
   estoque_baixo: number;
+  fidelidade: RegrasFidelidade;
 }
 
 export interface Totem {

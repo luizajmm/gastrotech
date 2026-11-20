@@ -78,6 +78,34 @@ const STATUS_TOTEM: { valor: TotemForm['status']; nome: string }[] = [
               </div>
             </div>
 
+            <fieldset class="fidelidade-cfg">
+              <legend>Cartão fidelidade</legend>
+              <label class="interruptor">
+                <input type="checkbox" [disabled]="!pode" [checked]="fidelidadeAtiva()" (change)="fidelidadeAtiva.set(!fidelidadeAtiva())" />
+                Oferecer no totem
+              </label>
+              <div class="grade-campos">
+                <div class="campo">
+                  <label for="cfg-meta">Pedidos pra ganhar</label>
+                  <input id="cfg-meta" type="number" min="2" max="50" [disabled]="!pode || !fidelidadeAtiva()" [class.invalido]="erros()['fidelidade_meta']" [value]="fidelidadeMeta()" (input)="fidelidadeMeta.set(valor($event))" />
+                  @if (erros()['fidelidade_meta']) {
+                    <span class="erro-campo">{{ erros()['fidelidade_meta'] }}</span>
+                  } @else {
+                    <span class="ajuda">Cada pedido com o celular vale um selo.</span>
+                  }
+                </div>
+                <div class="campo">
+                  <label for="cfg-premio">Desconto do prêmio (R$)</label>
+                  <input id="cfg-premio" inputmode="decimal" [disabled]="!pode || !fidelidadeAtiva()" [class.invalido]="erros()['fidelidade_premio']" [value]="fidelidadePremio()" (input)="fidelidadePremio.set(valor($event))" />
+                  @if (erros()['fidelidade_premio']) {
+                    <span class="erro-campo">{{ erros()['fidelidade_premio'] }}</span>
+                  } @else {
+                    <span class="ajuda">Descontado no pedido em que o cliente troca os selos.</span>
+                  }
+                </div>
+              </div>
+            </fieldset>
+
             @if (pode) {
               <div class="rodape-form">
                 <button class="btn btn-tinta" type="submit" [disabled]="salvando()">{{ salvando() ? 'Salvando' : 'Salvar configurações' }}</button>
@@ -168,6 +196,8 @@ const STATUS_TOTEM: { valor: TotemForm['status']; nome: string }[] = [
   styles: `
     .grade { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--espaco-4); align-items: start; }
     .form-loja { display: grid; gap: var(--espaco-5); }
+    .fidelidade-cfg { display: grid; gap: var(--espaco-3); margin: 0; padding: var(--espaco-4) 0 0; border: 0; border-top: 1px solid var(--linha); }
+    .fidelidade-cfg legend { float: left; width: 100%; margin-bottom: var(--espaco-1); font-weight: 750; }
     .logo { display: flex; gap: var(--espaco-4); align-items: center; }
     .logo-previa {
       display: grid; place-items: center; flex: none; width: 6rem; height: 6rem;
@@ -206,6 +236,9 @@ export class Configuracoes {
   protected readonly frase = signal('');
   protected readonly espera = signal('');
   protected readonly estoque = signal('');
+  protected readonly fidelidadeAtiva = signal(true);
+  protected readonly fidelidadeMeta = signal('');
+  protected readonly fidelidadePremio = signal('');
   protected readonly erros = signal<Record<string, string>>({});
   protected readonly salvando = signal(false);
   protected readonly enviandoLogo = signal(false);
@@ -244,6 +277,9 @@ export class Configuracoes {
           frase_totem: this.frase().trim() || null,
           tempo_espera_min: Math.round(Number(this.espera())),
           estoque_baixo: Math.round(Number(this.estoque())),
+          fidelidade_ativa: this.fidelidadeAtiva(),
+          fidelidade_meta: Math.round(Number(this.fidelidadeMeta())),
+          fidelidade_premio: Number(this.fidelidadePremio().replace(/\s|R\$/g, '').replace(',', '.')),
         }),
       );
       this.preencher(salvo);
@@ -319,6 +355,9 @@ export class Configuracoes {
     this.frase.set(c.frase_totem ?? '');
     this.espera.set(String(c.tempo_espera_min));
     this.estoque.set(String(c.estoque_baixo));
+    this.fidelidadeAtiva.set(c.fidelidade.ativa);
+    this.fidelidadeMeta.set(String(c.fidelidade.meta));
+    this.fidelidadePremio.set(c.fidelidade.premio.toFixed(2).replace('.', ','));
   }
 
   private async carregar(): Promise<void> {

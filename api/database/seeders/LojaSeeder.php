@@ -20,6 +20,9 @@ class LojaSeeder extends Seeder
         Configuracao::definir('logo', $logo, 'Logo da loja (caminho no disco público)');
         Configuracao::definir('tempo_espera_min', '18', 'Previsão em minutos exibida ao cliente');
         Configuracao::definir('estoque_baixo', '10', 'Abaixo disso o produto aparece como estoque baixo');
+        Configuracao::definir('fidelidade_ativa', '1', 'Cartão fidelidade ligado no totem');
+        Configuracao::definir('fidelidade_meta', '10', 'Quantos pedidos pra ganhar o prêmio');
+        Configuracao::definir('fidelidade_premio', '15.00', 'Desconto em reais ao trocar os selos');
 
         $totens = [
             ['TOTEM-01', 'Entrada principal', StatusTotem::Online],

@@ -18,6 +18,9 @@ class ConfiguracoesRequest extends FormRequest
             'frase_totem' => ['sometimes', 'nullable', 'string', 'max:120'],
             'tempo_espera_min' => ['sometimes', 'required', 'integer', 'min:1', 'max:180'],
             'estoque_baixo' => ['sometimes', 'required', 'integer', 'min:0', 'max:999'],
+            'fidelidade_ativa' => ['sometimes', 'boolean'],
+            'fidelidade_meta' => ['sometimes', 'required', 'integer', 'min:2', 'max:50'],
+            'fidelidade_premio' => ['sometimes', 'required', 'numeric', 'min:1', 'max:500'],
         ];
     }
 }

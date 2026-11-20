@@ -9,6 +9,7 @@ use App\Enums\StatusPedido;
 use App\Enums\TipoCupom;
 use App\Enums\TipoMovimento;
 use App\Models\Caixa;
+use App\Models\Cliente;
 use App\Models\Cupom;
 use App\Models\Pedido;
 use App\Models\Produto;
@@ -37,6 +38,13 @@ class PedidosDemonstracaoSeeder extends Seeder
             ['codigo' => 'BEMVINDO10', 'descricao' => '10% no primeiro pedido', 'tipo' => TipoCupom::Percentual->value, 'valor' => 10, 'pedido_minimo' => null, 'validade' => null, 'limite_usos' => null, 'ativo' => true, 'usos' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['codigo' => 'COMBO5', 'descricao' => 'R$ 5 de desconto acima de R$ 30', 'tipo' => TipoCupom::Valor->value, 'valor' => 5, 'pedido_minimo' => 30, 'validade' => now()->addMonth()->toDateString(), 'limite_usos' => 100, 'ativo' => true, 'usos' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['codigo' => 'INAUGURACAO', 'descricao' => 'Semana de inauguração', 'tipo' => TipoCupom::Percentual->value, 'valor' => 15, 'pedido_minimo' => null, 'validade' => now()->subDays(10)->toDateString(), 'limite_usos' => null, 'ativo' => false, 'usos' => 0, 'created_at' => now(), 'updated_at' => now()],
+        ]);
+
+        // cartão fidelidade: números de mentira, um já pode trocar o prêmio
+        Cliente::query()->insert([
+            ['telefone' => '11900000001', 'selos' => 10, 'resgates' => 1, 'ultimo_pedido_em' => now()->subDay(), 'created_at' => now(), 'updated_at' => now()],
+            ['telefone' => '11900000002', 'selos' => 6, 'resgates' => 0, 'ultimo_pedido_em' => now()->subDays(2), 'created_at' => now(), 'updated_at' => now()],
+            ['telefone' => '21900000003', 'selos' => 2, 'resgates' => 0, 'ultimo_pedido_em' => now()->subDays(4), 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         // movimento concentrado no almoço e na janta

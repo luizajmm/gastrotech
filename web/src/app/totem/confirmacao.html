@@ -77,8 +77,11 @@
       </ul>
       @if (p.desconto) {
         <p class="pagamento texto-suave">
-          Desconto{{ p.cupom ? ' do cupom ' + p.cupom : '' }}: −{{ p.desconto | dinheiro }}
+          Desconto{{ p.cupom ? ' do cupom ' + p.cupom : p.fidelidade?.resgate ? ' do cartão fidelidade' : '' }}: −{{ p.desconto | dinheiro }}
         </p>
+      }
+      @if (p.fidelidade; as f) {
+        <p class="pagamento texto-suave">Cartão fidelidade: {{ f.selos }} de {{ f.meta }} selos</p>
       }
       <p class="pagamento texto-suave">
         Pagamento: {{ p.forma_pagamento.rotulo }} ({{ p.status_pagamento.rotulo.toLowerCase() }})

@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Carrinho } from '../core/carrinho';
+import { Loja } from '../core/loja';
 import { TotemApi } from '../core/totem-api';
 import { CabecalhoEtapa } from '../shared/cabecalho-etapa';
 import { DinheiroPipe } from '../shared/dinheiro.pipe';
@@ -106,6 +107,63 @@ import { DinheiroPipe } from '../shared/dinheiro.pipe';
           }
         </section>
 
+        @if (regrasFidelidade(); as regras) {
+          <section class="cupom" aria-label="Cartão fidelidade">
+            @if (carrinho.fidelidade(); as f) {
+              <div class="cupom-aplicado">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.4l-5.2 2.8 1-5.9L3.5 9.2l5.9-.8z" /></svg>
+                <div>
+                  <strong>Cartão fidelidade · {{ telefoneVisivel() }}</strong>
+                  @if (f.pode_resgatar) {
+                    <span>Você juntou {{ f.meta }} selos e ganhou {{ f.premio | dinheiro }} de desconto!</span>
+                  } @else {
+                    <span>{{ f.selos }} de {{ f.meta }} selos. Este pedido vale mais um.</span>
+                  }
+                  <span class="selos" aria-hidden="true">
+                    @for (n of selosDe(f.meta); track n) {
+                      <i [class.cheio]="n <= f.selos"></i>
+                    }
+                  </span>
+                </div>
+                <div class="fidelidade-acoes">
+                  @if (f.pode_resgatar) {
+                    <button type="button" class="btn btn-pequeno" [class.btn-brasa]="!carrinho.resgatarPremio()" [class.btn-tinta]="carrinho.resgatarPremio()" (click)="alternarPremio()">
+                      {{ carrinho.resgatarPremio() ? 'Usando o prêmio' : 'Usar agora' }}
+                    </button>
+                  }
+                  <button type="button" class="remover" (click)="sairFidelidade()">Remover</button>
+                </div>
+              </div>
+            } @else if (digitandoTelefone()) {
+              <form class="cupom-form" (submit)="$event.preventDefault(); consultarFidelidade()">
+                <label class="visualmente-oculto" for="telefone">Celular com DDD</label>
+                <input
+                  id="telefone"
+                  type="tel"
+                  inputmode="numeric"
+                  maxlength="15"
+                  autocomplete="off"
+                  placeholder="(11) 98765-4321"
+                  [value]="carrinho.telefone()"
+                  (input)="digitarTelefone($event)"
+                />
+                <button class="btn btn-tinta" type="submit" [disabled]="!telefoneCompleto() || conferindo()">
+                  {{ conferindo() ? 'Conferindo' : 'Ver meus selos' }}
+                </button>
+              </form>
+              @if (erroTelefone(); as erro) {
+                <p class="cupom-erro" role="alert">{{ erro }}</p>
+              } @else {
+                <p class="ajuda-fidelidade">Usamos o celular só pra contar seus selos. Não mandamos mensagem.</p>
+              }
+            } @else {
+              <button type="button" class="abrir-cupom" (click)="digitandoTelefone.set(true)">
+                Cartão fidelidade: a cada {{ regras.meta }} pedidos, ganhe {{ regras.premio | dinheiro }}
+              </button>
+            }
+          </section>
+        }
+
         <footer class="fechamento">
           <div class="total">
             <span>
@@ -159,6 +217,12 @@ import { DinheiroPipe } from '../shared/dinheiro.pipe';
     .cupom-aplicado div { display: grid; }
     .cupom-aplicado .remover { margin: 0; }
     .cupom-aviso { color: var(--alerta); font-weight: 600; }
+    .cupom + .cupom { margin-top: calc(-1 * var(--espaco-2)); }
+    .fidelidade-acoes { display: flex; align-items: center; gap: var(--espaco-3); }
+    .selos { display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--espaco-1); }
+    .selos i { width: 0.8rem; height: 0.8rem; border-radius: 50%; border: 2px solid var(--brasa-escura); }
+    .selos i.cheio { background: var(--brasa); border-color: var(--brasa); }
+    .ajuda-fidelidade { margin-top: var(--espaco-2); color: var(--grafite); font-size: 0.9rem; }
     .total small { display: block; color: var(--grafite); font-size: 0.95rem; font-weight: 500; }
 
     .linhas { flex: 1; margin-block: 0; padding: var(--espaco-3) var(--espaco-5); list-style: none; }
@@ -234,6 +298,60 @@ export class Revisao {
   protected readonly erroCupom = signal<string | null>(null);
   protected readonly conferindo = signal(false);
 
+  private loja = inject(Loja);
+  protected readonly regrasFidelidade = computed(() => {
+    const regras = this.loja.cardapio()?.loja.fidelidade;
+    return regras?.ativa ? regras : null;
+  });
+  protected readonly digitandoTelefone = signal(false);
+  protected readonly erroTelefone = signal<string | null>(null);
+  protected readonly telefoneCompleto = computed(() => this.carrinho.telefone().replace(/\D/g, '').length >= 10);
+  protected readonly telefoneVisivel = computed(() => {
+    const n = this.carrinho.telefone().replace(/\D/g, '');
+    return `(${n.slice(0, 2)}) •••••-${n.slice(-4)}`;
+  });
+
+  protected selosDe(meta: number): number[] {
+    return Array.from({ length: Math.min(meta, 20) }, (_, i) => i + 1);
+  }
+
+  // vai formatando enquanto digita: (11) 98765-4321
+  protected digitarTelefone(evento: Event): void {
+    const n = (evento.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 11);
+    let texto = n;
+    if (n.length > 2) texto = `(${n.slice(0, 2)}) ${n.slice(2)}`;
+    if (n.length > 6) texto = `(${n.slice(0, 2)}) ${n.slice(2, n.length - 4)}-${n.slice(-4)}`;
+    (evento.target as HTMLInputElement).value = texto;
+    this.carrinho.telefone.set(texto);
+    this.erroTelefone.set(null);
+  }
+
+  protected async consultarFidelidade(): Promise<void> {
+    if (this.conferindo()) return;
+    this.conferindo.set(true);
+    try {
+      this.carrinho.fidelidade.set(await firstValueFrom(this.api.consultarFidelidade(this.carrinho.telefone())));
+      this.digitandoTelefone.set(false);
+    } catch (e) {
+      this.erroTelefone.set(e instanceof Error ? e.message : 'Não foi possível consultar agora.');
+    } finally {
+      this.conferindo.set(false);
+    }
+  }
+
+  // prêmio e cupom não somam: escolher um tira o outro
+  protected alternarPremio(): void {
+    const usar = !this.carrinho.resgatarPremio();
+    this.carrinho.resgatarPremio.set(usar);
+    if (usar) this.carrinho.cupom.set(null);
+  }
+
+  protected sairFidelidade(): void {
+    this.carrinho.fidelidade.set(null);
+    this.carrinho.resgatarPremio.set(false);
+    this.carrinho.telefone.set('');
+  }
+
   protected async aplicarCupom(): Promise<void> {
     const codigo = this.codigoCupom().trim();
     if (!codigo || this.conferindo()) return;
@@ -241,6 +359,7 @@ export class Revisao {
     this.conferindo.set(true);
     try {
       this.carrinho.cupom.set(await firstValueFrom(this.api.conferirCupom(codigo, this.carrinho.total())));
+      this.carrinho.resgatarPremio.set(false);
       this.digitandoCupom.set(false);
       this.codigoCupom.set('');
     } catch (e) {

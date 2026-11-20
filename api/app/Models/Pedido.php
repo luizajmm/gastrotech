@@ -16,7 +16,7 @@ class Pedido extends Model
     protected $table = 'pedidos';
 
     protected $fillable = [
-        'totem_id', 'codigo', 'nome_cliente', 'status', 'status_pagamento',
+        'totem_id', 'cliente_id', 'fidelidade_resgate', 'codigo', 'nome_cliente', 'status', 'status_pagamento',
         'forma_pagamento', 'consumo', 'subtotal', 'desconto', 'total',
         'cupom_id', 'cupom_codigo', 'tempo_estimado_min',
         'pago_em', 'pronto_em', 'finalizado_em',
@@ -38,6 +38,7 @@ class Pedido extends Model
             'pronto_em' => 'datetime',
             'finalizado_em' => 'datetime',
             'avaliacao' => 'integer',
+            'fidelidade_resgate' => 'boolean',
             'avaliado_em' => 'datetime',
         ];
     }
@@ -50,6 +51,11 @@ class Pedido extends Model
     public function totem(): BelongsTo
     {
         return $this->belongsTo(Totem::class);
+    }
+
+    public function cliente(): BelongsTo
+    {
+        return $this->belongsTo(Cliente::class);
     }
 
     public function cupom(): BelongsTo

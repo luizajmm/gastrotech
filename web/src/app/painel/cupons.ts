@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Avisos } from '../core/avisos';
-import { Cupom, TipoCupom } from '../core/modelos';
+import { ClientesFidelidade, Cupom, TipoCupom } from '../core/modelos';
 import { FalhaFormulario, PainelApi } from '../core/painel-api';
 import { Sessao } from '../core/sessao';
 import { DinheiroPipe } from '../shared/dinheiro.pipe';
@@ -219,8 +219,8 @@ export class CupomFormJanela implements OnInit {
   template: `
     <header class="cabecalho-pagina">
       <div>
-        <h1>Cupons</h1>
-        <p>Códigos de desconto que o cliente digita no totem antes de pagar.</p>
+        <h1>Promoções</h1>
+        <p>Cupons de desconto e o cartão fidelidade que o cliente usa no totem.</p>
       </div>
       @if (pode) {
         <div class="acoes">
@@ -230,6 +230,7 @@ export class CupomFormJanela implements OnInit {
     </header>
 
     <section class="bloco tabela-bloco">
+      <h2 class="titulo-bloco">Cupons</h2>
       @if (cupons(); as lista) {
         @if (lista.length) {
           <div class="rolagem-tabela">
@@ -289,6 +290,59 @@ export class CupomFormJanela implements OnInit {
       }
     </section>
 
+    <section class="bloco tabela-bloco fidelidade">
+      <div class="bloco-topo titulo-bloco">
+        <h2>Cartão fidelidade</h2>
+        @if (fidelidade(); as f) {
+          <span class="texto-suave">
+            @if (f.regras.ativa) {
+              A cada {{ f.regras.meta }} pedidos, {{ f.regras.premio | dinheiro }} de desconto · {{ f.total }} {{ f.total === 1 ? 'cliente' : 'clientes' }}
+            } @else {
+              Desligado no totem
+            }
+          </span>
+        }
+      </div>
+      @if (fidelidade(); as f) {
+        @if (f.clientes.length) {
+          <div class="rolagem-tabela">
+            <table class="tabela">
+              <thead>
+                <tr>
+                  <th>Celular</th>
+                  <th>Selos</th>
+                  <th class="num">Pedidos</th>
+                  <th class="num">Prêmios trocados</th>
+                  <th class="num">Último pedido</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (c of f.clientes; track c.id) {
+                  <tr>
+                    <td>{{ c.telefone }}</td>
+                    <td>
+                      <strong>{{ c.selos }} de {{ f.regras.meta }}</strong>
+                      @if (c.selos >= f.regras.meta) {
+                        <span class="selo selo-brasa">pode trocar</span>
+                      }
+                    </td>
+                    <td class="num">{{ c.pedidos }}</td>
+                    <td class="num">{{ c.resgates }}</td>
+                    <td class="num">{{ c.ultimo_pedido_em ? (c.ultimo_pedido_em | date: 'dd/MM HH:mm') : '—' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <p class="nota-fidelidade texto-suave">O celular aparece escondido. As regras ficam em Configurações.</p>
+        } @else {
+          <div class="vazio-painel">Ninguém usou o cartão fidelidade ainda.</div>
+        }
+      } @else {
+        <div class="vazio-painel">Carregando</div>
+      }
+    </section>
+
     @if (editando() !== undefined) {
       <gt-cupom-form [cupom]="editando() ?? null" (fechar)="editando.set(undefined)" (salvo)="salvou()" />
     }
@@ -298,6 +352,11 @@ export class CupomFormJanela implements OnInit {
     .codigo { display: block; letter-spacing: 0.05em; }
     td .texto-suave { display: block; font-size: 0.8rem; }
     .regras span:first-child { display: block; }
+    .titulo-bloco { margin: var(--espaco-3) 0 var(--espaco-2); }
+    h2.titulo-bloco, .titulo-bloco h2 { font-size: 1.1rem; }
+    .fidelidade { margin-top: var(--espaco-4); }
+    .fidelidade .selo { margin-left: var(--espaco-2); }
+    .nota-fidelidade { margin: var(--espaco-3) 0 var(--espaco-2); font-size: 0.8rem; }
   `,
 })
 export class Cupons {
@@ -308,9 +367,13 @@ export class Cupons {
   protected readonly cupons = signal<Cupom[] | null>(null);
   protected readonly editando = signal<Cupom | null | undefined>(undefined);
   protected readonly excluindo = signal<number | null>(null);
+  protected readonly fidelidade = signal<ClientesFidelidade | null>(null);
 
   constructor() {
     this.carregar();
+    firstValueFrom(this.api.clientesFidelidade())
+      .then((f) => this.fidelidade.set(f))
+      .catch((e) => this.avisos.erro(e, 'Não foi possível carregar o cartão fidelidade.'));
   }
 
   protected situacao(c: Cupom): { texto: string; classe: string } {

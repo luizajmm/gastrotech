@@ -6,6 +6,7 @@ import {
   Caixa,
   CaixaAtual,
   CategoriaPainel,
+  ClientesFidelidade,
   Configuracoes,
   Cupom,
   CupomForm,
@@ -165,6 +166,10 @@ export class PainelApi {
     return this.salvar<Cupom>('cupons', dados, id);
   }
 
+  clientesFidelidade(): Observable<ClientesFidelidade> {
+    return this.get<ClientesFidelidade>('clientes');
+  }
+
   excluirCupom(id: number): Observable<void> {
     return this.excluir(`cupons/${id}`);
   }
@@ -187,7 +192,9 @@ export class PainelApi {
     return this.get<Configuracoes>('configuracoes');
   }
 
-  salvarConfiguracoes(dados: Partial<Configuracoes>): Observable<Configuracoes> {
+  salvarConfiguracoes(
+    dados: Partial<Omit<Configuracoes, 'fidelidade'>> & { fidelidade_ativa?: boolean; fidelidade_meta?: number; fidelidade_premio?: number },
+  ): Observable<Configuracoes> {
     return this.http
       .put<Dados<Configuracoes>>(`${this.url}/configuracoes`, dados)
       .pipe(map((r) => r.data), catchError(traduzir));

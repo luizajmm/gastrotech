@@ -27,6 +27,9 @@ class Configuracao extends Model
         'logo' => null,
         'tempo_espera_min' => '18',
         'estoque_baixo' => '10',
+        'fidelidade_ativa' => '1',
+        'fidelidade_meta' => '10',
+        'fidelidade_premio' => '15.00',
     ];
 
     protected static function booted(): void
@@ -75,6 +78,11 @@ class Configuracao extends Model
             'frase_totem' => $todas['frase_totem'],
             'logo_url' => $todas['logo'] ? Storage::disk('public')->url($todas['logo']) : null,
             'tempo_espera_min' => (int) $todas['tempo_espera_min'],
+            'fidelidade' => [
+                'ativa' => $todas['fidelidade_ativa'] === '1',
+                'meta' => (int) $todas['fidelidade_meta'],
+                'premio' => round((float) $todas['fidelidade_premio'], 2),
+            ],
         ];
     }
 }

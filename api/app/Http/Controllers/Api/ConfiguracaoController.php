@@ -19,7 +19,11 @@ class ConfiguracaoController extends Controller
     public function update(ConfiguracoesRequest $request): JsonResponse
     {
         foreach ($request->validated() as $chave => $valor) {
-            Configuracao::definir($chave, $valor === null ? null : (string) $valor);
+            Configuracao::definir($chave, match (true) {
+                $valor === null => null,
+                is_bool($valor) => $valor ? '1' : '0',
+                default => (string) $valor,
+            });
         }
 
         return response()->json(['data' => $this->dados()]);

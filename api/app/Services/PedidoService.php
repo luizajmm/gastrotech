@@ -16,6 +16,8 @@ use Illuminate\Validation\ValidationException;
 
 class PedidoService
 {
+    public function __construct(private FidelidadeService $fidelidade) {}
+
     // o preço vem sempre do banco, e o estoque fica travado na transação
     // pra dois totens não venderem a última unidade juntos
     public function criar(array $dados): Pedido
@@ -36,8 +38,20 @@ class PedidoService
             $cupom = $this->cupom($dados['cupom'] ?? null, $subtotal);
             $desconto = $cupom?->descontoPara($subtotal) ?? 0.0;
 
+            $cliente = $this->fidelidade->clienteDoPedido($dados['telefone'] ?? null);
+            $resgate = $cliente !== null && ! empty($dados['resgatar_premio']);
+
+            if ($resgate) {
+                if ($cupom) {
+                    throw ValidationException::withMessages(['cupom' => 'Use o cupom ou o prêmio do cartão fidelidade, os dois juntos não dá.']);
+                }
+                $desconto = $this->fidelidade->descontoDoResgate($cliente, $subtotal);
+            }
+
             $pedido = Pedido::query()->create([
                 'totem_id' => $this->totem($dados['totem'] ?? null)?->id,
+                'cliente_id' => $cliente?->id,
+                'fidelidade_resgate' => $resgate,
                 'nome_cliente' => trim((string) ($dados['nome_cliente'] ?? '')) ?: 'Cliente',
                 'status' => StatusPedido::Recebido,
                 'status_pagamento' => $forma->pagoNoTotem() ? StatusPagamento::Pago : StatusPagamento::Pendente,
@@ -66,6 +80,9 @@ class PedidoService
             }
 
             $cupom?->increment('usos');
+            if ($cliente) {
+                $this->fidelidade->registrar($cliente, $resgate);
+            }
             $pedido->update(['codigo' => Pedido::gerarCodigo($pedido->id)]);
 
             return $pedido;
@@ -123,6 +140,11 @@ class PedidoService
             // o uso do cupom volta, senão um cancelamento gasta o limite
             if ($pedido->cupom_id) {
                 Cupom::query()->whereKey($pedido->cupom_id)->where('usos', '>', 0)->decrement('usos');
+            }
+
+            // e o selo (ou o prêmio) do cartão fidelidade também
+            if ($pedido->cliente_id) {
+                $this->fidelidade->desfazer($pedido);
             }
 
             $pedido->status = StatusPedido::Cancelado;

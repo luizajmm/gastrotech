@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, distinctUntilChanged, map, Observable, switchMap, throwError, timer } from 'rxjs';
 import { CONFIG } from '../config';
-import { Acompanhamento, Cardapio, CupomAplicado, ErroApi, NovoPedido } from './modelos';
+import { Acompanhamento, Cardapio, ConsultaFidelidade, CupomAplicado, ErroApi, NovoPedido } from './modelos';
 
 export class FalhaPedido extends Error {
   constructor(
@@ -34,6 +34,15 @@ export class TotemApi {
   conferirCupom(codigo: string, subtotal: number): Observable<CupomAplicado> {
     return this.http
       .get<{ data: CupomAplicado }>(`${this.url}/cupons/${encodeURIComponent(codigo.trim())}`, { params: { subtotal } })
+      .pipe(
+        map((r) => r.data),
+        catchError(traduzirErro),
+      );
+  }
+
+  consultarFidelidade(telefone: string): Observable<ConsultaFidelidade> {
+    return this.http
+      .get<{ data: ConsultaFidelidade }>(`${this.url}/fidelidade/${encodeURIComponent(telefone.replace(/\D/g, ''))}`)
       .pipe(
         map((r) => r.data),
         catchError(traduzirErro),
