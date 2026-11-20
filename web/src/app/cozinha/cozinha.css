@@ -111,6 +111,17 @@
   font-weight: 650;
 }
 
+.som-alerta {
+  background: var(--brasa);
+  color: var(--tinta);
+  box-shadow: none;
+  animation: pisca 1.6s ease-in-out infinite;
+}
+
+@keyframes pisca {
+  50% { opacity: 0.6; }
+}
+
 /* ---------- Quadro ---------- */
 
 .abas {

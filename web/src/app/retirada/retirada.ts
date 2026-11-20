@@ -20,8 +20,14 @@ import { Telas } from '../shared/telas';
         </div>
         <gt-telas [escuro]="true" />
         <div class="lado">
-          <button class="som" type="button" (click)="som.ligado() ? som.desligar() : som.ligar()">
-            {{ som.ligado() ? 'Som ligado' : 'Ligar som' }}
+          <button
+            class="som"
+            type="button"
+            data-som
+            [class.alerta]="som.ligado() && som.bloqueado()"
+            (click)="som.alternar()"
+          >
+            {{ !som.ligado() ? 'Som desligado' : som.bloqueado() ? 'Toque para ativar o som' : 'Som ligado' }}
           </button>
           <span class="relogio">{{ agora() | date: 'HH:mm' }}</span>
         </div>
@@ -76,6 +82,8 @@ import { Telas } from '../shared/telas';
     .relogio { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
     .som { min-height: 2rem; padding: 0 var(--espaco-3); border: 1px solid #444; border-radius: 999px; background: none; color: #bdbdbd; font: inherit; font-size: 0.85rem; cursor: pointer; }
     .som:hover { color: var(--papel); border-color: #777; }
+    .som.alerta { border-color: var(--brasa); background: var(--brasa); color: var(--tinta); animation: pisca 1.6s ease-in-out infinite; }
+    @keyframes pisca { 50% { opacity: 0.6; } }
 
     .colunas { display: grid; grid-template-columns: 1fr 1.4fr; min-height: 0; }
     section { padding: var(--espaco-6); overflow: auto; }
