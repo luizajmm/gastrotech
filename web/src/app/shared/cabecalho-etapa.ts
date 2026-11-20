@@ -25,6 +25,12 @@ import { RouterLink } from '@angular/router';
     }
     .voltar svg { width: 1.6rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
     h1 { font-size: clamp(2.2rem, 6vw, 3.5rem); font-weight: 900; font-variation-settings: 'wdth' 100; }
+    @media (orientation: landscape) and (min-width: 701px) and (max-height: 900px) {
+      :host { padding-top: var(--espaco-2); }
+      header { gap: var(--espaco-1); padding-bottom: var(--espaco-2); }
+      .voltar { min-height: 2.5rem; }
+      h1 { font-size: 2.2rem; }
+    }
   `,
 })
 export class CabecalhoEtapa {

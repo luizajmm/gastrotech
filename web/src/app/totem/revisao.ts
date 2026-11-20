@@ -123,6 +123,15 @@ import { DinheiroPipe } from '../shared/dinheiro.pipe';
       .lado { grid-column: 2; grid-auto-flow: column; justify-content: space-between; align-items: center; justify-items: start; }
       .fechamento { padding-inline: var(--espaco-4); }
     }
+    /* notebook: total e os dois botões numa linha só */
+    @media (orientation: landscape) and (min-width: 701px) and (max-height: 900px) {
+      .fechamento { grid-template-columns: 1fr auto auto; align-items: center; gap: var(--espaco-4); padding-block: var(--espaco-3); }
+      .total { flex-direction: column; align-items: start; margin: 0; }
+      .total .preco { font-size: 1.8rem; }
+      .fechamento .btn { width: auto; min-height: 3.5rem; padding-inline: var(--espaco-6); font-size: 1.1rem; }
+      .fechamento .btn-contorno { order: 1; }
+      .fechamento .btn-brasa { order: 2; }
+    }
   `,
 })
 export class Revisao {

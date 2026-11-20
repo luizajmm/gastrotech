@@ -154,6 +154,25 @@ const OPCOES: OpcaoPagamento[] = [
       }
       .forma svg { grid-row: span 2; margin: 0; width: 2rem; height: 2rem; }
     }
+    /* notebook: tudo cabe sem rolar, total e botão lado a lado */
+    @media (orientation: landscape) and (min-width: 701px) and (max-height: 900px) {
+      .corpo { gap: var(--espaco-4); padding-top: var(--espaco-3); }
+      .rotulo { font-size: 1.2rem; }
+      .ajuda { margin-bottom: var(--espaco-2); font-size: 0.9rem; }
+      input { min-height: 3.25rem; font-size: 1.1rem; }
+      .formas legend { margin-bottom: var(--espaco-2); }
+      .forma {
+        min-height: 0; padding: var(--espaco-3) var(--espaco-4);
+        grid-template-columns: auto 1fr; column-gap: var(--espaco-3); align-items: center;
+      }
+      .forma svg { grid-row: span 2; width: 1.8rem; height: 1.8rem; margin: 0; }
+      .forma-nome { font-size: 1.15rem; }
+      .forma-descricao { font-size: 0.85rem; }
+      .fechamento { grid-template-columns: auto minmax(0, 22rem); justify-content: space-between; align-items: center; padding-block: var(--espaco-3); }
+      .total { flex-direction: column; align-items: start; gap: 0; }
+      .total .preco { font-size: 1.8rem; }
+      .fechamento .btn { min-height: 3.5rem; font-size: 1.15rem; }
+    }
   `,
 })
 export class Pagamento implements OnInit {

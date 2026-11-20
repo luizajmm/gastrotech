@@ -416,3 +416,104 @@
     min-height: 3.5rem;
   }
 }
+
+/* ---------- Tela deitada (notebook, monitor) ---------- */
+/* o totem de verdade é em pé; deitado, sobra pouca altura e tudo precisa encolher */
+
+@media (orientation: landscape) and (min-width: 701px) {
+  .tela {
+    grid-template-columns: 8rem minmax(0, 1fr);
+  }
+
+  .topo {
+    padding: var(--espaco-2) var(--espaco-4) var(--espaco-2) var(--espaco-5);
+  }
+
+  .marca {
+    font-size: 1.1rem;
+  }
+
+  .marca img {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .topo .btn {
+    min-height: 2.5rem;
+  }
+
+  .categorias {
+    padding: var(--espaco-2);
+    gap: var(--espaco-1);
+  }
+
+  .categoria {
+    min-height: 4.5rem;
+    padding: var(--espaco-3) var(--espaco-1);
+    gap: var(--espaco-1);
+    font-size: 0.85rem;
+  }
+
+  .categoria gt-icone-categoria {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  .produtos {
+    padding: var(--espaco-5) var(--espaco-5) var(--espaco-6);
+  }
+
+  .cabecalho-categoria {
+    margin-bottom: var(--espaco-4);
+  }
+
+  .cabecalho-categoria h1 {
+    font-size: 2.1rem;
+  }
+
+  .cabecalho-categoria p {
+    margin-top: var(--espaco-1);
+    font-size: 1rem;
+  }
+
+  .grade {
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: var(--espaco-5) var(--espaco-4);
+  }
+
+  .info h2 {
+    font-size: 1.15rem;
+  }
+
+  .rodape-produto .preco {
+    font-size: 1.2rem;
+  }
+
+  .mais {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .grande .foto {
+    height: min(42dvh, 22rem);
+    max-height: min(42dvh, 22rem);
+  }
+
+  .barra {
+    min-height: 4rem;
+    padding: var(--espaco-2) var(--espaco-5) calc(var(--espaco-2) + env(safe-area-inset-bottom));
+  }
+
+  .resumo .preco {
+    font-size: 1.4rem;
+  }
+
+  .barra .btn {
+    min-height: 3.25rem;
+    font-size: 1.1rem;
+  }
+
+  .toast {
+    bottom: 5.5rem;
+  }
+}
