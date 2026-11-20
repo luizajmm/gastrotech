@@ -274,3 +274,101 @@
 .prazo .ranking-barra span {
   background: var(--brasa);
 }
+
+/* ---------- Avaliações ---------- */
+
+.avaliacoes {
+  grid-column: 1 / -1;
+}
+
+.avaliacoes-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+  gap: var(--espaco-6);
+}
+
+.nota-geral {
+  display: grid;
+  align-content: start;
+  gap: var(--espaco-1);
+}
+
+.nota-geral .numero {
+  font-size: 2.6rem;
+}
+
+.estrelas {
+  color: var(--linha);
+  font-size: 1.3rem;
+  letter-spacing: 0.08em;
+}
+
+.estrelas .acesa {
+  color: var(--brasa);
+}
+
+.estrelas.pequenas {
+  font-size: 0.95rem;
+}
+
+.distribuicao {
+  display: grid;
+  gap: var(--espaco-1);
+  margin: var(--espaco-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.distribuicao li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) 2rem;
+  align-items: center;
+  gap: var(--espaco-2);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.distribuicao .ranking-barra span {
+  background: var(--brasa);
+}
+
+.distribuicao .nota {
+  text-align: right;
+}
+
+.comentarios {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: var(--espaco-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comentarios li {
+  display: grid;
+  gap: var(--espaco-1);
+  padding: var(--espaco-3) var(--espaco-4);
+  border-radius: 10px;
+  background: var(--fumaca);
+}
+
+.comentarios li.vazio-painel {
+  grid-column: 1 / -1;
+  background: none;
+}
+
+.comentario-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espaco-2);
+}
+
+@media (max-width: 900px) {
+  .avaliacoes-grade,
+  .comentarios {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

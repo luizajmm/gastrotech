@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Enums\StatusPedido;
+use App\Http\Requests\AvaliarPedidoRequest;
 use App\Http\Requests\CriarPedidoRequest;
 use App\Http\Resources\AcompanhamentoPedidoResource;
 use App\Http\Resources\CategoriaResource;
@@ -13,6 +15,7 @@ use App\Models\Produto;
 use App\Services\PedidoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class TotemController extends Controller
 {
@@ -68,6 +71,28 @@ class TotemController extends Controller
                 'desconto' => $cupom->descontoPara($subtotal),
             ],
         ]);
+    }
+
+    // só depois que o pedido fica pronto, e uma vez só
+    public function avaliar(AvaliarPedidoRequest $request, string $codigo): AcompanhamentoPedidoResource
+    {
+        $pedido = Pedido::query()->where('codigo', strtoupper(trim($codigo)))->firstOrFail();
+
+        if (! in_array($pedido->status, [StatusPedido::Pronto, StatusPedido::Retirado], true)) {
+            throw ValidationException::withMessages(['nota' => 'Dá para avaliar quando o pedido ficar pronto.']);
+        }
+
+        if ($pedido->avaliacao !== null) {
+            throw ValidationException::withMessages(['nota' => 'Este pedido já foi avaliado. Obrigado!']);
+        }
+
+        $pedido->update([
+            'avaliacao' => $request->integer('nota'),
+            'avaliacao_comentario' => trim((string) $request->input('comentario')) ?: null,
+            'avaliado_em' => now(),
+        ]);
+
+        return new AcompanhamentoPedidoResource($pedido->load('itens'));
     }
 
     public function acompanhar(string $codigo): AcompanhamentoPedidoResource

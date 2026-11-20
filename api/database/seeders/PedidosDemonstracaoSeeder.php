@@ -119,12 +119,27 @@ class PedidosDemonstracaoSeeder extends Seeder
             $subtotal += (float) $produto->preco * $quantidade;
         }
 
+        // mais ou menos metade dos clientes avalia, quase sempre bem
+        $avaliou = $status === StatusPedido::Retirado && mt_rand(1, 10) <= 5;
+        $nota = $avaliou ? [5, 5, 5, 4, 4, 4, 3, 2][mt_rand(0, 7)] : null;
+        $comentario = $avaliou && mt_rand(1, 3) === 1 ? self::COMENTARIOS[$nota][array_rand(self::COMENTARIOS[$nota])] : null;
+
         $pedido->forceFill([
             'codigo' => Pedido::gerarCodigo($pedido->id),
             'subtotal' => $subtotal,
             'total' => $subtotal,
+            'avaliacao' => $nota,
+            'avaliacao_comentario' => $comentario,
+            'avaliado_em' => $avaliou ? $quando->copy()->addMinutes(35) : null,
             'created_at' => $quando,
             'updated_at' => $quando,
         ])->save();
     }
+
+    private const COMENTARIOS = [
+        5 => ['Lanche chegou quentinho, perfeito!', 'Melhor smash da região.', 'Rápido e muito bom.', 'A batata suprema é sensacional.'],
+        4 => ['Muito bom, só demorou um pouquinho.', 'Gostei, voltaria.', 'Bom, mas podia ter mais molho.'],
+        3 => ['Ok, nada demais.', 'A batata veio meio murcha.'],
+        2 => ['Demorou bastante pra ficar pronto.', 'Veio sem o molho que eu pedi.'],
+    ];
 }

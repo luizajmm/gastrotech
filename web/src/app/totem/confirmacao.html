@@ -20,6 +20,8 @@
       <p class="instrucao">
         @if (cancelado()) {
           Este pedido foi cancelado. Procure o balcão se precisar de ajuda.
+        } @else if (p.status.valor === 'retirado') {
+          Pedido entregue. Bom apetite!
         } @else if (pronto()) {
           Está pronto! Retire no balcão mostrando o código.
         } @else {
@@ -49,6 +51,10 @@
           }
         </ol>
       </section>
+    }
+
+    @if (pronto() || p.status.valor === 'retirado') {
+      <gt-avaliacao [codigo]="p.codigo" [jaAvaliado]="p.avaliacao !== null" />
     }
 
     <details class="itens">

@@ -22,6 +22,11 @@ class PedidoResource extends JsonResource
             'desconto' => (float) $this->desconto,
             'total' => (float) $this->total,
             'cupom' => $this->cupom_codigo,
+            'avaliacao' => $this->avaliacao === null ? null : [
+                'nota' => $this->avaliacao,
+                'comentario' => $this->avaliacao_comentario,
+                'em' => $this->avaliado_em?->toIso8601String(),
+            ],
             'tempo_estimado_min' => $this->tempo_estimado_min,
             'minutos_decorridos' => $this->minutosDecorridos(),
             'minutos_atraso' => $this->minutosAtraso(),

@@ -27,6 +27,7 @@ export class VisaoGeral {
   protected readonly data = hoje.format(new Date());
   protected readonly resumoItens = resumoItens;
   protected readonly seloStatus = seloStatus;
+  protected readonly Math = Math;
 
   protected readonly semana = computed<Barra[]>(() => {
     const dias = this.dados()?.semana.por_dia ?? [];

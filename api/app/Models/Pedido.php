@@ -20,6 +20,7 @@ class Pedido extends Model
         'forma_pagamento', 'consumo', 'subtotal', 'desconto', 'total',
         'cupom_id', 'cupom_codigo', 'tempo_estimado_min',
         'pago_em', 'pronto_em', 'finalizado_em',
+        'avaliacao', 'avaliacao_comentario', 'avaliado_em',
     ];
 
     protected function casts(): array
@@ -36,6 +37,8 @@ class Pedido extends Model
             'pago_em' => 'datetime',
             'pronto_em' => 'datetime',
             'finalizado_em' => 'datetime',
+            'avaliacao' => 'integer',
+            'avaliado_em' => 'datetime',
         ];
     }
 

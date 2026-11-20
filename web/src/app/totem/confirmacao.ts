@@ -7,12 +7,13 @@ import { Loja } from '../core/loja';
 import { Acompanhamento } from '../core/modelos';
 import { TotemApi } from '../core/totem-api';
 import { DinheiroPipe } from '../shared/dinheiro.pipe';
+import { Avaliacao } from './avaliacao';
 
 const VOLTAR_EM = 45;
 
 @Component({
   selector: 'gt-confirmacao',
-  imports: [DinheiroPipe, RouterLink],
+  imports: [Avaliacao, DinheiroPipe, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './confirmacao.html',
   styleUrl: './confirmacao.css',

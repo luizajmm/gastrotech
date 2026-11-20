@@ -29,6 +29,7 @@ class AcompanhamentoPedidoResource extends JsonResource
             'desconto' => (float) $this->desconto,
             'total' => (float) $this->total,
             'cupom' => $this->cupom_codigo,
+            'avaliacao' => $this->avaliacao,
             'tempo_estimado_min' => $this->tempo_estimado_min,
             'minutos_decorridos' => $this->minutosDecorridos(),
             'itens' => ItemPedidoResource::collection($this->whenLoaded('itens')),

@@ -46,6 +46,7 @@ class DashboardController extends Controller
                     'mais_vendidos' => $semana['mais_vendidos'],
                 ],
                 'operacao' => $this->operacao(),
+                'avaliacoes' => $this->avaliacoes(),
                 'atrasados' => PedidoResource::collection($atrasados->take(5)),
                 'estoque_baixo' => [
                     'limite' => $limite,
@@ -58,6 +59,32 @@ class DashboardController extends Controller
                 ),
             ],
         ]);
+    }
+
+    // nota média dos últimos 30 dias e os comentários mais novos
+    private function avaliacoes(): array
+    {
+        $base = fn () => Pedido::query()->whereNotNull('avaliacao')->where('avaliado_em', '>=', today()->subDays(29));
+        $quantidade = $base()->count();
+        $porNota = $base()->selectRaw('avaliacao, COUNT(*) as total')->groupBy('avaliacao')->pluck('total', 'avaliacao');
+
+        return [
+            'media' => $quantidade ? round((float) $base()->avg('avaliacao'), 1) : null,
+            'quantidade' => $quantidade,
+            'por_nota' => collect(range(5, 1))->map(fn (int $n) => ['nota' => $n, 'quantidade' => (int) $porNota->get($n, 0)])->values(),
+            'comentarios' => $base()
+                ->whereNotNull('avaliacao_comentario')
+                ->latest('avaliado_em')
+                ->limit(4)
+                ->get(['codigo', 'nome_cliente', 'avaliacao', 'avaliacao_comentario', 'avaliado_em'])
+                ->map(fn (Pedido $p) => [
+                    'codigo' => $p->codigo,
+                    'nome_cliente' => $p->nome_cliente,
+                    'nota' => $p->avaliacao,
+                    'comentario' => $p->avaliacao_comentario,
+                    'em' => $p->avaliado_em?->toIso8601String(),
+                ]),
+        ];
     }
 
     // horário de pico e tempo real de preparo dos últimos 7 dias.

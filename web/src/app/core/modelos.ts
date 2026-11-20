@@ -100,6 +100,7 @@ export interface Acompanhamento {
   desconto: number;
   total: number;
   cupom: string | null;
+  avaliacao: number | null;
   tempo_estimado_min: number;
   minutos_decorridos: number;
   itens: ItemPedido[];
@@ -124,6 +125,7 @@ export interface Pedido {
   desconto: number;
   total: number;
   cupom: string | null;
+  avaliacao: { nota: number; comentario: string | null; em: string | null } | null;
   tempo_estimado_min: number;
   minutos_decorridos: number;
   minutos_atraso: number;
@@ -214,6 +216,12 @@ export interface Dashboard {
   operacao: {
     por_hora: { hora: number; pedidos: number }[];
     preparo: { pedidos: number; medio_min: number | null; previsto_min: number | null; no_prazo_pct: number | null };
+  };
+  avaliacoes: {
+    media: number | null;
+    quantidade: number;
+    por_nota: { nota: number; quantidade: number }[];
+    comentarios: { codigo: string; nome_cliente: string | null; nota: number; comentario: string; em: string }[];
   };
   atrasados: Pedido[];
   estoque_baixo: { limite: number; produtos: ProdutoPainel[] };

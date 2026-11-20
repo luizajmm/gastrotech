@@ -47,7 +47,8 @@ export class Impressao {
       <p class="linha"><span>Pagamento</span><span>${esc(pedido.forma_pagamento.rotulo)} (${esc(pedido.status_pagamento.rotulo.toLowerCase())})</span></p>
       ${pedido.status_pagamento.valor === 'pendente' ? '<p class="aviso">Pague no caixa antes de retirar</p>' : ''}
       <hr />
-      <p class="centro pequeno">Acompanhe o pedido pelo código no totem ou no painel de retirada.</p>
+      <p class="centro pequeno">Acompanhe e avalie seu pedido em</p>
+      <p class="centro pequeno forte quebra">${esc(linkPedido(pedido.codigo))}</p>
       <p class="centro pequeno">Não é documento fiscal.</p>
     `);
   }
@@ -86,6 +87,11 @@ function itemComprovante(item: ItemPedido): string {
   return `<div class="item"><p class="linha"><span>${item.quantidade}× ${esc(item.nome)}</span><span>${dinheiro(item.total)}</span></p>${escolhas ? `<p class="pequeno">${escolhas}</p>` : ''}</div>`;
 }
 
+// o mesmo endereço do sistema, direto na tela do pedido
+function linkPedido(codigo: string): string {
+  return `${location.origin}${location.pathname}#/totem/pedido/${codigo}`;
+}
+
 function hora(iso: string): string {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
@@ -111,6 +117,7 @@ const ESTILO = `
   .pequeno { font-size: 10.5px; }
   .item { margin-bottom: 2mm; }
   .obs { font-weight: 700; }
+  .quebra { word-break: break-all; }
   .linha { display: flex; justify-content: space-between; gap: 3mm; }
   .linha span:last-child { white-space: nowrap; }
   .faixa { margin: 1.5mm 0; padding: 1mm; background: #000; color: #fff; text-align: center; font-weight: 700; font-size: 15px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }

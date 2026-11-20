@@ -20,6 +20,7 @@ Route::prefix('totem')->group(function () {
     Route::get('cardapio', [TotemController::class, 'cardapio']);
     Route::post('pedidos', [TotemController::class, 'criarPedido'])->middleware('throttle:totem');
     Route::get('pedidos/{codigo}', [TotemController::class, 'acompanhar']);
+    Route::post('pedidos/{codigo}/avaliacao', [TotemController::class, 'avaliar'])->middleware('throttle:totem');
     Route::get('cupons/{codigo}', [TotemController::class, 'cupom'])->middleware('throttle:totem');
 });
 

@@ -40,6 +40,15 @@ export class TotemApi {
       );
   }
 
+  avaliar(codigo: string, nota: number, comentario: string | null): Observable<Acompanhamento> {
+    return this.http
+      .post<{ data: Acompanhamento }>(`${this.url}/pedidos/${encodeURIComponent(codigo)}/avaliacao`, { nota, comentario })
+      .pipe(
+        map((r) => r.data),
+        catchError(traduzirErro),
+      );
+  }
+
   acompanhar(codigo: string): Observable<Acompanhamento> {
     return this.http
       .get<{ data: Acompanhamento }>(`${this.url}/pedidos/${encodeURIComponent(codigo)}`)

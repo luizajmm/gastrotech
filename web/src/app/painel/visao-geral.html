@@ -106,6 +106,54 @@
       }
     </section>
 
+    <section class="bloco avaliacoes">
+      <div class="bloco-topo">
+        <h2>Avaliações dos clientes</h2>
+        <span class="texto-suave">últimos 30 dias</span>
+      </div>
+      @if (d.avaliacoes.media !== null) {
+        <div class="avaliacoes-grade">
+          <div class="nota-geral">
+            <strong class="numero">{{ d.avaliacoes.media.toFixed(1).replace('.', ',') }}</strong>
+            <span class="estrelas" [attr.aria-label]="'Média ' + d.avaliacoes.media + ' de 5'">
+              @for (n of [1, 2, 3, 4, 5]; track n) {
+                <span [class.acesa]="n <= Math.round(d.avaliacoes.media)" aria-hidden="true">★</span>
+              }
+            </span>
+            <span class="nota">{{ d.avaliacoes.quantidade }} {{ d.avaliacoes.quantidade === 1 ? 'avaliação' : 'avaliações' }}</span>
+            <ul class="distribuicao">
+              @for (n of d.avaliacoes.por_nota; track n.nota) {
+                <li>
+                  <span>{{ n.nota }}★</span>
+                  <div class="ranking-barra"><span [style.width.%]="(n.quantidade / d.avaliacoes.quantidade) * 100"></span></div>
+                  <span class="nota">{{ n.quantidade }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+          <ul class="comentarios">
+            @for (c of d.avaliacoes.comentarios; track c.codigo) {
+              <li>
+                <div class="comentario-topo">
+                  <span class="estrelas pequenas" [attr.aria-label]="c.nota + ' de 5'">
+                    @for (n of [1, 2, 3, 4, 5]; track n) {
+                      <span [class.acesa]="n <= c.nota" aria-hidden="true">★</span>
+                    }
+                  </span>
+                  <span class="nota">{{ c.nome_cliente }} · {{ c.codigo }} · {{ c.em | date: 'dd/MM' }}</span>
+                </div>
+                <p>“{{ c.comentario }}”</p>
+              </li>
+            } @empty {
+              <li class="vazio-painel">Ninguém deixou comentário ainda.</li>
+            }
+          </ul>
+        </div>
+      } @else {
+        <p class="vazio-painel">Quando os clientes avaliarem os pedidos, a nota aparece aqui.</p>
+      }
+    </section>
+
     <section class="bloco">
       <div class="bloco-topo">
         <h2>Pedidos atrasados</h2>

@@ -89,7 +89,12 @@ const FILTROS: { valor: FiltroPedidos['status']; nome: string }[] = [
                       {{ pedido.forma_pagamento.rotulo }}
                       <span [class]="seloPagamento(pedido.status_pagamento.valor)">{{ pedido.status_pagamento.rotulo }}</span>
                     </td>
-                    <td><span [class]="seloStatus(pedido.status.valor)">{{ pedido.status.rotulo }}</span></td>
+                    <td>
+                      <span [class]="seloStatus(pedido.status.valor)">{{ pedido.status.rotulo }}</span>
+                      @if (pedido.avaliacao; as a) {
+                        <span class="avaliado" [title]="a.comentario ?? 'Nota do cliente'">★ {{ a.nota }}</span>
+                      }
+                    </td>
                     <td class="num">{{ pedido.criado_em | date: 'dd/MM HH:mm' }}</td>
                     <td class="acoes-linha">
                       <button
@@ -126,7 +131,16 @@ const FILTROS: { valor: FiltroPedidos['status']; nome: string }[] = [
                           @if (pedido.finalizado_em) {
                             e encerrado às {{ pedido.finalizado_em | date: 'HH:mm' }}
                           }
+                          @if (pedido.desconto) {
+                            · desconto de {{ pedido.desconto | dinheiro }}{{ pedido.cupom ? ' (cupom ' + pedido.cupom + ')' : '' }}
+                          }
                         </p>
+                        @if (pedido.avaliacao; as a) {
+                          <p class="avaliacao-linha">
+                            <span class="avaliado">{{ '★'.repeat(a.nota) }}</span>
+                            {{ a.comentario ? '“' + a.comentario + '”' : 'Avaliou sem comentário.' }}
+                          </p>
+                        }
                         @if (podeCancelar && !encerrado(pedido)) {
                           <div class="cancelar">
                             @if (cancelando() === pedido.id) {
@@ -188,6 +202,9 @@ const FILTROS: { valor: FiltroPedidos['status']; nome: string }[] = [
     .tabela td:nth-child(6) .selo { margin-left: 0; }
     .itens { color: var(--grafite); white-space: nowrap; }
     tr.aberta td { border-bottom-color: transparent; background: #faf9f7; }
+    .avaliado { margin-left: var(--espaco-2); color: var(--brasa-escura); font-weight: 750; white-space: nowrap; }
+    .avaliacao-linha { margin-top: var(--espaco-2); }
+    .avaliacao-linha .avaliado { margin: 0 var(--espaco-2) 0 0; }
     tr.detalhe td { background: #faf9f7; padding-top: 0; }
     tr.detalhe ul { display: grid; gap: 0.4rem; margin: 0 0 0.5rem; padding: 0.75rem 1rem; list-style: none; border-left: 3px solid var(--tinta); background: var(--papel); border-radius: 0 8px 8px 0; }
     tr.detalhe li { display: flex; justify-content: space-between; gap: var(--espaco-4); }
