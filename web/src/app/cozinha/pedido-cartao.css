@@ -192,6 +192,12 @@
   opacity: 0.4;
 }
 
+.secundarias {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .confirmar {
   display: grid;
   gap: var(--espaco-3);

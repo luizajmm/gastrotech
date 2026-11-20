@@ -212,3 +212,42 @@ summary .preco {
     font-size: 0.8rem;
   }
 }
+
+/* notebook: código menor e os dois botões lado a lado, pra caber sem rolar */
+@media (orientation: landscape) and (min-width: 701px) and (max-height: 900px) {
+  .tela {
+    gap: var(--espaco-4);
+    padding-top: var(--espaco-5);
+  }
+
+  .codigo {
+    font-size: clamp(4rem, 17dvh, 9rem);
+  }
+
+  .saudacao,
+  .instrucao {
+    font-size: 1.1rem;
+  }
+
+  .pagar-caixa {
+    padding: var(--espaco-3) var(--espaco-4);
+  }
+
+  .pagar-caixa strong {
+    font-size: 1.2rem;
+  }
+
+  .saida {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--espaco-4);
+  }
+
+  .saida .btn {
+    min-height: 3.5rem;
+    font-size: 1.1rem;
+  }
+
+  .saida p {
+    grid-column: 1 / -1;
+  }
+}

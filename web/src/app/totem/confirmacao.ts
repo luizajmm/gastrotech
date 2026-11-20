@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { catchError, EMPTY, switchMap } from 'rxjs';
+import { Impressao } from '../core/impressao';
+import { Loja } from '../core/loja';
 import { Acompanhamento } from '../core/modelos';
 import { TotemApi } from '../core/totem-api';
 import { DinheiroPipe } from '../shared/dinheiro.pipe';
@@ -22,6 +24,9 @@ export class Confirmacao implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   readonly codigo = input.required<string>();
+
+  private impressao = inject(Impressao);
+  private loja = inject(Loja);
 
   protected readonly erro = signal<string | null>(null);
   protected readonly segundos = signal(VOLTAR_EM);
@@ -56,6 +61,10 @@ export class Confirmacao implements OnInit {
   protected readonly pronto = computed(() => this.pedido()?.status.valor === 'pronto');
   protected readonly cancelado = computed(() => this.pedido()?.status.valor === 'cancelado');
   protected readonly pagarNoCaixa = computed(() => this.pedido()?.status_pagamento.valor === 'pendente');
+
+  protected imprimir(pedido: Acompanhamento): void {
+    this.impressao.comprovante(pedido, this.loja.cardapio()?.loja.nome_loja ?? 'GastroTech');
+  }
 
   ngOnInit(): void {
     const relogio = setInterval(() => {

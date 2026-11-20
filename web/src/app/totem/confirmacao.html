@@ -79,6 +79,9 @@
 
     <footer class="saida">
       <a class="btn btn-tinta btn-largo" routerLink="/totem">Fazer novo pedido</a>
+      @if (!cancelado()) {
+        <button class="btn btn-contorno btn-largo" type="button" (click)="imprimir(p)">Imprimir comprovante</button>
+      }
       <p class="texto-suave">Esta tela volta ao início em {{ segundos() }} s</p>
     </footer>
   } @else {

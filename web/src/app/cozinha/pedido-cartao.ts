@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { Impressao } from '../core/impressao';
 import { Pedido } from '../core/modelos';
 import { DinheiroPipe } from '../shared/dinheiro.pipe';
 import { DuracaoPipe } from '../shared/duracao.pipe';
@@ -27,6 +28,8 @@ export class PedidoCartao {
   readonly podeAlterar = input(true);
 
   readonly acao = output<AcaoPedido>();
+
+  protected readonly impressao = inject(Impressao);
 
   protected readonly confirmandoCancelamento = signal(false);
 

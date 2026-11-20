@@ -75,8 +75,11 @@
     >
       {{ principal().texto }}
     </button>
-    <button class="cancelar" type="button" [disabled]="ocupado()" (click)="confirmandoCancelamento.set(true)">
-      Cancelar pedido
-    </button>
+    <div class="secundarias">
+      <button class="cancelar" type="button" (click)="impressao.comanda(pedido())">Imprimir comanda</button>
+      <button class="cancelar" type="button" [disabled]="ocupado()" (click)="confirmandoCancelamento.set(true)">
+        Cancelar pedido
+      </button>
+    </div>
   }
 </footer>
