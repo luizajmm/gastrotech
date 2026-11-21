@@ -18,10 +18,16 @@ Esse é o projeto integrador do meu 2º semestre de Sistemas de Informação no 
 
 ## O que tem
 
-- **Totem:** cardápio por categoria, personalização dos lanches (bebida do combo, ponto da carne...), pagamento por pix, cartão ou dinheiro e acompanhamento do pedido pelo código
-- **Cozinha:** fila com recebidos, em preparo e prontos, tempo de cada pedido, aviso de atraso e campainha quando chega pedido novo
-- **Retirada:** tela pra TV do balcão com os pedidos em preparo e os prontos; quando um fica pronto, o código aparece grande e toca a campainha
-- **Painel:** visão geral do dia, histórico de pedidos (dá pra cancelar por ali também), cadastro de produtos e categorias, financeiro com abertura e fechamento de caixa, equipe e configurações da loja
+- **Totem:** comer aqui ou para levar, cardápio por categoria, personalização dos lanches (bebida do combo, ponto da carne...), cupom de desconto, cartão fidelidade pelo celular, pagamento por pix, cartão ou dinheiro, comprovante impresso e acompanhamento do pedido pelo código (onde o cliente também avalia o pedido)
+- **Cozinha:** fila com recebidos, em preparo e prontos, tempo de cada pedido, aviso de atraso, comanda impressa e um sino que fica tocando até alguém ver o pedido novo
+- **Retirada:** tela pra TV do balcão com os pedidos em preparo e os prontos; quando um fica pronto, o código aparece grande e toca o sino
+- **Painel:**
+  - visão geral do dia com horário de pico, tempo real de preparo e nota dos clientes
+  - histórico de pedidos (dá pra cancelar por ali também)
+  - cardápio com ficha técnica: cada lanche gasta pão, carne, queijo... e o insumo tem estoque próprio
+  - promoções: cupons e o cartão fidelidade
+  - financeiro com abertura e fechamento de caixa e planilha das vendas pro contador
+  - equipe e configurações da loja
 - **Login da equipe** com papéis: cada pessoa só vê e mexe no que é da função dela
 
 ## O que mudou da versão antiga

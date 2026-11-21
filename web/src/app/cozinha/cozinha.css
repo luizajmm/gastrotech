@@ -111,6 +111,10 @@
   font-weight: 650;
 }
 
+.sair {
+  white-space: nowrap;
+}
+
 .som-alerta {
   background: var(--brasa);
   color: var(--tinta);

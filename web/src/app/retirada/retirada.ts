@@ -27,7 +27,7 @@ import { Telas } from '../shared/telas';
             [class.alerta]="som.ligado() && som.bloqueado()"
             (click)="som.alternar()"
           >
-            {{ !som.ligado() ? 'Som desligado' : som.bloqueado() ? 'Toque para ativar o som' : 'Som ligado' }}
+            {{ !som.ligado() ? 'Som desligado' : som.bloqueado() ? 'Ativar som' : 'Som ligado' }}
           </button>
           <span class="relogio">{{ agora() | date: 'HH:mm' }}</span>
         </div>
@@ -80,7 +80,7 @@ import { Telas } from '../shared/telas';
     .marca h1 { font-size: 1.1rem; font-weight: 700; }
     .lado { display: flex; align-items: center; gap: var(--espaco-4); margin-left: auto; }
     .relogio { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-    .som { min-height: 2rem; padding: 0 var(--espaco-3); border: 1px solid #444; border-radius: 999px; background: none; color: #bdbdbd; font: inherit; font-size: 0.85rem; cursor: pointer; }
+    .som { white-space: nowrap; min-height: 2rem; padding: 0 var(--espaco-3); border: 1px solid #444; border-radius: 999px; background: none; color: #bdbdbd; font: inherit; font-size: 0.85rem; cursor: pointer; }
     .som:hover { color: var(--papel); border-color: #777; }
     .som.alerta { border-color: var(--brasa); background: var(--brasa); color: var(--tinta); animation: pisca 1.6s ease-in-out infinite; }
     @keyframes pisca { 50% { opacity: 0.6; } }
