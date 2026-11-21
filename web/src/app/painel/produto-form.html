@@ -42,7 +42,7 @@
         </div>
         <div class="campo">
           <label for="p-categoria">Categoria</label>
-          <select id="p-categoria" (change)="categoriaId.set(valor($event) ? +valor($event) : null)">
+          <select id="p-categoria" [class.invalido]="erros()['categoria_id']" (change)="categoriaId.set(valor($event) ? +valor($event) : null)">
             <option value="" [selected]="!categoriaId()">Sem categoria</option>
             @for (c of categorias(); track c.id) {
               <option [value]="c.id" [selected]="c.id === categoriaId()">{{ c.nome }}</option>
@@ -58,7 +58,10 @@
         </div>
         <div class="campo largo">
           <label for="p-descricao">Descrição no totem</label>
-          <textarea id="p-descricao" rows="2" maxlength="255" [value]="descricao()" (input)="descricao.set(valor($event))"></textarea>
+          <textarea id="p-descricao" rows="2" maxlength="255" [value]="descricao()" (input)="descricao.set(valor($event))" [class.invalido]="erros()['descricao']"></textarea>
+          @if (erros()['descricao']) {
+            <span class="erro-campo">{{ erros()['descricao'] }}</span>
+          }
         </div>
       </div>
     </section>
@@ -68,12 +71,18 @@
       <div class="grade-campos">
         <div class="campo">
           <label for="p-estoque">Estoque (unidades)</label>
-          <input id="p-estoque" type="number" min="0" [value]="estoque()" (input)="estoque.set(valor($event))" />
+          <input id="p-estoque" type="number" min="0" [value]="estoque()" (input)="estoque.set(valor($event))"  [class.invalido]="erros()['estoque']"/>
+          @if (erros()['estoque']) {
+            <span class="erro-campo">{{ erros()['estoque'] }}</span>
+          }
           <span class="ajuda">Com zero, o item some do totem.</span>
         </div>
         <div class="campo">
           <label for="p-tempo">Tempo de preparo (min)</label>
-          <input id="p-tempo" type="number" min="1" [value]="tempo()" (input)="tempo.set(valor($event))" />
+          <input id="p-tempo" type="number" min="1" [value]="tempo()" (input)="tempo.set(valor($event))"  [class.invalido]="erros()['tempo_preparo_min']"/>
+          @if (erros()['tempo_preparo_min']) {
+            <span class="erro-campo">{{ erros()['tempo_preparo_min'] }}</span>
+          }
           <span class="ajuda">Usado para avisar atraso na cozinha.</span>
         </div>
         <div class="campo">
@@ -185,28 +194,46 @@
       <div class="grade-campos">
         <div class="campo">
           <label for="p-porcao">Porção</label>
-          <input id="p-porcao" placeholder="Ex.: Copo 400ml" [value]="porcao()" (input)="porcao.set(valor($event))" />
+          <input id="p-porcao" placeholder="Ex.: Copo 400ml" [value]="porcao()" (input)="porcao.set(valor($event))"  [class.invalido]="erros()['porcao']"/>
+          @if (erros()['porcao']) {
+            <span class="erro-campo">{{ erros()['porcao'] }}</span>
+          }
         </div>
         <div class="campo">
           <label for="p-calorias">Calorias (kcal)</label>
-          <input id="p-calorias" type="number" min="0" [value]="calorias()" (input)="calorias.set(valor($event))" />
+          <input id="p-calorias" type="number" min="0" [value]="calorias()" (input)="calorias.set(valor($event))"  [class.invalido]="erros()['calorias']"/>
+          @if (erros()['calorias']) {
+            <span class="erro-campo">{{ erros()['calorias'] }}</span>
+          }
         </div>
         <div class="campo">
           <label for="p-alergenos">Alergênicos</label>
-          <input id="p-alergenos" placeholder="Glúten, Leite" [value]="alergenos()" (input)="alergenos.set(valor($event))" />
+          <input id="p-alergenos" placeholder="Glúten, Leite" [value]="alergenos()" (input)="alergenos.set(valor($event))"  [class.invalido]="erros()['alergenos']"/>
+          @if (erros()['alergenos']) {
+            <span class="erro-campo">{{ erros()['alergenos'] }}</span>
+          }
         </div>
         <div class="campo largo">
           <label for="p-ingredientes">Ingredientes</label>
-          <textarea id="p-ingredientes" rows="2" [value]="ingredientes()" (input)="ingredientes.set(valor($event))"></textarea>
+          <textarea id="p-ingredientes" rows="2" [value]="ingredientes()" (input)="ingredientes.set(valor($event))" [class.invalido]="erros()['ingredientes']"></textarea>
+          @if (erros()['ingredientes']) {
+            <span class="erro-campo">{{ erros()['ingredientes'] }}</span>
+          }
         </div>
         <div class="campo">
           <label for="p-tags">Selos no totem</label>
-          <input id="p-tags" placeholder="Mais vendido, Artesanal" [value]="tags()" (input)="tags.set(valor($event))" />
+          <input id="p-tags" placeholder="Mais vendido, Artesanal" [value]="tags()" (input)="tags.set(valor($event))"  [class.invalido]="erros()['tags']"/>
+          @if (erros()['tags']) {
+            <span class="erro-campo">{{ erros()['tags'] }}</span>
+          }
           <span class="ajuda">O primeiro aparece sobre a foto.</span>
         </div>
         <div class="campo">
           <label for="p-destaques">Destaques</label>
-          <input id="p-destaques" placeholder="Pão brioche, Bacon" [value]="destaques()" (input)="destaques.set(valor($event))" />
+          <input id="p-destaques" placeholder="Pão brioche, Bacon" [value]="destaques()" (input)="destaques.set(valor($event))"  [class.invalido]="erros()['destaques']"/>
+          @if (erros()['destaques']) {
+            <span class="erro-campo">{{ erros()['destaques'] }}</span>
+          }
         </div>
       </div>
     </section>

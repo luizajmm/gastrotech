@@ -246,8 +246,17 @@ export class ProdutoFormJanela implements OnInit {
       this.salvo.emit(produto);
     } catch (e) {
       if (e instanceof FalhaFormulario) {
-        this.erros.set(e.campos);
-        this.erroGeral.set(Object.keys(e.campos).length ? 'Confira os campos destacados.' : e.message);
+        // "destaques.2" vira "destaques", "ficha.0.quantidade" vira "ficha": cada erro aparece embaixo do campo certo
+        const campos: Record<string, string> = { ...e.campos };
+        for (const [chave, mensagem] of Object.entries(e.campos)) {
+          const base = /^personalizacoes\.\d+\.(nome|opcoes)/.exec(chave)?.[0] ?? chave.split('.')[0];
+          campos[base] ??= mensagem;
+        }
+        this.erros.set(campos);
+        const mensagens = [...new Set(Object.values(e.campos))];
+        this.erroGeral.set(mensagens.length === 1 ? mensagens[0] : mensagens.length ? 'Confira os campos marcados em vermelho.' : e.message);
+        // o campo com problema pode estar lá embaixo do formulário
+        setTimeout(() => document.querySelector('dialog .invalido, dialog .erro-campo')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
       } else {
         this.erroGeral.set('Não foi possível salvar o produto.');
       }
