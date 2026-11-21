@@ -1,1 +1,0 @@
-import{Ut as eE}from"./chunk-B2ljKddz.js";var o=new Intl.NumberFormat(`pt-BR`,{style:`currency`,currency:`BRL`});var t=class r{transform(e){return o.format(e??0)}static ɵfac=function(i){return new(i||r)};static ɵpipe=eE({name:`dinheiro`,type:r,pure:!0})};export{t};

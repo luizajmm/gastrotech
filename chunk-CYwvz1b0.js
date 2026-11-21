@@ -1,0 +1,1 @@
+import{Rn as tE}from"./chunk-yeC_gSU0.js";var o=new Intl.NumberFormat(`pt-BR`,{style:`currency`,currency:`BRL`});function m(r){return o.format(r??0)}var t=class r{transform(n){return m(n)}static ɵfac=function(i){return new(i||r)};static ɵpipe=tE({name:`dinheiro`,type:r,pure:!0})};export{t as n,m as t};
