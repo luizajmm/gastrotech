@@ -54,6 +54,15 @@ function rotear(banco: BancoDemo, req: HttpRequest<unknown>, rota: string): Obse
     );
   }
 
+  if (e('POST', /^\/totem\/pedidos\/[^/]+\/avaliacao$/)) {
+    const codigo = decodeURIComponent(rota.split('/')[3]);
+    return comData(agora(() => banco.acompanhamento(banco.avaliarPedido(codigo, Number(corpo['nota']), corpo['comentario'] ?? null))));
+  }
+  if (e('GET', /^\/totem\/cupons\/[^/]+$/)) {
+    return comData(agora(() => banco.conferirCupom(decodeURIComponent(rota.split('/')[3]), Number(p.get('subtotal') ?? 0))));
+  }
+  if (e('GET', /^\/totem\/fidelidade\/[^/]+$/)) return comData(agora(() => banco.consultarFidelidade(decodeURIComponent(rota.split('/')[3]))));
+
   // login
   if (e('POST', /^\/login$/)) return agora(() => ({ token: 'demonstracao', usuario: banco.autenticar(corpo['email'], corpo['senha']) }));
   if (e('POST', /^\/logout$/)) return agora(() => ({}));
@@ -101,7 +110,20 @@ function rotear(banco: BancoDemo, req: HttpRequest<unknown>, rota: string): Obse
   if (e('POST', /^\/produtos\/\d+\/imagem$/)) return comData(banco.enviarImagem(id, (req.body as FormData).get('imagem') as File));
   if (e('DELETE', /^\/produtos\/\d+\/imagem$/)) return comData(banco.removerImagem(id));
 
+  // promoções e insumos
+  if (e('GET', /^\/cupons$/)) return comData(banco.cupons());
+  if (e('POST', /^\/cupons$/)) return comData(banco.salvarCupom(corpo as any));
+  if (e('PUT', /^\/cupons\/\d+$/)) return comData(banco.salvarCupom(corpo as any, id));
+  if (e('DELETE', /^\/cupons\/\d+$/)) return banco.excluirCupom(id).pipe(map(() => ({})));
+  if (e('GET', /^\/clientes$/)) return comData(banco.clientesFidelidade());
+  if (e('GET', /^\/insumos$/)) return comData(banco.insumos());
+  if (e('POST', /^\/insumos$/)) return comData(banco.salvarInsumo(corpo as any));
+  if (e('PUT', /^\/insumos\/\d+$/)) return comData(banco.salvarInsumo(corpo as any, id));
+  if (e('POST', /^\/insumos\/\d+\/entrada$/)) return comData(banco.entradaInsumo(id, Number(corpo['quantidade'])));
+  if (e('DELETE', /^\/insumos\/\d+$/)) return banco.excluirInsumo(id).pipe(map(() => ({})));
+
   // financeiro
+  if (e('GET', /^\/financeiro\/vendas\/pedidos$/)) return comData(banco.pedidosPagos(p.get('data_inicio') ?? '', p.get('data_fim') ?? ''));
   if (e('GET', /^\/financeiro\/vendas$/)) return comData(banco.vendas(p.get('data_inicio') ?? '', p.get('data_fim') ?? ''));
   if (e('GET', /^\/financeiro\/caixa$/)) return comData(banco.caixa());
   if (e('GET', /^\/financeiro\/caixas$/)) return comData(banco.historicoCaixas());

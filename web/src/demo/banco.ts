@@ -7,8 +7,17 @@ import {
   CaixaAtual,
   Cardapio,
   CategoriaPainel,
+  ClientesFidelidade,
   Configuracoes,
+  ConsultaFidelidade,
+  Consumo,
+  Cupom,
+  CupomAplicado,
+  CupomForm,
   Dashboard,
+  Insumo,
+  InsumoForm,
+  ItemFicha,
   FiltroPedidos,
   FormaPagamento,
   ItemPedido,
@@ -70,6 +79,16 @@ const dia = (d: Date) => {
 };
 const centavos = (v: number) => Math.round(v * 100) / 100;
 
+const CONSUMO: Record<Consumo, string> = { local: 'Comer aqui', viagem: 'Para levar' };
+const COMENTARIOS: Record<number, string[]> = {
+  5: ['Lanche chegou quentinho, perfeito!', 'Melhor smash da região.', 'Rápido e muito bom.', 'A batata suprema é sensacional.'],
+  4: ['Muito bom, só demorou um pouquinho.', 'Gostei, voltaria.', 'Bom, mas podia ter mais molho.'],
+  3: ['Ok, nada demais.', 'A batata veio meio murcha.'],
+  2: ['Demorou bastante pra ficar pronto.', 'Veio sem o molho que eu pedi.'],
+};
+// movimento concentrado no almoço e na janta
+const HORARIOS = [11, 12, 12, 12, 13, 13, 14, 15, 16, 17, 18, 19, 19, 19, 20, 20, 21];
+
 const ETAPAS: StatusPedido[] = ['recebido', 'em_preparo', 'pronto', 'retirado'];
 const PROXIMO: Partial<Record<StatusPedido, StatusPedido>> = { recebido: 'em_preparo', em_preparo: 'pronto', pronto: 'retirado' };
 
@@ -93,7 +112,40 @@ export class BancoDemo {
     logo_url: CARDAPIO_DEMO.loja.logo_url,
     tempo_espera_min: CARDAPIO_DEMO.loja.tempo_espera_min,
     estoque_baixo: 10,
+    fidelidade: { ativa: true, meta: 10, premio: 15 },
   };
+  private cuponsDb: Cupom[] = [
+    this.cupom(1, 'BEMVINDO10', '10% no primeiro pedido', 'percentual', 10, null, null, null, true),
+    this.cupom(2, 'COMBO5', 'R$ 5 de desconto acima de R$ 30', 'valor', 5, 30, dia(new Date(Date.now() + 30 * 86_400_000)), 100, true),
+    this.cupom(3, 'INAUGURACAO', 'Semana de inauguração', 'percentual', 15, null, dia(new Date(Date.now() - 10 * 86_400_000)), null, false),
+  ];
+  // celulares de mentira; o primeiro já pode trocar o prêmio
+  private clientesDb = [
+    { id: 1, telefone: '11900000001', selos: 10, resgates: 1, ultimo_pedido_em: new Date(Date.now() - 86_400_000).toISOString() },
+    { id: 2, telefone: '11900000002', selos: 6, resgates: 0, ultimo_pedido_em: new Date(Date.now() - 2 * 86_400_000).toISOString() },
+    { id: 3, telefone: '21900000003', selos: 2, resgates: 0, ultimo_pedido_em: new Date(Date.now() - 4 * 86_400_000).toISOString() },
+  ];
+  // o cheddar começa abaixo do mínimo pra aparecer o aviso
+  private insumosDb: Insumo[] = [
+    this.insumo(1, 'Pão brioche', 'un', 80, 20),
+    this.insumo(2, 'Blend smash 90g', 'un', 120, 30),
+    this.insumo(3, 'Bacon', 'g', 1800, 500),
+    this.insumo(4, 'Queijo cheddar', 'un', 26, 30),
+    this.insumo(5, 'Batata palito', 'g', 9000, 2000),
+    this.insumo(6, 'Sorvete de chocolate', 'ml', 4000, 1000),
+  ];
+  private fichas = new Map<number, { insumo_id: number; quantidade: number }[]>(
+    Object.entries({
+      'X-Bacon Artesanal': [[1, 1], [2, 2], [3, 40], [4, 2]],
+      'Combo Smash': [[1, 1], [2, 2], [4, 1], [5, 150]],
+      'Batata Suprema': [[5, 300], [3, 30], [4, 1]],
+      'Milkshake Chocolate': [[6, 250]],
+    })
+      .map(([nome, linhas]) => [this.produtosDb.find((p) => p.nome === nome)?.id ?? 0, linhas.map(([insumo_id, quantidade]) => ({ insumo_id, quantidade }))] as const)
+      .filter(([id]) => id > 0),
+  );
+  // o que precisa ser desfeito se o pedido for cancelado
+  private extrasPedido = new Map<number, { cupomId?: number; clienteId?: number; resgate?: boolean }>();
   private totensDb: Totem[] = [
     { id: 1, codigo: 'TOTEM-01', localizacao: 'Entrada principal', status: { valor: 'online', rotulo: 'Online' } },
     { id: 2, codigo: 'TOTEM-02', localizacao: 'Balcão lateral', status: { valor: 'online', rotulo: 'Online' } },
@@ -161,10 +213,57 @@ export class BancoDemo {
             .filter((p) => p.estoque <= this.config.estoque_baixo)
             .sort((a, b) => a.estoque - b.estoque)
             .slice(0, 6),
+          insumos: this.insumosDb.filter((i) => i.acabando).slice(0, 6),
         },
+        operacao: this.operacao(),
+        avaliacoes: this.avaliacoes(),
         recentes: [...this.pedidosDb].sort((a, b) => Date.parse(b.criado_em) - Date.parse(a.criado_em)).slice(0, 6),
       };
     });
+  }
+
+  // mesmo cálculo do DashboardController: últimos 7 dias, sem cancelados
+  private operacao(): Dashboard['operacao'] {
+    const inicio = new Date();
+    inicio.setDate(inicio.getDate() - 6);
+    inicio.setHours(0, 0, 0, 0);
+    const semana = this.pedidosDb.filter((p) => Date.parse(p.criado_em) >= inicio.getTime() && p.status.valor !== 'cancelado');
+
+    const porHora = new Map<number, number>();
+    semana.forEach((p) => porHora.set(new Date(p.criado_em).getHours(), (porHora.get(new Date(p.criado_em).getHours()) ?? 0) + 1));
+    const horas = [...porHora.keys()];
+    const de = Math.min(11, ...horas);
+    const ate = Math.max(22, ...horas);
+
+    const prontos = semana.filter((p) => p.pronto_em);
+    const minutos = prontos.map((p) => Math.max(0, Math.floor((Date.parse(p.pronto_em!) - Date.parse(p.criado_em)) / 60_000)));
+    const media = (lista: number[]) => (lista.length ? Math.round(lista.reduce((s, n) => s + n, 0) / lista.length) : null);
+
+    return {
+      por_hora: Array.from({ length: ate - de + 1 }, (_, i) => ({ hora: de + i, pedidos: porHora.get(de + i) ?? 0 })),
+      preparo: {
+        pedidos: prontos.length,
+        medio_min: media(minutos),
+        previsto_min: media(prontos.map((p) => p.tempo_estimado_min)),
+        no_prazo_pct: prontos.length ? Math.round((prontos.filter((p, i) => minutos[i] <= p.tempo_estimado_min).length / prontos.length) * 100) : null,
+      },
+    };
+  }
+
+  private avaliacoes(): Dashboard['avaliacoes'] {
+    const limite = Date.now() - 30 * 86_400_000;
+    const avaliados = this.pedidosDb.filter((p) => p.avaliacao && Date.parse(p.avaliacao.em ?? p.criado_em) >= limite);
+    const notas = avaliados.map((p) => p.avaliacao!.nota);
+    return {
+      media: notas.length ? Math.round((notas.reduce((s, n) => s + n, 0) / notas.length) * 10) / 10 : null,
+      quantidade: notas.length,
+      por_nota: [5, 4, 3, 2, 1].map((nota) => ({ nota, quantidade: notas.filter((n) => n === nota).length })),
+      comentarios: avaliados
+        .filter((p) => p.avaliacao!.comentario)
+        .sort((a, b) => Date.parse(b.avaliacao!.em ?? '') - Date.parse(a.avaliacao!.em ?? ''))
+        .slice(0, 4)
+        .map((p) => ({ codigo: p.codigo, nome_cliente: p.nome_cliente, nota: p.avaliacao!.nota, comentario: p.avaliacao!.comentario!, em: p.avaliacao!.em! })),
+    };
   }
 
   pedidos(filtro: FiltroPedidos): Observable<Paginado<Pedido>> {
@@ -223,8 +322,26 @@ export class BancoDemo {
         .filter((p) => filtro.situacao !== 'ativos' || p.ativo)
         .filter((p) => filtro.situacao !== 'inativos' || !p.ativo)
         .filter((p) => filtro.situacao !== 'estoque_baixo' || p.estoque <= this.config.estoque_baixo)
-        .sort((a, b) => a.nome.localeCompare(b.nome));
+        .sort((a, b) => a.nome.localeCompare(b.nome))
+        .map((p) => this.comFicha(p));
     });
+  }
+
+  private comFicha(p: ProdutoPainel): ProdutoPainel {
+    const ficha: ItemFicha[] = (this.fichas.get(p.id) ?? []).map((l) => {
+      const insumo = this.insumosDb.find((i) => i.id === l.insumo_id)!;
+      return { insumo_id: l.insumo_id, nome: insumo.nome, unidade: insumo.unidade, quantidade: l.quantidade };
+    });
+    return { ...p, ficha, disponivel: this.disponivel(p) };
+  }
+
+  // o menor entre o estoque do produto e o que os insumos da ficha ainda rendem
+  private disponivel(p: { id: number; estoque: number }): number {
+    const rende = (this.fichas.get(p.id) ?? []).map((l) => {
+      const insumo = this.insumosDb.find((i) => i.id === l.insumo_id);
+      return insumo ? Math.floor(insumo.estoque / l.quantidade + 1e-9) : Infinity;
+    });
+    return Math.min(p.estoque, ...rende);
   }
 
   salvarProduto(dados: ProdutoForm, id?: number): Observable<ProdutoPainel> {
@@ -236,19 +353,28 @@ export class BancoDemo {
         if (!g.nome.trim()) campos[`personalizacoes.${i}.nome`] = 'Dê um nome ao grupo.';
         if (g.opcoes.length < 2) campos[`personalizacoes.${i}.opcoes`] = 'Cada personalização precisa de pelo menos 2 opções.';
       });
+      (dados.ficha ?? []).forEach((l, i) => {
+        if (!(l.quantidade > 0)) campos[`ficha.${i}.quantidade`] = 'A quantidade do insumo precisa ser maior que zero.';
+      });
+      if (new Set((dados.ficha ?? []).map((l) => l.insumo_id)).size !== (dados.ficha ?? []).length) {
+        campos['ficha'] = 'O mesmo insumo aparece duas vezes na ficha.';
+      }
       if (Object.keys(campos).length) throw new FalhaFormulario(Object.values(campos)[0], campos);
 
       const anterior = this.produtosDb.find((p) => p.id === id);
       const categoria = this.categoriasDb.find((c) => c.id === dados.categoria_id);
+      const { ficha, ...resto } = dados;
       const produto: ProdutoPainel = {
+        ...(anterior ?? {}),
         id: id ?? this.novoId(),
         imagem_url: anterior?.imagem_url ?? null,
-        ...dados,
+        ...resto,
         nome: dados.nome.trim(),
         categoria: categoria ? { id: categoria.id, nome: categoria.nome } : null,
-      };
+      } as ProdutoPainel;
+      if (ficha) this.fichas.set(produto.id, ficha.map((l) => ({ insumo_id: l.insumo_id, quantidade: l.quantidade })));
       this.produtosDb = id ? this.produtosDb.map((p) => (p.id === id ? produto : p)) : [...this.produtosDb, produto];
-      return produto;
+      return this.comFicha(produto);
     });
   }
 
@@ -411,14 +537,27 @@ export class BancoDemo {
     return this.responder(() => ({ ...this.config }));
   }
 
-  salvarConfiguracoes(dados: Partial<Configuracoes>): Observable<Configuracoes> {
+  salvarConfiguracoes(
+    dados: Partial<Omit<Configuracoes, 'fidelidade'>> & { fidelidade_ativa?: boolean; fidelidade_meta?: number; fidelidade_premio?: number },
+  ): Observable<Configuracoes> {
     return this.responder(() => {
       const campos: Record<string, string> = {};
       if (dados.nome_loja !== undefined && !dados.nome_loja.trim()) campos['nome_loja'] = 'O nome da loja é obrigatório.';
       if (dados.tempo_espera_min !== undefined && !(dados.tempo_espera_min >= 1)) campos['tempo_espera_min'] = 'Informe pelo menos 1 minuto.';
       if (dados.estoque_baixo !== undefined && !(dados.estoque_baixo >= 0)) campos['estoque_baixo'] = 'Informe um número igual ou maior que zero.';
+      if (dados.fidelidade_meta !== undefined && !(dados.fidelidade_meta >= 2 && dados.fidelidade_meta <= 50)) campos['fidelidade_meta'] = 'Use de 2 a 50 pedidos.';
+      if (dados.fidelidade_premio !== undefined && !(dados.fidelidade_premio >= 1 && dados.fidelidade_premio <= 500)) campos['fidelidade_premio'] = 'Use um desconto de R$ 1 a R$ 500.';
       if (Object.keys(campos).length) throw new FalhaFormulario(Object.values(campos)[0], campos);
-      this.config = { ...this.config, ...dados };
+      const { fidelidade_ativa, fidelidade_meta, fidelidade_premio, ...loja } = dados;
+      this.config = {
+        ...this.config,
+        ...loja,
+        fidelidade: {
+          ativa: fidelidade_ativa ?? this.config.fidelidade.ativa,
+          meta: fidelidade_meta ?? this.config.fidelidade.meta,
+          premio: fidelidade_premio !== undefined ? centavos(fidelidade_premio) : this.config.fidelidade.premio,
+        },
+      };
       return { ...this.config };
     });
   }
@@ -475,6 +614,7 @@ export class BancoDemo {
         frase_totem: this.config.frase_totem,
         logo_url: this.config.logo_url,
         tempo_espera_min: this.config.tempo_espera_min,
+        fidelidade: { ...this.config.fidelidade },
       },
       categorias: [...this.categoriasDb]
         .filter((c) => c.ativo)
@@ -482,9 +622,9 @@ export class BancoDemo {
         .map((c) => ({
           ...c,
           produtos: this.produtosDb
-            .filter((p) => p.categoria_id === c.id && p.ativo && p.estoque > 0)
+            .filter((p) => p.categoria_id === c.id && p.ativo && this.disponivel(p) > 0)
             .sort((a, b) => Number(b.destaque) - Number(a.destaque) || a.nome.localeCompare(b.nome))
-            .map(({ categoria: _, ...p }) => structuredClone(p)),
+            .map(({ categoria: _, ficha: __, disponivel: ___, ...p }) => ({ ...structuredClone(p), estoque: this.disponivel(p) })),
         }))
         .filter((c) => c.produtos.length),
     };
@@ -508,6 +648,40 @@ export class BancoDemo {
       }
     }
 
+    // insumos que o pedido gasta, pela ficha de cada produto
+    const gasto = new Map<number, number>();
+    const produtoDoInsumo = new Map<number, string>();
+    for (const [produtoId, quantidade] of reservado) {
+      for (const l of this.fichas.get(produtoId) ?? []) {
+        gasto.set(l.insumo_id, (gasto.get(l.insumo_id) ?? 0) + l.quantidade * quantidade);
+        if (!produtoDoInsumo.has(l.insumo_id)) produtoDoInsumo.set(l.insumo_id, this.produtosDb.find((p) => p.id === produtoId)!.nome);
+      }
+    }
+    for (const [insumoId, quantidade] of gasto) {
+      const insumo = this.insumosDb.find((i) => i.id === insumoId)!;
+      if (insumo.estoque + 1e-9 < quantidade) throw new FalhaFormulario(`${produtoDoInsumo.get(insumoId)} acabou por agora (faltou ${insumo.nome}).`);
+    }
+
+    const subtotal = centavos(
+      novo.itens.reduce((s, i) => s + this.produtosDb.find((p) => p.id === i.produto_id)!.preco * i.quantidade, 0),
+    );
+
+    const cupom = novo.cupom?.trim() ? this.validarCupom(novo.cupom, subtotal) : null;
+    let desconto = cupom ? this.descontoDoCupom(cupom, subtotal) : 0;
+
+    const telefone = this.config.fidelidade.ativa && novo.telefone?.trim() ? this.telefoneValido(novo.telefone) : null;
+    let cliente = telefone ? this.clientesDb.find((c) => c.telefone === telefone) : undefined;
+    if (telefone && !cliente) {
+      cliente = { id: Math.max(0, ...this.clientesDb.map((c) => c.id)) + 1, telefone, selos: 0, resgates: 0, ultimo_pedido_em: '' };
+      this.clientesDb.push(cliente);
+    }
+    const resgate = !!cliente && !!novo.resgatar_premio;
+    if (resgate) {
+      if (cupom) throw new FalhaFormulario('Use o cupom ou o prêmio do cartão fidelidade, os dois juntos não dá.', { cupom: 'Use o cupom ou o prêmio.' });
+      if (cliente!.selos < this.config.fidelidade.meta) throw new FalhaFormulario('Ainda faltam selos para o prêmio do cartão fidelidade.', { telefone: 'Faltam selos.' });
+      desconto = centavos(Math.min(this.config.fidelidade.premio, subtotal));
+    }
+
     const id = Math.max(0, ...this.pedidosDb.map((p) => p.id)) + 1;
     const agora = new Date().toISOString();
     const pago = novo.forma_pagamento !== 'dinheiro';
@@ -526,6 +700,14 @@ export class BancoDemo {
     });
 
     this.produtosDb = this.produtosDb.map((p) => (reservado.has(p.id) ? { ...p, estoque: p.estoque - reservado.get(p.id)! } : p));
+    this.mexerInsumos(gasto, -1);
+    if (cupom) this.cuponsDb = this.cuponsDb.map((c) => (c.id === cupom.id ? { ...c, usos: c.usos + 1 } : c));
+    if (cliente) {
+      cliente.selos = resgate ? cliente.selos - this.config.fidelidade.meta : cliente.selos + 1;
+      cliente.resgates += resgate ? 1 : 0;
+      cliente.ultimo_pedido_em = agora;
+    }
+    this.extrasPedido.set(id, { cupomId: cupom?.id, clienteId: cliente?.id, resgate });
 
     const pedido: Pedido = {
       id,
@@ -535,7 +717,13 @@ export class BancoDemo {
       proximo_status: { valor: 'em_preparo', rotulo: STATUS.em_preparo },
       status_pagamento: pago ? { valor: 'pago', rotulo: 'Pago' } : { valor: 'pendente', rotulo: 'Pendente' },
       forma_pagamento: { valor: novo.forma_pagamento, rotulo: FORMAS[novo.forma_pagamento] },
-      subtotal: centavos(itens.reduce((s, i) => s + i.total, 0)),
+      consumo: { valor: novo.consumo ?? 'local', rotulo: CONSUMO[novo.consumo ?? 'local'] },
+      subtotal,
+      desconto,
+      total: centavos(subtotal - desconto),
+      cupom: cupom?.codigo ?? null,
+      fidelidade: cliente ? { resgate } : null,
+      avaliacao: null,
       tempo_estimado_min: Math.max(
         ...novo.itens.map((i) => this.produtosDb.find((p) => p.id === i.produto_id)!.tempo_preparo_min),
       ),
@@ -575,11 +763,27 @@ export class BancoDemo {
   cancelarPedido(id: number): Pedido {
     return this.mudarPedido(id, (p) => {
       if (['retirado', 'cancelado'].includes(p.status.valor)) throw new FalhaFormulario('Este pedido já foi encerrado.');
+      const devolver = new Map<number, number>();
       for (const item of p.itens) {
         this.produtosDb = this.produtosDb.map((prod) =>
           prod.id === item.produto_id ? { ...prod, estoque: prod.estoque + item.quantidade } : prod,
         );
+        for (const l of this.fichas.get(item.produto_id ?? 0) ?? []) {
+          devolver.set(l.insumo_id, (devolver.get(l.insumo_id) ?? 0) + l.quantidade * item.quantidade);
+        }
       }
+      this.mexerInsumos(devolver, 1);
+
+      // o uso do cupom e o selo (ou o prêmio) voltam
+      const extras = this.extrasPedido.get(p.id);
+      if (extras?.cupomId) this.cuponsDb = this.cuponsDb.map((c) => (c.id === extras.cupomId ? { ...c, usos: Math.max(0, c.usos - 1) } : c));
+      const cliente = this.clientesDb.find((c) => c.id === extras?.clienteId);
+      if (cliente) {
+        cliente.selos = extras!.resgate ? cliente.selos + this.config.fidelidade.meta : Math.max(0, cliente.selos - 1);
+        cliente.resgates = extras!.resgate ? Math.max(0, cliente.resgates - 1) : cliente.resgates;
+      }
+      this.extrasPedido.delete(p.id);
+
       return {
         ...p,
         status: { valor: 'cancelado', rotulo: STATUS.cancelado },
@@ -607,8 +811,17 @@ export class BancoDemo {
       status: pedido.status,
       status_pagamento: pedido.status_pagamento,
       forma_pagamento: pedido.forma_pagamento,
+      consumo: pedido.consumo,
       etapas: ETAPAS.map((e, i) => ({ valor: e, rotulo: STATUS[e], concluida: atual >= 0 && i <= atual })),
       subtotal: pedido.subtotal,
+      desconto: pedido.desconto,
+      total: pedido.total,
+      cupom: pedido.cupom,
+      avaliacao: pedido.avaliacao?.nota ?? null,
+      fidelidade: (() => {
+        const cliente = this.clientesDb.find((c) => c.id === this.extrasPedido.get(pedido.id)?.clienteId);
+        return cliente ? { selos: cliente.selos, meta: this.config.fidelidade.meta, resgate: !!pedido.fidelidade?.resgate } : null;
+      })(),
       tempo_estimado_min: pedido.tempo_estimado_min,
       minutos_decorridos: Math.max(0, Math.floor((Date.now() - Date.parse(pedido.criado_em)) / 60_000)),
       itens: pedido.itens,
@@ -622,6 +835,192 @@ export class BancoDemo {
     const novo = mudanca(atual);
     this.pedidos$.next(this.pedidosDb.map((p) => (p.id === id ? novo : p)));
     return novo;
+  }
+
+  avaliarPedido(codigo: string, nota: number, comentario: string | null): Pedido {
+    const pedido = this.pedidosDb.find((p) => p.codigo === codigo.trim().toUpperCase());
+    if (!pedido) throw new FalhaFormulario('Pedido não encontrado.');
+    if (!(nota >= 1 && nota <= 5)) throw new FalhaFormulario('Escolha de 1 a 5 estrelas.', { nota: 'Escolha de 1 a 5 estrelas.' });
+    if (!['pronto', 'retirado'].includes(pedido.status.valor)) throw new FalhaFormulario('Dá para avaliar quando o pedido ficar pronto.', { nota: 'Ainda não.' });
+    if (pedido.avaliacao) throw new FalhaFormulario('Este pedido já foi avaliado. Obrigado!', { nota: 'Já avaliado.' });
+    return this.mudarPedido(pedido.id, (p) => ({
+      ...p,
+      avaliacao: { nota, comentario: comentario?.trim() || null, em: new Date().toISOString() },
+    }));
+  }
+
+  /* ---------- Promoções ---------- */
+
+  conferirCupom(codigo: string, subtotal: number): CupomAplicado {
+    const cupom = this.validarCupom(codigo, subtotal);
+    return {
+      codigo: cupom.codigo,
+      descricao: cupom.descricao,
+      tipo: cupom.tipo.valor,
+      valor: cupom.valor,
+      pedido_minimo: cupom.pedido_minimo,
+      desconto: this.descontoDoCupom(cupom, subtotal),
+    };
+  }
+
+  cupons(): Observable<Cupom[]> {
+    return this.responder(() =>
+      [...this.cuponsDb].sort((a, b) => Number(b.ativo) - Number(a.ativo) || a.codigo.localeCompare(b.codigo)),
+    );
+  }
+
+  salvarCupom(dados: CupomForm, id?: number): Observable<Cupom> {
+    return this.responder(() => {
+      const codigo = dados.codigo.trim().toUpperCase();
+      const campos: Record<string, string> = {};
+      if (!/^[A-Z0-9_-]{3,30}$/.test(codigo)) campos['codigo'] = 'Use de 3 a 30 letras, números, - e _ no código.';
+      else if (this.cuponsDb.some((c) => c.codigo === codigo && c.id !== id)) campos['codigo'] = 'Já existe um cupom com esse código.';
+      if (!(dados.valor > 0)) campos['valor'] = 'O desconto precisa ser maior que zero.';
+      else if (dados.tipo === 'percentual' && dados.valor > 100) campos['valor'] = 'A porcentagem vai até 100.';
+      if (Object.keys(campos).length) throw new FalhaFormulario(Object.values(campos)[0], campos);
+
+      const anterior = this.cuponsDb.find((c) => c.id === id);
+      const cupom = this.cupom(id ?? this.novoId(), codigo, dados.descricao, dados.tipo, dados.valor, dados.pedido_minimo, dados.validade, dados.limite_usos, dados.ativo, anterior?.usos ?? 0);
+      this.cuponsDb = id ? this.cuponsDb.map((c) => (c.id === id ? cupom : c)) : [...this.cuponsDb, cupom];
+      return cupom;
+    });
+  }
+
+  excluirCupom(id: number): Observable<void> {
+    return this.responder(() => {
+      const cupom = this.cuponsDb.find((c) => c.id === id);
+      this.cuponsDb = cupom?.usos
+        ? this.cuponsDb.map((c) => (c.id === id ? { ...c, ativo: false } : c))
+        : this.cuponsDb.filter((c) => c.id !== id);
+    });
+  }
+
+  consultarFidelidade(telefone: string): ConsultaFidelidade {
+    const numero = this.telefoneValido(telefone);
+    const selos = this.clientesDb.find((c) => c.telefone === numero)?.selos ?? 0;
+    return { ...this.config.fidelidade, selos, pode_resgatar: selos >= this.config.fidelidade.meta };
+  }
+
+  clientesFidelidade(): Observable<ClientesFidelidade> {
+    return this.responder(() => ({
+      regras: { ...this.config.fidelidade },
+      total: this.clientesDb.length,
+      clientes: [...this.clientesDb]
+        .sort((a, b) => Date.parse(b.ultimo_pedido_em || '0') - Date.parse(a.ultimo_pedido_em || '0'))
+        .map((c) => ({
+          id: c.id,
+          telefone: `(${c.telefone.slice(0, 2)}) ${'•'.repeat(c.telefone.length - 6)}-${c.telefone.slice(-4)}`,
+          selos: c.selos,
+          resgates: c.resgates,
+          pedidos: [...this.extrasPedido.entries()].filter(([pid, e]) => e.clienteId === c.id && this.pedidosDb.find((p) => p.id === pid)?.status.valor !== 'cancelado').length,
+          ultimo_pedido_em: c.ultimo_pedido_em || null,
+        })),
+    }));
+  }
+
+  /* ---------- Insumos ---------- */
+
+  insumos(): Observable<Insumo[]> {
+    return this.responder(() =>
+      [...this.insumosDb]
+        .sort((a, b) => a.nome.localeCompare(b.nome))
+        .map((i) => ({
+          ...i,
+          usado_em: this.produtosDb.filter((p) => (this.fichas.get(p.id) ?? []).some((l) => l.insumo_id === i.id)).map((p) => p.nome),
+        })),
+    );
+  }
+
+  salvarInsumo(dados: InsumoForm, id?: number): Observable<Insumo> {
+    return this.responder(() => {
+      const nome = dados.nome.trim();
+      const campos: Record<string, string> = {};
+      if (!nome) campos['nome'] = 'O nome é obrigatório.';
+      else if (this.insumosDb.some((i) => i.nome.toLowerCase() === nome.toLowerCase() && i.id !== id)) campos['nome'] = 'Já existe um insumo com esse nome.';
+      if (!(dados.estoque >= 0)) campos['estoque'] = 'Informe um estoque igual ou maior que zero.';
+      if (dados.estoque_minimo !== null && !(dados.estoque_minimo >= 0)) campos['estoque_minimo'] = 'Informe um número igual ou maior que zero.';
+      if (Object.keys(campos).length) throw new FalhaFormulario(Object.values(campos)[0], campos);
+
+      const insumo = this.insumo(id ?? this.novoId(), nome, dados.unidade, dados.estoque, dados.estoque_minimo);
+      this.insumosDb = id ? this.insumosDb.map((i) => (i.id === id ? insumo : i)) : [...this.insumosDb, insumo];
+      return insumo;
+    });
+  }
+
+  entradaInsumo(id: number, quantidade: number): Observable<Insumo> {
+    return this.responder(() => {
+      if (!(quantidade > 0)) throw new FalhaFormulario('Digite quanto chegou.');
+      this.mexerInsumos(new Map([[id, quantidade]]), 1);
+      return this.insumosDb.find((i) => i.id === id)!;
+    });
+  }
+
+  excluirInsumo(id: number): Observable<void> {
+    return this.responder(() => {
+      if ([...this.fichas.values()].some((f) => f.some((l) => l.insumo_id === id))) {
+        throw new FalhaFormulario('Este insumo está na ficha de algum produto. Tire ele de lá antes de excluir.');
+      }
+      this.insumosDb = this.insumosDb.filter((i) => i.id !== id);
+    });
+  }
+
+  pedidosPagos(inicio: string, fim: string): Observable<Pedido[]> {
+    return this.responder(() =>
+      this.pedidosDb
+        .filter((p) => p.status_pagamento.valor === 'pago' && p.pago_em && dia(new Date(p.pago_em)) >= inicio && dia(new Date(p.pago_em)) <= fim)
+        .sort((a, b) => Date.parse(a.pago_em!) - Date.parse(b.pago_em!)),
+    );
+  }
+
+  private validarCupom(codigo: string, subtotal: number): Cupom {
+    const cupom = this.cuponsDb.find((c) => c.codigo === codigo.trim().toUpperCase());
+    const problema = !cupom
+      ? 'Não encontramos esse cupom. Confira as letras.'
+      : !cupom.ativo
+        ? 'Este cupom não está mais valendo.'
+        : cupom.validade && cupom.validade < dia(new Date())
+          ? 'Este cupom venceu.'
+          : cupom.limite_usos !== null && cupom.usos >= cupom.limite_usos
+            ? 'Este cupom já atingiu o limite de usos.'
+            : cupom.pedido_minimo !== null && subtotal < cupom.pedido_minimo
+              ? `Este cupom vale para pedidos a partir de R$ ${cupom.pedido_minimo.toFixed(2).replace('.', ',')}.`
+              : null;
+    if (problema) throw new FalhaFormulario(problema, { cupom: problema });
+    return cupom!;
+  }
+
+  private descontoDoCupom(cupom: Cupom, subtotal: number): number {
+    const bruto = cupom.tipo.valor === 'percentual' ? (subtotal * cupom.valor) / 100 : cupom.valor;
+    return centavos(Math.min(bruto, subtotal));
+  }
+
+  private telefoneValido(telefone: string): string {
+    const numero = telefone.replace(/\D/g, '');
+    if (numero.length < 10 || numero.length > 11) {
+      throw new FalhaFormulario('Confira o celular com DDD, por exemplo (11) 98765-4321.', { telefone: 'Celular inválido.' });
+    }
+    return numero;
+  }
+
+  private mexerInsumos(quantidades: Map<number, number>, sinal: 1 | -1): void {
+    this.insumosDb = this.insumosDb.map((i) =>
+      quantidades.has(i.id) ? this.insumo(i.id, i.nome, i.unidade, i.estoque + sinal * quantidades.get(i.id)!, i.estoque_minimo) : i,
+    );
+  }
+
+  private cupom(
+    id: number, codigo: string, descricao: string | null, tipo: 'percentual' | 'valor', valor: number,
+    pedido_minimo: number | null, validade: string | null, limite_usos: number | null, ativo: boolean, usos = 0,
+  ): Cupom {
+    return {
+      id, codigo, descricao, valor, pedido_minimo, validade, limite_usos, ativo, usos,
+      tipo: { valor: tipo, rotulo: tipo === 'percentual' ? 'Porcentagem' : 'Valor fixo' },
+    };
+  }
+
+  private insumo(id: number, nome: string, unidade: Insumo['unidade'], estoque: number, estoque_minimo: number | null): Insumo {
+    const arredondado = Math.round(estoque * 1000) / 1000;
+    return { id, nome, unidade, estoque: arredondado, estoque_minimo, acabando: estoque_minimo !== null && arredondado <= estoque_minimo };
   }
 
   /* ---------- Auxiliares ---------- */
@@ -708,13 +1107,13 @@ export class BancoDemo {
       return d >= inicio && d <= fim;
     });
 
-    const total = centavos(pagos.reduce((s, p) => s + p.subtotal, 0));
+    const total = centavos(pagos.reduce((s, p) => s + p.total, 0));
     const por_forma: TotalForma[] = (Object.keys(FORMAS) as FormaPagamento[]).map((f) => {
       const daForma = pagos.filter((p) => p.forma_pagamento.valor === f);
       return {
         valor: f,
         rotulo: FORMAS[f],
-        total: centavos(daForma.reduce((s, p) => s + p.subtotal, 0)),
+        total: centavos(daForma.reduce((s, p) => s + p.total, 0)),
         quantidade: daForma.length,
       };
     });
@@ -722,7 +1121,7 @@ export class BancoDemo {
     const por_dia: VendaDia[] = [];
     for (let d = new Date(`${inicio}T12:00:00`); dia(d) <= fim; d.setDate(d.getDate() + 1)) {
       const doDia = pagos.filter((p) => dia(new Date(p.pago_em!)) === dia(d));
-      por_dia.push({ data: dia(d), total: centavos(doDia.reduce((s, p) => s + p.subtotal, 0)), quantidade: doDia.length });
+      por_dia.push({ data: dia(d), total: centavos(doDia.reduce((s, p) => s + p.total, 0)), quantidade: doDia.length });
     }
 
     const itens = new Map<string, { quantidade: number; total: number }>();
@@ -770,6 +1169,12 @@ export class BancoDemo {
       });
       const tempo = Math.max(...escolhidos.map((p) => p.tempo_preparo_min));
       const statusOpcao: Opcao<StatusPedido> = { valor: status, rotulo: STATUS[status] };
+      const subtotal = centavos(itens.reduce((s, i) => s + i.total, 0));
+      const consumo: Consumo = aleatorio() < 0.4 ? 'viagem' : 'local';
+      const preparo = Math.max(4, tempo + Math.floor(aleatorio() * 13) - 4);
+      // mais ou menos metade avalia, quase sempre bem
+      const nota = status === 'retirado' && aleatorio() < 0.5 ? [5, 5, 5, 4, 4, 4, 3, 2][Math.floor(aleatorio() * 8)] : null;
+      const comentario = nota && aleatorio() < 0.34 ? COMENTARIOS[nota][Math.floor(aleatorio() * COMENTARIOS[nota].length)] : null;
       pedidos.push({
         id,
         codigo: `A${100 + id}`,
@@ -778,7 +1183,13 @@ export class BancoDemo {
         proximo_status: null,
         status_pagamento: pago ? { valor: 'pago', rotulo: 'Pago' } : { valor: 'pendente', rotulo: 'Pendente' },
         forma_pagamento: { valor: formaPedido, rotulo: FORMAS[formaPedido] },
-        subtotal: centavos(itens.reduce((s, i) => s + i.total, 0)),
+        consumo: { valor: consumo, rotulo: CONSUMO[consumo] },
+        subtotal,
+        desconto: 0,
+        total: subtotal,
+        cupom: null,
+        fidelidade: null,
+        avaliacao: nota ? { nota, comentario, em: new Date(quando.getTime() + 35 * 60_000).toISOString() } : null,
         tempo_estimado_min: tempo,
         minutos_decorridos: 0,
         minutos_atraso: 0,
@@ -786,8 +1197,8 @@ export class BancoDemo {
         itens,
         criado_em: quando.toISOString(),
         pago_em: pago ? quando.toISOString() : null,
-        pronto_em: ['pronto', 'retirado'].includes(status) ? new Date(quando.getTime() + 15 * 60_000).toISOString() : null,
-        finalizado_em: status === 'retirado' ? new Date(quando.getTime() + 20 * 60_000).toISOString() : null,
+        pronto_em: ['pronto', 'retirado'].includes(status) ? new Date(quando.getTime() + preparo * 60_000).toISOString() : null,
+        finalizado_em: status === 'retirado' ? new Date(quando.getTime() + (preparo + 5) * 60_000).toISOString() : null,
       });
       id++;
     };
@@ -799,7 +1210,7 @@ export class BancoDemo {
       const quantidade = (fimDeSemana ? 15 : 9) + Math.floor(aleatorio() * 6);
       for (let i = 0; i < quantidade; i++) {
         const quando = new Date(data);
-        quando.setHours(11 + Math.floor(aleatorio() * 11), Math.floor(aleatorio() * 60), 0, 0);
+        quando.setHours(HORARIOS[Math.floor(aleatorio() * HORARIOS.length)], Math.floor(aleatorio() * 60), 0, 0);
         criar(quando, aleatorio() < 0.04 ? 'cancelado' : 'retirado');
       }
     }

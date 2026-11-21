@@ -145,6 +145,7 @@ export const CARDAPIO_DEMO: Cardapio = {
     frase_totem: 'Monte seu pedido do seu jeito.',
     logo_url: 'demo/gastrotech-logo.jpg',
     tempo_espera_min: 18,
+    fidelidade: { ativa: true, meta: 10, premio: 15 },
   },
   categorias: categorias.map((c) => ({ ...c, produtos: produtos.filter((p) => p.categoria_id === c.id) })),
 };
