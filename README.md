@@ -8,6 +8,10 @@ Esse é o projeto integrador do meu 2º semestre de Sistemas de Informação no 
 
 **[Ver demonstração](https://luizajmm.github.io/gastrotech/)**: roda direto no navegador, com dados de exemplo. Na cozinha e no painel é só escolher um dos acessos de teste.
 
+[![Vídeo de apresentação: pedido no totem, cozinha, TV de retirada e painel](docs/prints/video.png)](https://luizajmm.github.io/gastrotech/apresentacao.mp4)
+
+Vídeo de 4 minutos com som: o pedido saindo do totem e chegando na cozinha, a TV chamando o cliente e o painel do administrador com os cadastros. Também dá pra [baixar na versão 1.0](https://github.com/luizajmm/gastrotech/releases/tag/v1.0).
+
 ![Totem](docs/prints/totem.png)
 
 | Cozinha | Painel |
