@@ -2,22 +2,23 @@
   <div class="identificacao">
     <span class="codigo">{{ pedido().codigo }}</span>
     <span class="cliente">{{ pedido().nome_cliente || 'Cliente' }}</span>
-    @if (pedido().consumo; as consumo) {
-      <span class="consumo" [class.viagem]="consumo.valor === 'viagem'">{{ consumo.rotulo }}</span>
+    <!-- comer aqui é o normal; só avisa quando é pra embalar -->
+    @if (pedido().consumo?.valor === 'viagem') {
+      <span class="viagem">Levar</span>
     }
   </div>
 
   <div class="tempo" [attr.aria-label]="minutos() + ' minutos desde o pedido'">
     @if (pedido().status.valor === 'pronto') {
       <span class="tempo-valor">{{ minutosPronto() | duracao }}</span>
-      <span class="tempo-legenda">esperando retirada</span>
+      <span class="tempo-legenda">esperando</span>
     } @else {
       <span class="tempo-valor">{{ minutos() | duracao }}</span>
       <span class="tempo-legenda">
         @if (atraso() > 0) {
-          {{ atraso() | duracao }} de atraso
+          +{{ atraso() | duracao }}
         } @else {
-          de {{ pedido().tempo_estimado_min | duracao }} previstos
+          de {{ pedido().tempo_estimado_min | duracao }}
         }
       </span>
     }
@@ -65,21 +66,34 @@
       </div>
     </div>
   } @else {
-    <button
-      class="btn btn-largo principal"
-      type="button"
-      [class.btn-brasa]="principal().acao === 'pagamento' || pedido().status.valor !== 'pronto'"
-      [class.btn-tinta]="principal().acao === 'avancar' && pedido().status.valor === 'pronto'"
-      [disabled]="ocupado()"
-      (click)="acao.emit(principal().acao)"
-    >
-      {{ principal().texto }}
-    </button>
-    <div class="secundarias">
-      <button class="cancelar" type="button" (click)="impressao.comanda(pedido())">Imprimir comanda</button>
-      <button class="cancelar" type="button" [disabled]="ocupado()" (click)="confirmandoCancelamento.set(true)">
-        Cancelar pedido
+    <div class="linha-acoes">
+      <button
+        class="btn principal"
+        type="button"
+        [class.btn-brasa]="principal().acao === 'pagamento' || pedido().status.valor !== 'pronto'"
+        [class.btn-tinta]="principal().acao === 'avancar' && pedido().status.valor === 'pronto'"
+        [disabled]="ocupado()"
+        (click)="acao.emit(principal().acao)"
+      >
+        {{ principal().texto }}
+      </button>
+      <button
+        class="mais-opcoes"
+        type="button"
+        [attr.aria-expanded]="menuAberto()"
+        [attr.aria-label]="'Mais opções do ' + pedido().codigo"
+        (click)="menuAberto.set(!menuAberto())"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="19" cy="12" r="1.8" /></svg>
       </button>
     </div>
+    @if (menuAberto()) {
+      <div class="menu" role="group" aria-label="Mais opções">
+        <button type="button" (click)="impressao.comanda(pedido()); menuAberto.set(false)">Imprimir comanda</button>
+        <button type="button" class="perigo" [disabled]="ocupado()" (click)="confirmandoCancelamento.set(true); menuAberto.set(false)">
+          Cancelar pedido
+        </button>
+      </div>
+    }
   }
 </footer>

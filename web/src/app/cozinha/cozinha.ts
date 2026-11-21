@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -62,6 +62,21 @@ export class Cozinha {
       ).length,
   );
 
+  // busca do topo: "203", "a203" ou parte do nome do cliente
+  protected readonly busca = signal('');
+  protected readonly encontrado = computed(() => {
+    const termo = this.busca().trim().toUpperCase();
+    if (!termo) return null;
+    const pedidos = this.fila()?.pedidos ?? [];
+    const codigo = /^\d+$/.test(termo) ? `A${termo}` : termo;
+    return (
+      pedidos.find((p) => p.codigo === codigo) ??
+      pedidos.find((p) => p.codigo.endsWith(termo.replace(/^A/, ''))) ??
+      pedidos.find((p) => (p.nome_cliente ?? '').toUpperCase().includes(termo)) ??
+      null
+    );
+  });
+
   private vistos?: Set<number>;
 
   constructor() {
@@ -69,6 +84,14 @@ export class Cozinha {
     inject(DestroyRef).onDestroy(() => {
       clearInterval(relogio);
       this.som.pararChamada();
+    });
+
+    // achou: mostra a coluna dele (no celular) e rola até o cartão
+    effect(() => {
+      const pedido = this.encontrado();
+      if (!pedido) return;
+      untracked(() => this.aba.set(pedido.status.valor));
+      setTimeout(() => document.querySelector(`[data-pedido="${pedido.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
     });
 
     effect(() => {

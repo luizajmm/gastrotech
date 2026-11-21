@@ -14,6 +14,23 @@
       }
     </div>
 
+    <div class="busca" role="search">
+      <label class="visualmente-oculto" for="busca-pedido">Buscar pedido pelo código ou nome</label>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></svg>
+      <input
+        id="busca-pedido"
+        type="search"
+        autocomplete="off"
+        placeholder="Buscar pedido"
+        [value]="busca()"
+        (input)="busca.set($any($event.target).value)"
+        (keydown.escape)="busca.set('')"
+      />
+      @if (busca().trim() && !encontrado()) {
+        <span class="nao-achou" role="status">não está na fila</span>
+      }
+    </div>
+
     <div class="lado">
       @if (fila(); as f) {
         <span class="conexao">
@@ -74,6 +91,8 @@
                 [novo]="novos().has(pedido.id)"
                 [ocupado]="ocupados().has(pedido.id)"
                 [podeAlterar]="podeAlterar"
+                [destacado]="encontrado()?.id === pedido.id"
+                [attr.data-pedido]="pedido.id"
                 (acao)="executar(pedido, $event)"
               />
             } @empty {

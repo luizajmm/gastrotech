@@ -13,7 +13,10 @@ export type AcaoPedido = 'avancar' | 'cancelar' | 'pagamento';
   templateUrl: './pedido-cartao.html',
   styleUrl: './pedido-cartao.css',
   host: {
-    '[class.atrasado]': 'atraso() > 0',
+    // pouco atraso fica laranja; vermelho só quando passou bastante
+    '[class.atrasado]': 'atraso() > 0 && !muitoAtrasado()',
+    '[class.muito-atrasado]': 'muitoAtrasado()',
+    '[class.destacado]': 'destacado()',
     '[class.novo]': 'novo()',
     '[attr.aria-label]': '"Pedido " + pedido().codigo',
     role: 'article',
@@ -26,12 +29,15 @@ export class PedidoCartao {
   readonly novo = input(false);
   readonly ocupado = input(false);
   readonly podeAlterar = input(true);
+  // achado pela busca do topo
+  readonly destacado = input(false);
 
   readonly acao = output<AcaoPedido>();
 
   protected readonly impressao = inject(Impressao);
 
   protected readonly confirmandoCancelamento = signal(false);
+  protected readonly menuAberto = signal(false);
 
   protected readonly minutos = computed(() =>
     Math.max(0, Math.floor((this.agora() - Date.parse(this.pedido().criado_em)) / 60_000)),
@@ -47,6 +53,8 @@ export class PedidoCartao {
     if (status !== 'recebido' && status !== 'em_preparo') return 0;
     return Math.max(0, this.minutos() - this.pedido().tempo_estimado_min);
   });
+
+  protected readonly muitoAtrasado = computed(() => this.atraso() >= Math.max(10, this.pedido().tempo_estimado_min / 2));
 
   protected readonly pendente = computed(() => this.pedido().status_pagamento.valor === 'pendente');
 
