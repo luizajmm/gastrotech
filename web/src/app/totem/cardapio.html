@@ -46,8 +46,8 @@
         </header>
 
         <ul class="grade">
-          @for (produto of categoria.produtos; track produto.id; let primeiro = $first) {
-            <li [class.grande]="primeiro && categoria.produtos.length > 1">
+          @for (produto of categoria.produtos; track produto.id) {
+            <li>
               <button type="button" class="produto" (click)="aberto.set(produto)">
                 <div class="foto">
                   @if (produto.imagem_url) {
